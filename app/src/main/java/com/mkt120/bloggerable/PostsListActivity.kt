@@ -1,0 +1,106 @@
+package com.mkt120.bloggerable
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.PostsResponse
+import kotlinx.android.synthetic.main.activity_blog_list.*
+import kotlinx.android.synthetic.main.include_posts_view_holder.view.*
+
+class PostsListActivity : AppCompatActivity() {
+
+    companion object {
+        private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
+        private const val EXTRA_KEY_BLOG_NAME = "EXTRA_KEY_BLOG_NAME"
+
+        fun createIntent(context: Context, blogId: String, name:String): Intent =
+            Intent(context, PostsListActivity::class.java).apply {
+                putExtra(EXTRA_KEY_BLOG_ID, blogId)
+                putExtra(EXTRA_KEY_BLOG_NAME, name)
+            }
+    }
+
+    var response: PostsResponse? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_posts_list)
+        recycler_view.adapter = PostsAdapter(response, object : PostsAdapter.PostsClickListener {
+            override fun onClick(posts: Posts) {
+                Toast.makeText(this@PostsListActivity, posts.title, Toast.LENGTH_SHORT).show()
+            }
+        })
+        val name = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)
+        title = name
+
+        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
+
+        ApiManager.getPosts(this@PostsListActivity, blogId!!, object : ApiManager.PostsListener {
+            override fun onResponse(posts: PostsResponse?) {
+                response = posts
+                val adapter = recycler_view.adapter
+                if (adapter is PostsAdapter) {
+                    adapter.setData(posts!!)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        })
+    }
+
+    class PostsAdapter(var posts: PostsResponse? = null, private val listener: PostsClickListener) :
+        RecyclerView.Adapter<PostsAdapter.PostsViewHolder>() {
+
+        fun setData(posts: PostsResponse) {
+            this.posts = posts
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostsViewHolder {
+            return PostsViewHolder.createViewHolder(parent)
+        }
+
+        override fun onBindViewHolder(holder: PostsViewHolder, position: Int) {
+            holder.bindData(posts!!.items!![position], listener)
+        }
+
+        override fun getItemCount(): Int {
+            if (posts == null || posts!!.items == null) {
+                return 0
+            }
+            if (posts!!.items!!.isEmpty()) {
+                // todo: emptyView
+            }
+            return posts!!.items!!.size
+        }
+
+        class PostsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            companion object {
+                fun createViewHolder(rootView: ViewGroup): PostsViewHolder =
+                    PostsViewHolder(
+                        LayoutInflater.from(rootView.context).inflate(
+                            R.layout.include_posts_view_holder,
+                            rootView, false
+                        )
+                    )
+            }
+
+            fun bindData(posts: Posts, listener: PostsClickListener) {
+                itemView.title_view.text = posts.title
+                itemView.contents_view.text = posts.content
+                itemView.setOnClickListener {
+                    listener.onClick(posts)
+                }
+            }
+        }
+
+        interface PostsClickListener {
+            fun onClick(posts: Posts)
+        }
+    }
+}

@@ -76,7 +76,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestAccessToken(account: GoogleSignInAccount) {
-        ApiManager.requestAccessToken(this@MainActivity, account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "")
+        ApiManager.requestAccessToken(this@MainActivity, account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "", object : ApiManager.Listener {
+            override fun onResponse() {
+                val intent = Intent(this@MainActivity, BlogListActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        })
     }
 
 }

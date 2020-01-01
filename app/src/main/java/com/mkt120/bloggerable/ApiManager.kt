@@ -2,6 +2,9 @@ package com.mkt120.bloggerable
 
 import android.content.Context
 import android.util.Log
+import com.mkt120.bloggerable.model.BlogsResponse
+import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.PostsResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -20,7 +23,7 @@ object ApiManager {
 
     private const val ACCESS_TYPE: String = "offline"
 
-    private val oauthService: ApiService
+    private val apiService: ApiService
 
     init {
         val httpClient = OkHttpClient.Builder()
@@ -34,17 +37,21 @@ object ApiManager {
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
-        oauthService = retrofit.create(ApiService::class.java)
+        apiService = retrofit.create(ApiService::class.java)
     }
 
+    /**
+     * アクセストークン取得する
+     */
     fun requestAccessToken(
         context: Context,
         authorizationCode: String,
         clientId: String,
         clientSecret: String,
-        redirectUri: String
+        redirectUri: String,
+        listener: Listener
     ) {
-        oauthService.postAccessToken(
+        apiService.postAccessToken(
             authorizationCode,
             clientId,
             clientSecret,
@@ -59,10 +66,11 @@ object ApiManager {
                 Log.d(TAG, "onResponse")
                 response?.let {
                     if (response.isSuccessful) {
-                        Log.d(TAG, "response=$response")
+                        Log.d(TAG, "blogsResponse=$response")
                         Log.d(TAG, "oauthResponse=${response.body()}")
                         val access = response.body()?.access_token
                         val refresh = response.body()?.refresh_token
+
                         context.getSharedPreferences(
                             "com.mkt120.bloggerable.pref",
                             Context.MODE_PRIVATE
@@ -72,11 +80,64 @@ object ApiManager {
                             Context.MODE_PRIVATE
                         ).edit().putString("KEY_ACCESS_REFRESH", refresh).apply()
                     }
+                    listener.onResponse()
                 }
             }
 
             override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {}
         })
+    }
+
+    /**
+     * ブログリストを取得する
+     */
+    fun getBlogs(context: Context, listener: BlogListener) {
+        val accessToken = context.getSharedPreferences(
+            "com.mkt120.bloggerable.pref",
+            Context.MODE_PRIVATE).getString("KEY_ACCESS_TOKEN", null)
+        apiService.listByUser("Bearer $accessToken", "self", BuildConfig.BLOGGERABLE_API_KEY)
+            .enqueue(object : Callback<BlogsResponse> {
+                override fun onResponse(call: Call<BlogsResponse>, response: Response<BlogsResponse>) {
+                    val list = response.body()
+                    listener.onResponse(list)
+                }
+                override fun onFailure(call: Call<BlogsResponse>, t: Throwable) {
+                    Log.d(TAG, "onFailure", t)
+                }
+            })
+    }
+
+    /**
+     * 記事一覧を取得する
+     */
+    fun getPosts(context: Context, blogId: String, listener: PostsListener) {
+        val accessToken = context.getSharedPreferences(
+            "com.mkt120.bloggerable.pref",
+            Context.MODE_PRIVATE).getString("KEY_ACCESS_TOKEN", null)
+        apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY)
+            .enqueue(object : Callback<PostsResponse> {
+                override fun onResponse(
+                    call: Call<PostsResponse>,
+                    response: Response<PostsResponse>
+                ) {
+                    val list = response.body()
+                    listener.onResponse(list)
+                }
+                override fun onFailure(call: Call<PostsResponse>, t: Throwable) {
+                }
+
+            })
+    }
+
+    public interface Listener {
+        fun onResponse()
+    }
+
+    public interface BlogListener {
+        fun onResponse(blogList: BlogsResponse?)
+    }
+    public interface PostsListener {
+        fun onResponse(post: PostsResponse?)
     }
 
     data class OauthResponse(
@@ -91,6 +152,5 @@ object ApiManager {
         override fun toString(): String {
             return "OauthResponse(access_token=$access_token, token_type=$token_type, expires_in=$expires_in, refresh_token=$refresh_token, scope=$scope)"
         }
-
     }
 }

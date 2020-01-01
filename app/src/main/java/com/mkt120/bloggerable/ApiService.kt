@@ -1,9 +1,9 @@
 package com.mkt120.bloggerable
 
+import com.mkt120.bloggerable.model.BlogsResponse
+import com.mkt120.bloggerable.model.PostsResponse
 import retrofit2.Call
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.*
 
 
 interface ApiService {
@@ -18,5 +18,11 @@ interface ApiService {
         @Field("grant_type") grantType: String,
         @Field("access_type") accessType: String
     ): Call<ApiManager.OauthResponse>
+
+    @GET("blogger/v3/users/{userId}/blogs")
+    fun listByUser(@Header("Authorization") accessToken: String?, @Path("userId") userId: String, @Query("key") apiKey: String): Call<BlogsResponse>
+
+    @GET("blogger/v3/blogs/{blogId}/posts")
+    fun getPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String): Call<PostsResponse>
 
 }
