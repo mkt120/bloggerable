@@ -70,6 +70,7 @@ object ApiManager {
                         Log.d(TAG, "oauthResponse=${response.body()}")
                         val access = response.body()?.access_token
                         val refresh = response.body()?.refresh_token
+                        val expiresMillis = response.body()!!.getExpiredDateMillis()
 
                         context.getSharedPreferences(
                             "com.mkt120.bloggerable.pref",
@@ -79,6 +80,10 @@ object ApiManager {
                             "com.mkt120.bloggerable.pref",
                             Context.MODE_PRIVATE
                         ).edit().putString("KEY_ACCESS_REFRESH", refresh).apply()
+                        context.getSharedPreferences(
+                            "com.mkt120.bloggerable.pref",
+                            Context.MODE_PRIVATE
+                        ).edit().putLong("KEY_ACCESS_EXPIRES_MILLIS", expiresMillis).apply()
                     }
                     listener.onResponse()
                 }
@@ -151,6 +156,11 @@ object ApiManager {
 
         override fun toString(): String {
             return "OauthResponse(access_token=$access_token, token_type=$token_type, expires_in=$expires_in, refresh_token=$refresh_token, scope=$scope)"
+        }
+
+        fun getExpiredDateMillis() :Long {
+            val expiresMillis = expires_in!! * 1000L
+            return System.currentTimeMillis() + expiresMillis
         }
     }
 }

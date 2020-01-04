@@ -1,5 +1,6 @@
 package com.mkt120.bloggerable
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -32,10 +33,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val expire = getSharedPreferences(
+            "com.mkt120.bloggerable.pref",
+            Context.MODE_PRIVATE
+        ).getLong("KEY_ACCESS_EXPIRES_MILLIS", 0L)
+        if (expire >= System.currentTimeMillis()) {
+            goBlogList()
+            return
+        }
+
         setContentView(R.layout.activity_main)
 
         sign_in_button.setSize(SignInButton.SIZE_STANDARD)
         sign_in_button.setOnClickListener {
+            // try to sign in
             signInRequest()
         }
     }
@@ -78,11 +90,15 @@ class MainActivity : AppCompatActivity() {
     private fun requestAccessToken(account: GoogleSignInAccount) {
         ApiManager.requestAccessToken(this@MainActivity, account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "", object : ApiManager.Listener {
             override fun onResponse() {
-                val intent = Intent(this@MainActivity, BlogListActivity::class.java)
-                startActivity(intent)
-                finish()
+                goBlogList()
             }
         })
+    }
+
+    private fun goBlogList() {
+        val intent = Intent(this@MainActivity, BlogListActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
 }
