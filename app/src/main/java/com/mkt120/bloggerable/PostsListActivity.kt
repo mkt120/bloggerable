@@ -21,7 +21,7 @@ class PostsListActivity : AppCompatActivity() {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
         private const val EXTRA_KEY_BLOG_NAME = "EXTRA_KEY_BLOG_NAME"
 
-        fun createIntent(context: Context, blogId: String, name:String): Intent =
+        fun createIntent(context: Context, blogId: String, name: String): Intent =
             Intent(context, PostsListActivity::class.java).apply {
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
                 putExtra(EXTRA_KEY_BLOG_NAME, name)
@@ -35,7 +35,8 @@ class PostsListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_posts_list)
         recycler_view.adapter = PostsAdapter(response, object : PostsAdapter.PostsClickListener {
             override fun onClick(posts: Posts) {
-                Toast.makeText(this@PostsListActivity, posts.title, Toast.LENGTH_SHORT).show()
+                val intent = PostsDetailActivity.createIntent(this@PostsListActivity, posts.id!!, posts.title!!, posts.content!!)
+                startActivity(intent)
             }
         })
         val name = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)

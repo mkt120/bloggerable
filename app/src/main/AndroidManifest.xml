@@ -22,6 +22,7 @@
         <activity android:name=".BlogListActivity" />
         <activity android:name=".PostsListActivity" />
         <activity android:name=".CreatePostsActivity" />
+        <activity android:name=".PostsDetailActivity" />
     </application>
 
 </manifest>
