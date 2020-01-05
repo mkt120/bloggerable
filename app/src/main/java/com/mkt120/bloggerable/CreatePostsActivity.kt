@@ -33,6 +33,13 @@ class CreatePostsActivity : AppCompatActivity() {
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
         val title = edit_text_title.text.toString()
         val contentTemporary = edit_text_contents.text.toString()
+
+        if (title.isEmpty()) {
+            // 空 empty title
+            Toast.makeText(this@CreatePostsActivity, "タイトルがありません", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val span = SpannableStringBuilder(contentTemporary)
         val content = Html.toHtml(span, 0)
 
