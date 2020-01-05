@@ -25,4 +25,7 @@ interface ApiService {
     @GET("blogger/v3/blogs/{blogId}/posts")
     fun getPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String): Call<PostsResponse>
 
+    @POST("blogger/v3/blogs/{blogId}/posts")
+    fun createPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String,@Body post: HashMap<String, String>): Call<Any>
+
 }

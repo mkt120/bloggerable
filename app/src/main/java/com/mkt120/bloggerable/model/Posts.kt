@@ -6,4 +6,13 @@ data class Posts(
     var url: String? = null,
     var selfLink: String? = null,
     var title:String? = null,
-    var content:String? = null)
+    var content:String? = null) {
+
+    companion object {
+        public fun createPosts(title:String, content:String) : HashMap<String, String> =
+            HashMap<String, String>().apply {
+                this["title"] = title
+                this["content"] = content
+            }
+    }
+}

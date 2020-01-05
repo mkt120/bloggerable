@@ -99,10 +99,14 @@ object ApiManager {
     fun getBlogs(context: Context, listener: BlogListener) {
         val accessToken = context.getSharedPreferences(
             "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE).getString("KEY_ACCESS_TOKEN", null)
+            Context.MODE_PRIVATE
+        ).getString("KEY_ACCESS_TOKEN", null)
         apiService.listByUser("Bearer $accessToken", "self", BuildConfig.BLOGGERABLE_API_KEY)
             .enqueue(object : Callback<BlogsResponse> {
-                override fun onResponse(call: Call<BlogsResponse>, response: Response<BlogsResponse>) {
+                override fun onResponse(
+                    call: Call<BlogsResponse>,
+                    response: Response<BlogsResponse>
+                ) {
                     val list = response.body()
                     listener.onResponse(list)
                 }
@@ -118,7 +122,8 @@ object ApiManager {
     fun getPosts(context: Context, blogId: String, listener: PostsListener) {
         val accessToken = context.getSharedPreferences(
             "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE).getString("KEY_ACCESS_TOKEN", null)
+            Context.MODE_PRIVATE
+        ).getString("KEY_ACCESS_TOKEN", null)
         apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY)
             .enqueue(object : Callback<PostsResponse> {
                 override fun onResponse(
@@ -134,6 +139,28 @@ object ApiManager {
             })
     }
 
+    fun createPosts(context:Context, blogId: String, title: String, content: String, listener:CompleteListener) {
+        val accessToken = context.getSharedPreferences(
+            "com.mkt120.bloggerable.pref",
+            Context.MODE_PRIVATE
+        ).getString("KEY_ACCESS_TOKEN", null)
+        val posts = Posts.createPosts(title, content)
+        apiService.createPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY, posts)
+            .enqueue(object : Callback<Any> {
+                override fun onResponse(
+                    call: Call<Any>,
+                    response: Response<Any>
+                ) {
+                    listener.onComplete()
+                }
+
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d(TAG, "onFailure", t)
+                    listener.onFailed(t)
+                }
+            })
+    }
+
     public interface Listener {
         fun onResponse()
     }
@@ -141,8 +168,14 @@ object ApiManager {
     public interface BlogListener {
         fun onResponse(blogList: BlogsResponse?)
     }
+
     public interface PostsListener {
         fun onResponse(post: PostsResponse?)
+    }
+
+    public interface CompleteListener {
+        fun onComplete()
+        fun onFailed(t: Throwable)
     }
 
     data class OauthResponse(

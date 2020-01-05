@@ -3,6 +3,7 @@ package com.mkt120.bloggerable
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.model.Posts
 import com.mkt120.bloggerable.model.PostsResponse
-import kotlinx.android.synthetic.main.activity_blog_list.*
+import kotlinx.android.synthetic.main.activity_posts_list.*
 import kotlinx.android.synthetic.main.include_posts_view_holder.view.*
 
 class PostsListActivity : AppCompatActivity() {
@@ -52,6 +53,11 @@ class PostsListActivity : AppCompatActivity() {
                 }
             }
         })
+
+        fab.setOnClickListener {
+            val intent = CreatePostsActivity.createIntent(this@PostsListActivity, blogId)
+            startActivity(intent)
+        }
     }
 
     class PostsAdapter(var posts: PostsResponse? = null, private val listener: PostsClickListener) :
@@ -91,8 +97,8 @@ class PostsListActivity : AppCompatActivity() {
             }
 
             fun bindData(posts: Posts, listener: PostsClickListener) {
-                itemView.title_view.text = posts.title
-                itemView.contents_view.text = posts.content
+                itemView.title_view.text = Html.fromHtml(posts.title, 0)
+                itemView.contents_view.text = Html.fromHtml(posts.content, 0)
                 itemView.setOnClickListener {
                     listener.onClick(posts)
                 }
