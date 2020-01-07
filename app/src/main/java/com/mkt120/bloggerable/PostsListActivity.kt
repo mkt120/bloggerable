@@ -35,8 +35,9 @@ class PostsListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_posts_list)
         recycler_view.adapter = PostsAdapter(response, object : PostsAdapter.PostsClickListener {
             override fun onClick(posts: Posts) {
-                val intent = PostsDetailActivity.createIntent(this@PostsListActivity, posts.id!!, posts.title!!, posts.content!!)
-                startActivity(intent)
+                val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
+                val i = PostsDetailActivity.createIntent(this@PostsListActivity, blogId!!, posts.id!!, posts.title!!, posts.content!!)
+                startActivity(i)
             }
         })
         val name = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)

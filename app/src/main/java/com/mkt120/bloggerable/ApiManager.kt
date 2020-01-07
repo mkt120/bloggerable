@@ -161,6 +161,27 @@ object ApiManager {
             })
     }
 
+    fun deletePosts(context:Context, blogId: String, postId: String, listener:CompleteListener) {
+        val accessToken = context.getSharedPreferences(
+            "com.mkt120.bloggerable.pref",
+            Context.MODE_PRIVATE
+        ).getString("KEY_ACCESS_TOKEN", null)
+        apiService.deletePosts("Bearer $accessToken", blogId, postId, BuildConfig.BLOGGERABLE_API_KEY)
+            .enqueue(object : Callback<Any> {
+                override fun onResponse(
+                    call: Call<Any>,
+                    response: Response<Any>
+                ) {
+                    listener.onComplete()
+                }
+
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d(TAG, "onFailure", t)
+                    listener.onFailed(t)
+                }
+            })
+    }
+
     public interface Listener {
         fun onResponse()
     }
