@@ -1,6 +1,5 @@
 package com.mkt120.bloggerable
 
-import android.content.Context
 import android.util.Log
 import com.mkt120.bloggerable.model.BlogsResponse
 import com.mkt120.bloggerable.model.Posts
@@ -19,7 +18,8 @@ object ApiManager {
 
     private const val BASE_URL: String = "https://www.googleapis.com/"
 
-    private const val GRANT_TYPE: String = "authorization_code"
+    private const val GRANT_TYPE_AUTHORIZATION_CODE: String = "authorization_code"
+    private const val GRANT_TYPE_REFRESH_TOKEN: String = "refresh_token"
 
     private const val ACCESS_TYPE: String = "offline"
 
@@ -55,7 +55,7 @@ object ApiManager {
             clientId,
             clientSecret,
             redirectUri,
-            GRANT_TYPE,
+            GRANT_TYPE_AUTHORIZATION_CODE,
             ACCESS_TYPE
         ).enqueue(object : Callback<OauthResponse> {
             override fun onResponse(
@@ -86,6 +86,44 @@ object ApiManager {
 
             override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {}
         })
+    }
+
+    fun refreshToken(
+        authorizationCode: String,
+        clientId: String,
+        clientSecret: String,
+        redirectUri: String,
+        listener: Listener) {
+
+        apiService.refreshToken(authorizationCode, clientId, clientSecret, redirectUri, GRANT_TYPE_REFRESH_TOKEN)
+            .enqueue(object : Callback<OauthResponse> {
+                override fun onResponse(
+                call: Call<OauthResponse>?,
+                response: Response<OauthResponse>?) {
+                Log.d(TAG, "onResponse")
+                response?.let {
+                    if (response.isSuccessful) {
+                        Log.d(TAG, "blogsResponse=$response")
+                        Log.d(TAG, "oauthResponse=${response.body()}")
+                        response.body()?.apply {
+                            access_token?.let {
+                                PreferenceManager.accessToken = it
+                            }
+                            refresh_token?.let {
+                                PreferenceManager.refreshToken = it
+                            }
+                            expires_in?.let {
+                                PreferenceManager.tokenExpiredDateMillis =
+                                    System.currentTimeMillis() + it * 1000L
+                            }
+                        }
+                    }
+                    listener.onResponse()
+                }
+            }
+            override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {}
+        })
+
     }
 
     /**

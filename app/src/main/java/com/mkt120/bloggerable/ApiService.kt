@@ -19,6 +19,17 @@ interface ApiService {
         @Field("access_type") accessType: String
     ): Call<ApiManager.OauthResponse>
 
+    @FormUrlEncoded
+    @POST("oauth2/v4/token")
+    fun refreshToken(
+        @Field("code") authorizationCode: String,
+        @Field("client_id") clientId: String,
+        @Field("client_secret") clientSecret: String,
+        @Field("redirect_uri") redirectUri: String,
+        @Field("grant_type") grantType: String
+    ): Call<ApiManager.OauthResponse>
+
+
     @GET("blogger/v3/users/{userId}/blogs")
     fun listByUser(@Header("Authorization") accessToken: String?, @Path("userId") userId: String, @Query("key") apiKey: String): Call<BlogsResponse>
 
