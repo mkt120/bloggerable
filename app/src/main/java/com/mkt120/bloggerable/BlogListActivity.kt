@@ -1,6 +1,5 @@
 package com.mkt120.bloggerable
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,12 +27,16 @@ class BlogListActivity : AppCompatActivity() {
             BlogListAdapter(blogsResponse, object : BlogListAdapter.BlogClickListener {
                 override fun onClick(blogs: Blogs) {
                     val intent =
-                        PostsListActivity.createIntent(this@BlogListActivity, blogs.id!!, blogs.name!!)
+                        PostsListActivity.createIntent(
+                            this@BlogListActivity,
+                            blogs.id!!,
+                            blogs.name!!
+                        )
                     startActivity(intent)
                 }
             })
 
-        ApiManager.getBlogs(this@BlogListActivity, object : ApiManager.BlogListener {
+        ApiManager.getBlogs(object : ApiManager.BlogListener {
             override fun onResponse(blogList: BlogsResponse?) {
                 Log.d(TAG, "list=$blogList")
                 blogsResponse = blogList

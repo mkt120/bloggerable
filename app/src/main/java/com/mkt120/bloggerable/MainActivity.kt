@@ -1,6 +1,5 @@
 package com.mkt120.bloggerable
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -34,10 +33,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val expire = getSharedPreferences(
-            "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE
-        ).getLong("KEY_ACCESS_EXPIRES_MILLIS", 0L)
+        val expire = PreferenceManager.tokenExpiredDateMillis
         if (expire >= System.currentTimeMillis()) {
             goBlogList()
             return
@@ -88,7 +84,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestAccessToken(account: GoogleSignInAccount) {
-        ApiManager.requestAccessToken(this@MainActivity, account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "", object : ApiManager.Listener {
+        ApiManager.requestAccessToken(account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "", object : ApiManager.Listener {
             override fun onResponse() {
                 goBlogList()
             }

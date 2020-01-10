@@ -44,7 +44,6 @@ object ApiManager {
      * アクセストークン取得する
      */
     fun requestAccessToken(
-        context: Context,
         authorizationCode: String,
         clientId: String,
         clientSecret: String,
@@ -68,22 +67,18 @@ object ApiManager {
                     if (response.isSuccessful) {
                         Log.d(TAG, "blogsResponse=$response")
                         Log.d(TAG, "oauthResponse=${response.body()}")
-                        val access = response.body()?.access_token
-                        val refresh = response.body()?.refresh_token
-                        val expiresMillis = response.body()!!.getExpiredDateMillis()
-
-                        context.getSharedPreferences(
-                            "com.mkt120.bloggerable.pref",
-                            Context.MODE_PRIVATE
-                        ).edit().putString("KEY_ACCESS_TOKEN", access).apply()
-                        context.getSharedPreferences(
-                            "com.mkt120.bloggerable.pref",
-                            Context.MODE_PRIVATE
-                        ).edit().putString("KEY_ACCESS_REFRESH", refresh).apply()
-                        context.getSharedPreferences(
-                            "com.mkt120.bloggerable.pref",
-                            Context.MODE_PRIVATE
-                        ).edit().putLong("KEY_ACCESS_EXPIRES_MILLIS", expiresMillis).apply()
+                        response.body()?.apply {
+                            access_token?.let {
+                                PreferenceManager.accessToken = it
+                            }
+                            refresh_token?.let {
+                                PreferenceManager.refreshToken = it
+                            }
+                            expires_in?.let {
+                                PreferenceManager.tokenExpiredDateMillis =
+                                    System.currentTimeMillis() + it * 1000L
+                            }
+                        }
                     }
                     listener.onResponse()
                 }
@@ -96,11 +91,8 @@ object ApiManager {
     /**
      * ブログリストを取得する
      */
-    fun getBlogs(context: Context, listener: BlogListener) {
-        val accessToken = context.getSharedPreferences(
-            "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE
-        ).getString("KEY_ACCESS_TOKEN", null)
+    fun getBlogs(listener: BlogListener) {
+        val accessToken = PreferenceManager.accessToken
         apiService.listByUser("Bearer $accessToken", "self", BuildConfig.BLOGGERABLE_API_KEY)
             .enqueue(object : Callback<BlogsResponse> {
                 override fun onResponse(
@@ -110,6 +102,7 @@ object ApiManager {
                     val list = response.body()
                     listener.onResponse(list)
                 }
+
                 override fun onFailure(call: Call<BlogsResponse>, t: Throwable) {
                     Log.d(TAG, "onFailure", t)
                 }
@@ -119,11 +112,8 @@ object ApiManager {
     /**
      * 記事一覧を取得する
      */
-    fun getPosts(context: Context, blogId: String, listener: PostsListener) {
-        val accessToken = context.getSharedPreferences(
-            "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE
-        ).getString("KEY_ACCESS_TOKEN", null)
+    fun getPosts(blogId: String, listener: PostsListener) {
+        val accessToken = PreferenceManager.accessToken
         apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY)
             .enqueue(object : Callback<PostsResponse> {
                 override fun onResponse(
@@ -133,19 +123,22 @@ object ApiManager {
                     val list = response.body()
                     listener.onResponse(list)
                 }
+
                 override fun onFailure(call: Call<PostsResponse>, t: Throwable) {
                 }
 
             })
     }
 
-    fun createPosts(context:Context, blogId: String, title: String, content: String, listener:CompleteListener) {
-        val accessToken = context.getSharedPreferences(
-            "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE
-        ).getString("KEY_ACCESS_TOKEN", null)
+    fun createPosts(blogId: String, title: String, content: String, listener: CompleteListener) {
+        val accessToken = PreferenceManager.accessToken
         val posts = Posts.createPosts(title, content)
-        apiService.createPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY, posts)
+        apiService.createPosts(
+            "Bearer $accessToken",
+            blogId,
+            BuildConfig.BLOGGERABLE_API_KEY,
+            posts
+        )
             .enqueue(object : Callback<Any> {
                 override fun onResponse(
                     call: Call<Any>,
@@ -161,12 +154,14 @@ object ApiManager {
             })
     }
 
-    fun deletePosts(context:Context, blogId: String, postId: String, listener:CompleteListener) {
-        val accessToken = context.getSharedPreferences(
-            "com.mkt120.bloggerable.pref",
-            Context.MODE_PRIVATE
-        ).getString("KEY_ACCESS_TOKEN", null)
-        apiService.deletePosts("Bearer $accessToken", blogId, postId, BuildConfig.BLOGGERABLE_API_KEY)
+    fun deletePosts(blogId: String, postId: String, listener: CompleteListener) {
+        val accessToken = PreferenceManager.accessToken
+        apiService.deletePosts(
+            "Bearer $accessToken",
+            blogId,
+            postId,
+            BuildConfig.BLOGGERABLE_API_KEY
+        )
             .enqueue(object : Callback<Any> {
                 override fun onResponse(
                     call: Call<Any>,
@@ -210,11 +205,6 @@ object ApiManager {
 
         override fun toString(): String {
             return "OauthResponse(access_token=$access_token, token_type=$token_type, expires_in=$expires_in, refresh_token=$refresh_token, scope=$scope)"
-        }
-
-        fun getExpiredDateMillis() :Long {
-            val expiresMillis = expires_in!! * 1000L
-            return System.currentTimeMillis() + expiresMillis
         }
     }
 }

@@ -45,7 +45,7 @@ class PostsListActivity : AppCompatActivity() {
 
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
 
-        ApiManager.getPosts(this@PostsListActivity, blogId!!, object : ApiManager.PostsListener {
+        ApiManager.getPosts(blogId!!, object : ApiManager.PostsListener {
             override fun onResponse(posts: PostsResponse?) {
                 response = posts
                 val adapter = recycler_view.adapter

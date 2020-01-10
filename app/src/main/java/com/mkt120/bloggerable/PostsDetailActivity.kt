@@ -57,7 +57,6 @@ class PostsDetailActivity : AppCompatActivity() {
 
     private fun deletePosts(blogId: String, postsId: String) {
         ApiManager.deletePosts(
-            this@PostsDetailActivity,
             blogId,
             postsId,
             object : ApiManager.CompleteListener {

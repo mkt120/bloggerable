@@ -43,7 +43,7 @@ class CreatePostsActivity : AppCompatActivity() {
         val span = SpannableStringBuilder(contentTemporary)
         val content = Html.toHtml(span, 0)
 
-        ApiManager.createPosts(this@CreatePostsActivity, blogId, title, content, object : ApiManager.CompleteListener {
+        ApiManager.createPosts(blogId, title, content, object : ApiManager.CompleteListener {
             override fun onComplete() {
                 Toast.makeText(this@CreatePostsActivity, "成功しました", Toast.LENGTH_SHORT).show()
                 finish()
