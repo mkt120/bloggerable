@@ -89,13 +89,13 @@ object ApiManager {
     }
 
     fun refreshToken(
-        authorizationCode: String,
         clientId: String,
         clientSecret: String,
         redirectUri: String,
+        refreshToken:String,
         listener: Listener) {
 
-        apiService.refreshToken(authorizationCode, clientId, clientSecret, redirectUri, GRANT_TYPE_REFRESH_TOKEN)
+        apiService.refreshToken(clientId, clientSecret, redirectUri, refreshToken, GRANT_TYPE_REFRESH_TOKEN)
             .enqueue(object : Callback<OauthResponse> {
                 override fun onResponse(
                 call: Call<OauthResponse>?,
