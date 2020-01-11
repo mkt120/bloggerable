@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         const val STRING_SCOPE_BLOGGER = "https://www.googleapis.com/auth/blogger"
 
         const val REQUEST_SIGN_IN: Int = 100
-        const val REQUEST_REFRESH_TOKEN: Int = 200
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         val refreshToken = PreferenceManager.refreshToken
         if (refreshToken.isNotEmpty()) {
             // リフレッシュトークンがあるのでリフレッシュ
-            signInRequest(REQUEST_REFRESH_TOKEN)
+            refreshToken()
             return
         }
 
@@ -53,18 +52,18 @@ class MainActivity : AppCompatActivity() {
         sign_in_button.setSize(SignInButton.SIZE_STANDARD)
         sign_in_button.setOnClickListener {
             // try to sign in
-            signInRequest(REQUEST_SIGN_IN)
+            signInRequest()
         }
     }
 
-    private fun signInRequest(requestCode: Int) {
+    private fun signInRequest() {
         val option = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestServerAuthCode(CLIENT_ID)
             .requestScopes(Scope(STRING_SCOPE_BLOGGER))
             .build()
         val googleSignInClient = GoogleSignIn.getClient(this, option)
         val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, requestCode)
+        startActivityForResult(signInIntent, REQUEST_SIGN_IN)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -73,8 +72,6 @@ class MainActivity : AppCompatActivity() {
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
         if (requestCode == REQUEST_SIGN_IN) {
             handleSignInResult(task)
-        } else if (requestCode == REQUEST_REFRESH_TOKEN) {
-            refreshToken(task.getResult(ApiException::class.java)!!)
         }
     }
 
@@ -102,8 +99,9 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun refreshToken(account: GoogleSignInAccount) {
-        ApiManager.refreshToken(account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "", object :ApiManager.Listener{
+    private fun refreshToken() {
+        val refreshToken = PreferenceManager.refreshToken
+        ApiManager.refreshToken(CLIENT_ID, CLIENT_SECRET, "", refreshToken, object :ApiManager.Listener{
             override fun onResponse() {
                 goBlogList()
             }
