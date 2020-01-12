@@ -31,8 +31,16 @@ android {
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE-LGPL-2.1.txt'
+        exclude 'META-INF/LICENSE-LGPL-3.txt'
+        exclude 'META-INF/LICENSE-W3C-TEST'
     }
-
+    android {
+        compileOptions {
+            targetCompatibility = "8"
+            sourceCompatibility = "8"
+        }
+    }
 }
 
 dependencies {
@@ -42,6 +50,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    implementation 'com.vladsch.flexmark:flexmark-all:0.50.44'
 
     // AccountPicker
     implementation "com.google.android.gms:play-services-auth:17.0.0"
