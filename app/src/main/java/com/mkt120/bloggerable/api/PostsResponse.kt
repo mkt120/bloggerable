@@ -1,4 +1,6 @@
-package com.mkt120.bloggerable.model
+package com.mkt120.bloggerable.api
+
+import com.mkt120.bloggerable.model.Posts
 
 data class PostsResponse(
     var kind: String? = null,

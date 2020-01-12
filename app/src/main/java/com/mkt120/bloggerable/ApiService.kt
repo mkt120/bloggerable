@@ -1,7 +1,8 @@
 package com.mkt120.bloggerable
 
-import com.mkt120.bloggerable.model.BlogsResponse
-import com.mkt120.bloggerable.model.PostsResponse
+import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.api.OauthResponse
+import com.mkt120.bloggerable.api.PostsResponse
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -17,7 +18,7 @@ interface ApiService {
         @Field("redirect_uri") redirectUri: String,
         @Field("grant_type") grantType: String,
         @Field("access_type") accessType: String
-    ): Call<ApiManager.OauthResponse>
+    ): Call<OauthResponse>
 
     @FormUrlEncoded
     @POST("oauth2/v4/token")
@@ -27,7 +28,7 @@ interface ApiService {
         @Field("redirect_uri") redirectUri: String,
         @Field("refresh_token") refreshToken: String,
         @Field("grant_type") grantType: String
-    ): Call<ApiManager.OauthResponse>
+    ): Call<OauthResponse>
 
 
     @GET("blogger/v3/users/{userId}/blogs")

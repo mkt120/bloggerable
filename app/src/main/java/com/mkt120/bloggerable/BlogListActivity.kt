@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.model.Blogs
-import com.mkt120.bloggerable.model.BlogsResponse
+import com.mkt120.bloggerable.api.BlogsResponse
 import kotlinx.android.synthetic.main.activity_blog_list.*
 import kotlinx.android.synthetic.main.include_blog_view_holder.view.*
 
@@ -50,7 +50,7 @@ class BlogListActivity : AppCompatActivity() {
     }
 
     class BlogListAdapter(
-        var blogList: BlogsResponse? = null,
+        private var blogList: BlogsResponse? = null,
         private val listener: BlogClickListener
     ) : RecyclerView.Adapter<BlogListAdapter.BlogViewHolder>() {
 

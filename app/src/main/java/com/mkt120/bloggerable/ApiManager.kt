@@ -1,9 +1,10 @@
 package com.mkt120.bloggerable
 
 import android.util.Log
-import com.mkt120.bloggerable.model.BlogsResponse
+import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.api.OauthResponse
 import com.mkt120.bloggerable.model.Posts
-import com.mkt120.bloggerable.model.PostsResponse
+import com.mkt120.bloggerable.api.PostsResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -230,19 +231,5 @@ object ApiManager {
     public interface CompleteListener {
         fun onComplete()
         fun onFailed(t: Throwable)
-    }
-
-    data class OauthResponse(
-        val access_token: String?,
-        var token_type: String?,
-        var expires_in: Int?,
-        var refresh_token: String?,
-        var scope: String?
-    ) {
-        constructor() : this(null, null, null, null, null)
-
-        override fun toString(): String {
-            return "OauthResponse(access_token=$access_token, token_type=$token_type, expires_in=$expires_in, refresh_token=$refresh_token, scope=$scope)"
-        }
     }
 }
