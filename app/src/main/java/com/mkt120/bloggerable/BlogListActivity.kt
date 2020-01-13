@@ -23,6 +23,9 @@ class BlogListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_blog_list)
 
+        val toolbar = tool_bar
+        toolbar.title = "ブログ一覧"
+
         recycler_view.adapter =
             BlogListAdapter(blogsResponse, object : BlogListAdapter.BlogClickListener {
                 override fun onClick(blogs: Blogs) {

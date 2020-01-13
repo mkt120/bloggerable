@@ -36,6 +36,8 @@ class PostsDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_posts_detail)
 
+        tool_bar.title = "投稿詳細"
+
         val title = intent.getStringExtra(EXTRA_KEY_TITLE)
         title_view.text = title
 

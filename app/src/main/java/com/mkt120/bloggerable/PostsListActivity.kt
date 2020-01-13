@@ -39,8 +39,7 @@ class PostsListActivity : AppCompatActivity() {
                 startActivity(i)
             }
         })
-        val name = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)
-        title = name
+        tool_bar.title = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)
 
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
 

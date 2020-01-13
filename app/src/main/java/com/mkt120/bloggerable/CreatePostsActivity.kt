@@ -26,6 +26,8 @@ class CreatePostsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_post)
 
+        tool_bar.title = "新規投稿"
+
         button_create.setOnClickListener {
             createPosts()
         }
