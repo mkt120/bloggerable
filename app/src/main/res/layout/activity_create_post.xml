@@ -13,42 +13,57 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/tool_bar"
             android:layout_width="match_parent"
-            android:background="@color/colorPrimary"
-            android:layout_height="?attr/actionBarSize" />
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
-
-    <Button
-        android:id="@+id/button_create"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:text="投稿する" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="タイトル"
-        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/edit_text_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textSize="16sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="内容"
-        android:textSize="16sp" />
+        android:hint="@string/create_posts_hint_title"
+        android:singleLine="true"
+        android:nextFocusDown="@id/edit_text_contents"
+        android:textSize="@dimen/create_post_edit_text_title" />
 
     <EditText
         android:id="@+id/edit_text_contents"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="top"
-        android:textSize="14sp" />
+        android:hint="@string/create_posts_hint_contents"
+        android:textSize="@dimen/create_post_edit_text_contents" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/button_add_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_format_bold_black_24dp" />
+
+        <ImageButton
+            android:id="@+id/button_add_italic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_format_italic_black_24dp" />
+
+        <ImageButton
+            android:id="@+id/button_add_strike_through"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_format_strike_through_black_24dp"/>
+
+        <ImageButton
+            android:id="@+id/button_add_paste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_content_paste_black_24dp" />
+
+    </LinearLayout>
 </LinearLayout>

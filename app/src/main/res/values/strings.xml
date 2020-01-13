@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">bloggerable</string>
+    <string name="app_name">Bloggerable</string>
+
+    <!-- 新規投稿画面 CreatePostScreen -->
+    <string name="create_posts_title">新規投稿</string>
+    <string name="create_posts_hint_title">タイトル</string>
+    <string name="create_posts_hint_contents">内容</string>
+    <string name="menu_create_posts_send_post">投稿する</string>
+    <string name="toast_error_create_posts_no_title">タイトルがありません</string>
+    <string name="toast_create_posts_success">投稿に成功しました</string>
+    <string name="toast_create_posts_failed">投稿に失敗しました</string>
 </resources>

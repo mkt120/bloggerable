@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 新規投稿画面 CreatePostScreen -->
+    <dimen name="create_post_edit_text_title">18sp</dimen>
+    <dimen name="create_post_edit_text_contents">16sp</dimen>
+</resources>
