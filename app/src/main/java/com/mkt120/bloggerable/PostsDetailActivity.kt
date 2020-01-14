@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -42,6 +43,20 @@ class PostsDetailActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
         val posts: Posts = intent.getParcelableExtra(EXTRA_KEY_POSTS)!!
         title_view.text = posts.title
+
+
+        posts.labels?.let {
+            for (label in posts.labels!!) {
+                val view = TextView(this@PostsDetailActivity).apply {
+                    text = label
+                    val horiPadding = resources.getDimensionPixelSize(R.dimen.label_padding_hor)
+                    val verPadding = resources.getDimensionPixelSize(R.dimen.label_padding_ver)
+                    setPadding(horiPadding, verPadding, horiPadding, verPadding)
+                    setBackgroundResource(R.drawable.label_background)
+                }
+                label_view.addView(view)
+            }
+        }
 
         val content = posts.content!!
         val b64Encode: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
