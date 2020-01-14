@@ -1,5 +1,6 @@
 package com.mkt120.bloggerable
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -19,6 +20,8 @@ class PostsListActivity : AppCompatActivity() {
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
         private const val EXTRA_KEY_BLOG_NAME = "EXTRA_KEY_BLOG_NAME"
+        private const val REQUEST_CODE_CREATE_POST = 100
+        private const val REQUEST_CODE_DELETE_POST = 200
 
         fun createIntent(context: Context, blogId: String, name: String): Intent =
             Intent(context, PostsListActivity::class.java).apply {
@@ -36,13 +39,31 @@ class PostsListActivity : AppCompatActivity() {
             override fun onClick(posts: Posts) {
                 val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
                 val i = PostsDetailActivity.createIntent(this@PostsListActivity, blogId!!, posts)
-                startActivity(i)
+                startActivityForResult(i, REQUEST_CODE_DELETE_POST)
             }
         })
         tool_bar.title = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)
 
-        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
+        fab.setOnClickListener {
+            val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
+            val intent = CreatePostsActivity.createIntent(this@PostsListActivity, blogId)
+            startActivityForResult(intent, REQUEST_CODE_CREATE_POST)
+        }
 
+        requestPosts()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_CREATE_POST || requestCode == REQUEST_CODE_DELETE_POST) {
+            if (resultCode == Activity.RESULT_OK) {
+                requestPosts()
+            }
+        }
+    }
+
+    private fun requestPosts() {
+        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
         ApiManager.getPosts(blogId!!, object : ApiManager.PostsListener {
             override fun onResponse(posts: PostsResponse?) {
                 response = posts
@@ -53,11 +74,6 @@ class PostsListActivity : AppCompatActivity() {
                 }
             }
         })
-
-        fab.setOnClickListener {
-            val intent = CreatePostsActivity.createIntent(this@PostsListActivity, blogId)
-            startActivity(intent)
-        }
     }
 
     class PostsAdapter(var posts: PostsResponse? = null, private val listener: PostsClickListener) :

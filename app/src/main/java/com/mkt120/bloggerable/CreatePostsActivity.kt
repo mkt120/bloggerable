@@ -1,5 +1,6 @@
 package com.mkt120.bloggerable
 
+import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -179,6 +180,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                         R.string.toast_create_posts_success,
                         Toast.LENGTH_SHORT
                     ).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
 

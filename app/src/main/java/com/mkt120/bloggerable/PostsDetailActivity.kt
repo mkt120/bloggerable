@@ -1,5 +1,6 @@
 package com.mkt120.bloggerable
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -96,6 +97,7 @@ class PostsDetailActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     Toast.makeText(this@PostsDetailActivity, R.string.toast_detail_posts_success_delete, Toast.LENGTH_SHORT).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
                 override fun onFailed(t: Throwable) {
