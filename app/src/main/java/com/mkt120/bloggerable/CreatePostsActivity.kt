@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -18,7 +19,7 @@ import kotlinx.android.synthetic.main.activity_create_post.*
 /**
  * 新規投稿画面 CreatePostsScreen
  */
-class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
+class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, AddLabelDialog.OnClickListener {
 
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
@@ -28,6 +29,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
             }
     }
+    var dialogFragment :AddLabelDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +54,29 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         button_add_paste.setOnClickListener {
             addPaste()
         }
+        button_add_labels.setOnClickListener {
+            // todo: 改善の余地あり?
+            val isShowing = dialogFragment?.dialog?.isShowing
+            if (isShowing != null && isShowing) {
+                return@setOnClickListener
+            }
+            dialogFragment = AddLabelDialog.newInstance()
+            dialogFragment!!.show(supportFragmentManager, null)
+        }
+    }
+
+    override fun addLabel(label: String) {
+        val view = TextView(this@CreatePostsActivity).apply {
+            text = label
+            val horiPadding = resources.getDimensionPixelSize(R.dimen.label_padding_hor)
+            val verPadding = resources.getDimensionPixelSize(R.dimen.label_padding_ver)
+            setPadding(horiPadding, verPadding, horiPadding, verPadding)
+            setBackgroundResource(R.drawable.label_background)
+            setOnClickListener {
+                label_view.removeView(this)
+            }
+        }
+        label_view.addView(view)
     }
 
     private fun addBold() {
@@ -120,7 +145,11 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
         if (title.isEmpty()) {
             // 空 empty title
-            Toast.makeText(this@CreatePostsActivity, R.string.toast_error_create_posts_no_title, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this@CreatePostsActivity,
+                R.string.toast_error_create_posts_no_title,
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -138,15 +167,44 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         // create Markdown string
         // val markdown = FlexmarkHtmlConverter.builder(options).build().convert(html)
 
-        ApiManager.createPosts(blogId, title, html, object : ApiManager.CompleteListener {
-            override fun onComplete() {
-                Toast.makeText(this@CreatePostsActivity, R.string.toast_create_posts_success, Toast.LENGTH_SHORT).show()
-                finish()
-            }
+        ApiManager.createPosts(
+            blogId,
+            title,
+            html,
+            createLabels(),
+            object : ApiManager.CompleteListener {
+                override fun onComplete() {
+                    Toast.makeText(
+                        this@CreatePostsActivity,
+                        R.string.toast_create_posts_success,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    finish()
+                }
 
-            override fun onFailed(t: Throwable) {
-                Toast.makeText(this@CreatePostsActivity, R.string.toast_create_posts_failed, Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onFailed(t: Throwable) {
+                    Toast.makeText(
+                        this@CreatePostsActivity,
+                        R.string.toast_create_posts_failed,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
     }
+
+    private fun createLabels(): MutableList<String>? {
+        if (label_view.childCount == 0) {
+            return null
+        }
+        val labels: MutableList<String> = mutableListOf()
+        for (i in 0..label_view.childCount) {
+            val view = label_view.getChildAt(i)
+            if (view is TextView) {
+                val label = view.text
+                labels.add(label.toString())
+            }
+        }
+        return labels
+    }
+
 }

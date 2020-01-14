@@ -38,7 +38,7 @@ interface ApiService {
     fun getPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String): Call<PostsResponse>
 
     @POST("blogger/v3/blogs/{blogId}/posts")
-    fun createPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String,@Body post: HashMap<String, String>): Call<Any>
+    fun createPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String,@Body post: HashMap<String, Any>): Call<Any>
 
     @DELETE("blogger/v3/blogs/{blogId}/posts/{postId}")
     fun deletePosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Path("postId") postId: String, @Query("key") apiKey: String): Call<Any>

@@ -169,9 +169,9 @@ object ApiManager {
             })
     }
 
-    fun createPosts(blogId: String, title: String, content: String, listener: CompleteListener) {
+    fun createPosts(blogId: String, title: String, content: String, labels: MutableList<String>? = null, listener: CompleteListener) {
         val accessToken = PreferenceManager.accessToken
-        val posts = Posts.createPosts(title, content)
+        val posts = Posts.createPosts(title, content, labels)
         apiService.createPosts(
             "Bearer $accessToken",
             blogId,

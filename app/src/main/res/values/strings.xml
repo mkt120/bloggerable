@@ -13,6 +13,8 @@
     <string name="create_posts_title">新規投稿</string>
     <string name="create_posts_hint_title">タイトル</string>
     <string name="create_posts_hint_contents">内容</string>
+    <string name="create_posts_button_add_label">ラベルを追加</string>
+    <string name="create_posts_input_label">追加するラベルを入力</string>
     <string name="menu_create_posts_send_post">投稿する</string>
     <string name="toast_error_create_posts_no_title">タイトルがありません</string>
     <string name="toast_create_posts_success">投稿に成功しました</string>

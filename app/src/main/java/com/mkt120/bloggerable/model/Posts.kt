@@ -11,9 +11,9 @@ data class Posts(
     var updated: String? = null,
     var selfLink: String? = null,
     var title: String? = null,
-    var content: String? = null
+    var content: String? = null,
+    var labels: Array<String>? = null
 ) : Parcelable {
-
     constructor(source: Parcel) : this(
         source.readString(),
         source.readString(),
@@ -22,7 +22,8 @@ data class Posts(
         source.readString(),
         source.readString(),
         source.readString(),
-        source.readString()
+        source.readString(),
+        source.createStringArray()
     )
 
     override fun describeContents() = 0
@@ -36,13 +37,17 @@ data class Posts(
         writeString(selfLink)
         writeString(title)
         writeString(content)
+        writeStringArray(labels)
     }
 
     companion object {
-        public fun createPosts(title: String, content: String): HashMap<String, String> =
-            HashMap<String, String>().apply {
+        public fun createPosts(title: String, content: String, labels: MutableList<String>?): HashMap<String, Any> =
+            HashMap<String, Any>().apply {
                 this["title"] = title
                 this["content"] = content
+                if (labels != null) {
+                    this["labels"] = labels
+                }
             }
 
         @JvmField
@@ -51,4 +56,5 @@ data class Posts(
             override fun newArray(size: Int): Array<Posts?> = arrayOfNulls(size)
         }
     }
+
 }
