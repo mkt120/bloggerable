@@ -22,23 +22,18 @@
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
+        android:layout_margin="5dp"
         android:textSize="@dimen/posts_detail_text_title" />
 
-    <ScrollView
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/label_view"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
-
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/label_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/create_post_label_padding"
-            app:dividerDrawable="@drawable/label_divider"
-            app:flexWrap="wrap"
-            app:showDivider="middle|end" />
-    </ScrollView>
-
+        android:layout_height="wrap_content"
+        android:padding="@dimen/create_post_label_padding"
+        app:dividerDrawable="@drawable/label_divider"
+        app:flexWrap="wrap"
+        app:maxLine="3"
+        app:showDivider="middle|end" />
 
     <WebView
         android:id="@+id/contents_view"
