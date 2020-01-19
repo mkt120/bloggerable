@@ -79,7 +79,10 @@ class PostsListActivity : AppCompatActivity() {
         })
     }
 
-    class PostsAdapter(var posts: PostsResponse? = null, private val listener: PostsClickListener) :
+    class PostsAdapter(
+        private var posts: PostsResponse? = null,
+        private val listener: PostsClickListener
+    ) :
         RecyclerView.Adapter<PostsAdapter.PostsViewHolder>() {
 
         fun setData(posts: PostsResponse) {
@@ -116,8 +119,11 @@ class PostsListActivity : AppCompatActivity() {
             }
 
             fun bindData(posts: Posts, listener: PostsClickListener) {
-                itemView.title_view.text = Html.fromHtml(posts.title, 0)
-                itemView.contents_view.text = Html.fromHtml(posts.content, 0)
+                itemView.title_view.text =
+                    Html.fromHtml(posts.title, Html.FROM_HTML_MODE_LEGACY).toString()
+                itemView.contents_view.text =
+                    Html.fromHtml(posts.content, Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                itemView.published_view.text = posts.published
                 itemView.setOnClickListener {
                     listener.onClick(posts)
                 }
