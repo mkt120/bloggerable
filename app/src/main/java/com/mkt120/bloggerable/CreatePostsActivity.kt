@@ -6,10 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.DialogFragment
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.html.HtmlRenderer
@@ -20,7 +23,8 @@ import kotlinx.android.synthetic.main.activity_create_post.*
 /**
  * 新規投稿画面 CreatePostsScreen
  */
-class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, AddLabelDialog.OnClickListener {
+class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener,
+    AddLabelDialogFragment.OnClickListener {
 
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
@@ -30,7 +34,9 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
             }
     }
-    var dialogFragment :AddLabelDialog? = null
+
+    private var dialogFragment: DialogFragment? = null
+    private val labelList = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,23 +67,38 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             if (isShowing != null && isShowing) {
                 return@setOnClickListener
             }
-            dialogFragment = AddLabelDialog.newInstance()
+            dialogFragment = AddLabelDialogFragment.newInstance()
+            dialogFragment!!.show(supportFragmentManager, null)
+        }
+
+        button_history.setOnClickListener {
+            val isShowing = dialogFragment?.dialog?.isShowing
+            if (isShowing != null && isShowing) {
+                return@setOnClickListener
+            }
+            dialogFragment = AddLabelHistoryDialogFragment.newInstance()
             dialogFragment!!.show(supportFragmentManager, null)
         }
     }
 
     override fun addLabel(label: String) {
-        val view = TextView(this@CreatePostsActivity).apply {
+        if (labelList.contains(label)) {
+            Toast.makeText(this@CreatePostsActivity, "already inserted.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val view = LabelView(this@CreatePostsActivity).apply {
             text = label
-            val horiPadding = resources.getDimensionPixelSize(R.dimen.label_padding_hor)
-            val verPadding = resources.getDimensionPixelSize(R.dimen.label_padding_ver)
-            setPadding(horiPadding, verPadding, horiPadding, verPadding)
-            setBackgroundResource(R.drawable.label_background)
             setOnClickListener {
                 label_view.removeView(this)
+                labelList.remove(label)
             }
         }
         label_view.addView(view)
+        labelList.add(label)
+
+        horizontal_scroll.post {
+            horizontal_scroll.scrollTo(view.right, 0)
+        }
     }
 
     private fun addBold() {

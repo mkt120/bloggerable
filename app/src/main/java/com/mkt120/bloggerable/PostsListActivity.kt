@@ -67,6 +67,9 @@ class PostsListActivity : AppCompatActivity() {
         ApiManager.getPosts(blogId!!, object : ApiManager.PostsListener {
             override fun onResponse(posts: PostsResponse?) {
                 response = posts
+                response?.let {
+                    PreferenceManager.labelList = response!!.createLabelList()
+                }
                 val adapter = recycler_view.adapter
                 if (adapter is PostsAdapter) {
                     adapter.setData(posts!!)

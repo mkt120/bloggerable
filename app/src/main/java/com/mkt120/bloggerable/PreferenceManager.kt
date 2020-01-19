@@ -2,6 +2,8 @@ package com.mkt120.bloggerable
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 object PreferenceManager {
 
@@ -10,6 +12,7 @@ object PreferenceManager {
     private const val KEY_ACCESS_EXPIRES_MILLIS = "KEY_ACCESS_EXPIRES_MILLIS"
     private const val KEY_ACCESS_TOKEN = "KEY_ACCESS_TOKEN"
     private const val KEY_REFRESH_TOKEN = "KEY_REFRESH_TOKEN"
+    private const val KEY_LABEL_SET = "KEY_LABEL_SET"
 
     fun init(context: Context) {
         prefs =
@@ -27,4 +30,15 @@ object PreferenceManager {
     var refreshToken: String
         set(refreshToken) = prefs.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply()
         get() = prefs.getString(KEY_REFRESH_TOKEN, "")!!
+
+    var labelList: MutableList<String>
+        set(list) {
+            val text = Gson().toJson(list)
+            prefs.edit().putString(KEY_LABEL_SET, text).apply()
+        }
+        get() {
+            val text = prefs.getString(KEY_LABEL_SET, null)
+            return Gson().fromJson(text, object : TypeToken<MutableList<String>>() {
+            }.type)
+        }
 }

@@ -3,31 +3,36 @@ package com.mkt120.bloggerable
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.dialog_add_label.view.*
 
-class AddLabelDialog : DialogFragment() {
+
+class AddLabelDialogFragment : DialogFragment() {
     companion object {
-        fun newInstance(): AddLabelDialog =
-            AddLabelDialog()
+        fun newInstance(): AddLabelDialogFragment =
+            AddLabelDialogFragment()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(requireContext())
+        val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle(R.string.create_posts_input_label)
-
-        val view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_label, null)
-        builder.setView(view)
+        val rootView =
+            requireActivity().layoutInflater.inflate(R.layout.dialog_add_label, null, false)
+        builder.setView(rootView)
         builder.setPositiveButton(android.R.string.ok) { _, _ ->
-            if (view.edit_text.text.isNotEmpty() && activity is OnClickListener) {
-                (activity as OnClickListener).addLabel(view.edit_text.text.toString())
+            rootView?.let {
+                if (it.edit_text.text.isNotEmpty() && activity is OnClickListener) {
+                    (activity as OnClickListener).addLabel(it.edit_text.text.toString())
+                }
             }
+        }
+        builder.setNegativeButton(android.R.string.cancel) { _, _ ->
+            dismiss()
         }
         return builder.create()
     }
 
-    public interface OnClickListener {
+    interface OnClickListener {
         fun addLabel(label: String)
     }
 }

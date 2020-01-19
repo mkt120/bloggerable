@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/create_post_dialog_edit_text_margin"
+    android:paddingRight="@dimen/create_post_dialog_edit_text_margin">
 
     <EditText
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/create_post_dialog_edit_text_margin"
-        android:layout_marginRight="@dimen/create_post_dialog_edit_text_margin"
         android:singleLine="true"
         android:textSize="@dimen/create_post_dialog_edit_text_label" />
 </FrameLayout>

@@ -7,13 +7,16 @@
 
     <!-- 新規投稿画面 CreatePostScreen -->
     <dimen name="create_post_edit_text_title">18sp</dimen>
+    <dimen name="create_post_margin_side">10dp</dimen>
     <dimen name="create_post_label_padding">5dp</dimen>
+    <dimen name="create_post_label_button_padding">10dp</dimen>
     <dimen name="create_post_edit_text_contents">16sp</dimen>
     <dimen name="create_post_dialog_edit_text_label">16sp</dimen>
     <dimen name="create_post_dialog_edit_text_margin">15dp</dimen>
 
     <dimen name="label_divider">8dp</dimen>
+    <dimen name="label_margin_hor">3dp</dimen>
     <dimen name="label_padding_hor">5dp</dimen>
-    <dimen name="label_padding_ver">3dp</dimen>
-    <dimen name="label_round_corner">3dp</dimen>
+    <dimen name="label_padding_ver">5dp</dimen>
+    <dimen name="label_round_corner">10dp</dimen>
 </resources>
