@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Bloggerable</string>
 
+    <!-- ブログ一覧 -->
+
+    <string name="blogs_posts_title">ブログ一覧</string>
+    <string name="blogs_posts_count">投稿数:%s</string>
+
     <!-- 投稿詳細画面 PostDetailScreen -->
     <string name="posts_detail_title">投稿詳細</string>
     <string name="menu_posts_detail_delete_posts">削除する</string>

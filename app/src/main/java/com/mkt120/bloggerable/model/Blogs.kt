@@ -1,5 +1,8 @@
 package com.mkt120.bloggerable.model
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 data class Blogs(
     var kind: String? = null,
     var id: String? = null,
@@ -29,5 +32,10 @@ data class Blogs(
         var country: String? = null,
         var variant: String? = null
     )
+
+    fun getLastUpdate(): Date {
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ", java.util.Locale.JAPAN)
+        return simpleDateFormat.parse(updated)
+    }
 
 }

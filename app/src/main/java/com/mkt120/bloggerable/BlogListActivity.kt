@@ -7,10 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.mkt120.bloggerable.model.Blogs
 import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.model.Blogs
 import kotlinx.android.synthetic.main.activity_blog_list.*
 import kotlinx.android.synthetic.main.include_blog_view_holder.view.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BlogListActivity : AppCompatActivity() {
     companion object {
@@ -24,7 +26,7 @@ class BlogListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_blog_list)
 
         val toolbar = tool_bar
-        toolbar.title = "ブログ一覧"
+        toolbar.title = getString(R.string.blogs_posts_title)
 
         recycler_view.adapter =
             BlogListAdapter(blogsResponse, object : BlogListAdapter.BlogClickListener {
@@ -102,6 +104,11 @@ class BlogListActivity : AppCompatActivity() {
             fun bindData(blogs: Blogs, listener: BlogClickListener) {
                 Log.d(TAG, "bindData blogs.name=${blogs.name}")
                 itemView.blog_name_view.text = blogs.name
+                itemView.description_view.text = blogs.description
+                itemView.post_num_view.text =
+                    itemView.context.getString(R.string.blogs_posts_count, blogs.posts!!.totalItems)
+                val lastUpdate = blogs.getLastUpdate()
+                itemView.last_update_view.text = SimpleDateFormat("最終更新日:yyyy/MM/dd", Locale.JAPAN).format(lastUpdate)
                 itemView.setOnClickListener {
                     listener.onClick(blogs)
                 }
