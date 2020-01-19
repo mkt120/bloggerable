@@ -151,21 +151,25 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
-        when {
-            item?.itemId == R.id.create_posts -> {
-                createPosts()
+        when (item!!.itemId){
+            R.id.create_posts -> {
+                createPosts(false)
                 return true
             }
+            R.id.upload_as_draft -> {
+                createPosts(true)
+            }
+
         }
         return false
     }
 
-    private fun createPosts() {
+    private fun createPosts(isDraft : Boolean) {
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
         val title = edit_text_title.text.toString()
         val content = edit_text_contents.text.toString()
 
-        if (title.isEmpty()) {
+        if (!isDraft && title.isEmpty()) {
             // 空 empty title
             Toast.makeText(
                 this@CreatePostsActivity,
@@ -194,11 +198,17 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             title,
             html,
             createLabels(),
+            isDraft,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
+                    val messageResId : Int = if (isDraft) {
+                        R.string.toast_create_posts_success
+                    } else {
+                        R.string.toast_create_posts_success
+                    }
                     Toast.makeText(
                         this@CreatePostsActivity,
-                        R.string.toast_create_posts_success,
+                        messageResId,
                         Toast.LENGTH_SHORT
                     ).show()
                     setResult(Activity.RESULT_OK)
