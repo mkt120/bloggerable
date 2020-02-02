@@ -24,6 +24,13 @@ object ApiManager {
 
     private const val ACCESS_TYPE: String = "offline"
 
+    // AuthorizationCode を使ってAccessTokenをもらう
+    const val CLIENT_ID = BuildConfig.BLOGGERABLE_CLIENT_ID
+
+    // AuthorizationCode を使ってAccessTokenをもらう
+    private const val CLIENT_SECRET = BuildConfig.BLOGGERABLE_CLIENT_SECRET
+
+
     private val apiService: ApiService
 
     init {
@@ -46,15 +53,13 @@ object ApiManager {
      */
     fun requestAccessToken(
         authorizationCode: String,
-        clientId: String,
-        clientSecret: String,
         redirectUri: String,
         listener: Listener
     ) {
         apiService.postAccessToken(
             authorizationCode,
-            clientId,
-            clientSecret,
+            CLIENT_ID,
+            CLIENT_SECRET,
             redirectUri,
             GRANT_TYPE_AUTHORIZATION_CODE,
             ACCESS_TYPE
@@ -90,40 +95,47 @@ object ApiManager {
     }
 
     fun refreshToken(
-        clientId: String,
-        clientSecret: String,
         redirectUri: String,
-        refreshToken:String,
-        listener: Listener) {
+        refreshToken: String,
+        listener: Listener
+    ) {
 
-        apiService.refreshToken(clientId, clientSecret, redirectUri, refreshToken, GRANT_TYPE_REFRESH_TOKEN)
+        apiService.refreshToken(
+            CLIENT_ID,
+            CLIENT_SECRET,
+            redirectUri,
+            refreshToken,
+            GRANT_TYPE_REFRESH_TOKEN
+        )
             .enqueue(object : Callback<OauthResponse> {
                 override fun onResponse(
-                call: Call<OauthResponse>?,
-                response: Response<OauthResponse>?) {
-                Log.d(TAG, "onResponse")
-                response?.let {
-                    if (response.isSuccessful) {
-                        Log.d(TAG, "blogsResponse=$response")
-                        Log.d(TAG, "oauthResponse=${response.body()}")
-                        response.body()?.apply {
-                            access_token?.let {
-                                PreferenceManager.accessToken = it
-                            }
-                            refresh_token?.let {
-                                PreferenceManager.refreshToken = it
-                            }
-                            expires_in?.let {
-                                PreferenceManager.tokenExpiredDateMillis =
-                                    System.currentTimeMillis() + it * 1000L
+                    call: Call<OauthResponse>?,
+                    response: Response<OauthResponse>?
+                ) {
+                    Log.d(TAG, "onResponse")
+                    response?.let {
+                        if (response.isSuccessful) {
+                            Log.d(TAG, "blogsResponse=$response")
+                            Log.d(TAG, "oauthResponse=${response.body()}")
+                            response.body()?.apply {
+                                access_token?.let {
+                                    PreferenceManager.accessToken = it
+                                }
+                                refresh_token?.let {
+                                    PreferenceManager.refreshToken = it
+                                }
+                                expires_in?.let {
+                                    PreferenceManager.tokenExpiredDateMillis =
+                                        System.currentTimeMillis() + it * 1000L
+                                }
                             }
                         }
+                        listener.onResponse()
                     }
-                    listener.onResponse()
                 }
-            }
-            override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {}
-        })
+
+                override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {}
+            })
 
     }
 
@@ -131,6 +143,16 @@ object ApiManager {
      * ブログリストを取得する
      */
     fun getBlogs(listener: BlogListener) {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                    override fun onResponse() {
+                        getBlogs(listener)
+                    }
+                })
+            return
+        }
+
         val accessToken = PreferenceManager.accessToken
         apiService.listByUser("Bearer $accessToken", "self", BuildConfig.BLOGGERABLE_API_KEY)
             .enqueue(object : Callback<BlogsResponse> {
@@ -158,7 +180,18 @@ object ApiManager {
     /**
      * 記事一覧を取得する
      */
-    fun getPosts(blogId: String, listener: PostsListener, status:String = "live") {
+    fun getPosts(blogId: String, listener: PostsListener, status: String = "live") {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                    override fun onResponse() {
+                        getPosts(blogId, listener, status)
+                    }
+                })
+            return
+        }
+
+
         val accessToken = PreferenceManager.accessToken
         apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY, status)
             .enqueue(object : Callback<PostsResponse> {
@@ -176,7 +209,24 @@ object ApiManager {
             })
     }
 
-    fun createPosts(blogId: String, title: String, content: String, labels: MutableList<String>? = null, isDraft: Boolean, listener: CompleteListener) {
+    fun createPosts(
+        blogId: String,
+        title: String,
+        content: String,
+        labels: MutableList<String>? = null,
+        isDraft: Boolean,
+        listener: CompleteListener
+    ) {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                    override fun onResponse() {
+                        createPosts(blogId, title, content, labels, isDraft, listener)
+                    }
+                })
+            return
+        }
+
         val accessToken = PreferenceManager.accessToken
         val posts = Posts.createPosts(title, content, labels)
         apiService.createPosts(
@@ -202,6 +252,16 @@ object ApiManager {
     }
 
     fun deletePosts(blogId: String, postId: String, listener: CompleteListener) {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                    override fun onResponse() {
+                        deletePosts(blogId, postId, listener)
+                    }
+                })
+            return
+        }
+
         val accessToken = PreferenceManager.accessToken
         apiService.deletePosts(
             "Bearer $accessToken",

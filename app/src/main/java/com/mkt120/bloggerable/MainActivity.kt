@@ -19,12 +19,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val TAG: String = MainActivity::class.java.simpleName
 
-        // AuthorizationCode を使ってAccessTokenをもらう
-        private const val CLIENT_ID = BuildConfig.BLOGGERABLE_CLIENT_ID
-
-        // AuthorizationCode を使ってAccessTokenをもらう
-        private const val CLIENT_SECRET = BuildConfig.BLOGGERABLE_CLIENT_SECRET
-
         const val STRING_SCOPE_BLOGGER = "https://www.googleapis.com/auth/blogger"
 
         const val REQUEST_SIGN_IN: Int = 100
@@ -33,14 +27,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val expire = PreferenceManager.tokenExpiredDateMillis
-        if (expire >= System.currentTimeMillis()) {
+        if (!PreferenceManager.isExpiredDateMillis()) {
             // 有効期限内トークン
             goBlogList()
             return
         }
 
         val refreshToken = PreferenceManager.refreshToken
+        Log.i(TAG, "refreshToken=$refreshToken")
         if (refreshToken.isNotEmpty()) {
             // リフレッシュトークンがあるのでリフレッシュ
             refreshToken()
@@ -58,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun signInRequest() {
         val option = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestServerAuthCode(CLIENT_ID)
+            .requestServerAuthCode(ApiManager.CLIENT_ID, true)
             .requestScopes(Scope(STRING_SCOPE_BLOGGER))
             .build()
         val googleSignInClient = GoogleSignIn.getClient(this, option)
@@ -87,12 +81,12 @@ class MainActivity : AppCompatActivity() {
                 requestAccessToken(account)
             }
         } catch (e: ApiException) {
-            Log.w(TAG, "signInResult:failed code=${e.statusCode}" , e)
+            Log.w(TAG, "signInResult:failed code=${e.statusCode}", e)
         }
     }
 
     private fun requestAccessToken(account: GoogleSignInAccount) {
-        ApiManager.requestAccessToken(account.serverAuthCode!!, CLIENT_ID, CLIENT_SECRET, "", object : ApiManager.Listener {
+        ApiManager.requestAccessToken(account.serverAuthCode!!, "", object : ApiManager.Listener {
             override fun onResponse() {
                 goBlogList()
             }
@@ -100,8 +94,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshToken() {
+        Log.i(TAG, "refreshToken")
         val refreshToken = PreferenceManager.refreshToken
-        ApiManager.refreshToken(CLIENT_ID, CLIENT_SECRET, "", refreshToken, object :ApiManager.Listener{
+        ApiManager.refreshToken("", refreshToken, object : ApiManager.Listener {
             override fun onResponse() {
                 goBlogList()
             }
