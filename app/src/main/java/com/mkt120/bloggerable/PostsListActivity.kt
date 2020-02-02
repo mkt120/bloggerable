@@ -57,8 +57,14 @@ class PostsListActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_CREATE_POST || requestCode == REQUEST_CODE_DELETE_POST) {
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode != Activity.RESULT_CANCELED) {
                 requestPosts()
+            }
+            if (resultCode == CreatePostsActivity.RESULT_CODE_CREATE_POSTS) {
+                view_pager.currentItem = 0
+            }
+            if (resultCode == CreatePostsActivity.RESULT_CODE_CREATE_DRAFT) {
+                view_pager.currentItem = 1
             }
         }
     }

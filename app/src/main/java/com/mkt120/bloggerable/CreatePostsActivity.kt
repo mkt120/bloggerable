@@ -1,6 +1,6 @@
 package com.mkt120.bloggerable
 
-import android.app.Activity
+import android.app.Dialog
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.DialogFragment
@@ -32,6 +33,9 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         private const val RELATIVE_FONT_SIZE_X_LARGE = 2.0f
         private const val RELATIVE_FONT_SIZE_LARGE = 1.5f
         private val TAG = CreatePostsActivity::class.java.simpleName
+
+        const val RESULT_CODE_CREATE_POSTS = 100
+        const val RESULT_CODE_CREATE_DRAFT = 200
 
         fun createIntent(context: Context, blogId: String): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
@@ -359,7 +363,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     val messageResId : Int = if (isDraft) {
-                        R.string.toast_create_posts_success
+                        R.string.toast_create_draft_success
                     } else {
                         R.string.toast_create_posts_success
                     }
@@ -368,7 +372,11 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                         messageResId,
                         Toast.LENGTH_SHORT
                     ).show()
-                    setResult(Activity.RESULT_OK)
+                    if (isDraft) {
+                        setResult(RESULT_CODE_CREATE_DRAFT)
+                    } else {
+                        setResult(RESULT_CODE_CREATE_POSTS)
+                    }
                     finish()
                 }
 
@@ -397,4 +405,45 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         return labels
     }
 
+    override fun onBackPressed() {
+        if (edit_text_contents.text.isNotEmpty()) {
+            val confirmDialog: ConfirmDialog = ConfirmDialog.newInstance()
+            confirmDialog.show(supportFragmentManager, null)
+            return
+        }
+        super.onBackPressed()
+    }
+
+    fun onPositiveClick() {
+        createPosts(true)
+    }
+    fun onNegativeClick() {
+        finish()
+    }
+
+    class ConfirmDialog : DialogFragment() {
+
+        companion object {
+            fun newInstance() : ConfirmDialog = ConfirmDialog()
+        }
+
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setMessage(R.string.create_posts_dialog_message)
+                .setPositiveButton(R.string.create_posts_dialog_positive_button) { _, _  ->
+                    if (activity is CreatePostsActivity) {
+                        (activity as CreatePostsActivity).onPositiveClick()
+                    }
+                    dismiss()
+                }
+                .setNegativeButton(R.string.create_posts_dialog_negative_button) { _, _ ->
+                    if (activity is CreatePostsActivity) {
+                        (activity as CreatePostsActivity).onNegativeClick()
+                    }
+                    dismiss()
+                }
+                .setNeutralButton(android.R.string.cancel, null)
+            return builder.create()
+        }
+    }
 }
