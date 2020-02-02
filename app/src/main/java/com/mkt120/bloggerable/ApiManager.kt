@@ -3,8 +3,8 @@ package com.mkt120.bloggerable
 import android.util.Log
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.OauthResponse
-import com.mkt120.bloggerable.model.Posts
 import com.mkt120.bloggerable.api.PostsResponse
+import com.mkt120.bloggerable.model.Posts
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -149,11 +149,18 @@ object ApiManager {
     }
 
     /**
+     * 下書き一覧を取得する
+     */
+    fun getDraftPosts(blogId: String, listener: PostsListener) {
+        getPosts(blogId, listener, "draft")
+    }
+
+    /**
      * 記事一覧を取得する
      */
-    fun getPosts(blogId: String, listener: PostsListener) {
+    fun getPosts(blogId: String, listener: PostsListener, status:String = "live") {
         val accessToken = PreferenceManager.accessToken
-        apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY)
+        apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY, status)
             .enqueue(object : Callback<PostsResponse> {
                 override fun onResponse(
                     call: Call<PostsResponse>,

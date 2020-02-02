@@ -14,6 +14,9 @@
     <string name="toast_detail_posts_success_delete">投稿を削除しました</string>
     <string name="toast_detail_posts_failed_delete">削除に失敗しました</string>
 
+    <string name="posts_list_title_posts">投稿</string>
+    <string name="posts_list_title_draft">下書き</string>
+
     <!-- 新規投稿画面 CreatePostScreen -->
     <string name="create_posts_title">新規投稿</string>
     <string name="create_posts_hint_title">タイトル</string>
