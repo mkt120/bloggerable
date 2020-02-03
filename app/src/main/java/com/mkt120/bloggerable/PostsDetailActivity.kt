@@ -1,6 +1,8 @@
 package com.mkt120.bloggerable
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,10 +10,10 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.model.Posts
 import kotlinx.android.synthetic.main.activity_posts_detail.*
 
@@ -48,12 +50,8 @@ class PostsDetailActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
         posts.labels?.let {
             for (label in posts.labels!!) {
-                val view = TextView(this@PostsDetailActivity).apply {
+                val view = LabelView(this@PostsDetailActivity).apply {
                     text = label
-                    val horiPadding = resources.getDimensionPixelSize(R.dimen.label_padding_hor)
-                    val verPadding = resources.getDimensionPixelSize(R.dimen.label_padding_ver)
-                    setPadding(horiPadding, verPadding, horiPadding, verPadding)
-                    setBackgroundResource(R.drawable.label_background)
                 }
                 label_view.addView(view)
             }
@@ -78,9 +76,8 @@ class PostsDetailActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             }
             R.id.delete_posts -> {
                 // 削除ボタン
-                val postsId: String = intent.getStringExtra(EXTRA_KEY_POSTS_ID)!!
-                val blogId: String = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
-                deletePosts(blogId, postsId)
+                val dialog = DeleteConfirmDialog.newInstance();
+                dialog.show(supportFragmentManager, null)
                 return true
             }
             R.id.edit_posts -> {
@@ -104,5 +101,33 @@ class PostsDetailActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                     Toast.makeText(this@PostsDetailActivity, R.string.toast_detail_posts_failed_delete, Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    fun onClickDelete() {
+        // 削除ボタン
+        val postsId: String = intent.getStringExtra(EXTRA_KEY_POSTS_ID)!!
+        val blogId: String = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
+        deletePosts(blogId, postsId)
+    }
+
+    class DeleteConfirmDialog : DialogFragment() {
+        companion object {
+            fun newInstance() : DeleteConfirmDialog = DeleteConfirmDialog()
+        }
+
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val builder : AlertDialog.Builder = AlertDialog.Builder(requireContext())
+            builder.setMessage("投稿を削除しますか")
+                .setPositiveButton(android.R.string.yes) { _, _ ->
+                    if (activity is PostsDetailActivity) {
+                        (activity as PostsDetailActivity).onClickDelete()
+                    }
+                    dismiss()
+                }
+                .setNegativeButton(android.R.string.no) { _, _ ->
+                    dismiss()
+                }
+            return builder.create()
+        }
     }
 }
