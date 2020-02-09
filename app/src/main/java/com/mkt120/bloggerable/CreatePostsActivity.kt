@@ -418,7 +418,12 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 return true
             }
             R.id.create_posts -> {
-                createPosts(false)
+                if (intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)== REQUEST_CREATE_POSTS){
+                    createPosts(false)
+                } else {
+                    updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT)
+                }
+
                 return true
             }
             R.id.update_posts -> {
@@ -457,7 +462,9 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         }
 
         val html = Html.toHtml(edit_text_contents.text, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
+        posts.title = title
         posts.content = html
+        posts.labels = createLabels()
         ApiManager.updatePosts(posts, object : ApiManager.CompleteListener {
             override fun onComplete() {
                 Toast.makeText(
@@ -590,7 +597,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
     }
 
-    private fun createLabels(): MutableList<String>? {
+    private fun createLabels(): Array<String>? {
         if (label_view.childCount == 0) {
             return null
         }
@@ -599,10 +606,12 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             val view = label_view.getChildAt(i)
             if (view is TextView) {
                 val label = view.text
-                labels.add(label.toString())
+                if (label.isNotEmpty()) {
+                    labels.add(label.toString())
+                }
             }
         }
-        return labels
+        return labels.toTypedArray()
     }
 
     override fun onBackPressed() {

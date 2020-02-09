@@ -69,7 +69,7 @@ data class Posts(
         public fun createPosts(
             title: String,
             content: String,
-            labels: MutableList<String>?
+            labels: Array<String>?
         ): HashMap<String, Any> =
             HashMap<String, Any>().apply {
                 this["title"] = title

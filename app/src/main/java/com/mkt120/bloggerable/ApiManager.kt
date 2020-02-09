@@ -218,7 +218,7 @@ object ApiManager {
         blogId: String,
         title: String,
         content: String,
-        labels: MutableList<String>? = null,
+        labels: Array<String>? = null,
         isDraft: Boolean,
         listener: CompleteListener
     ) {
@@ -274,7 +274,7 @@ object ApiManager {
         val posts = Posts.createPosts(
             old.title!!,
             old.content!!,
-            mutableListOf<String>(old.labels.toString())
+            old.labels
         )
         apiService.updatePosts(
             "Bearer $accessToken",
