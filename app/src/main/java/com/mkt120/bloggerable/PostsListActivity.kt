@@ -26,8 +26,6 @@ class PostsListActivity : AppCompatActivity() {
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
         private const val EXTRA_KEY_BLOG_NAME = "EXTRA_KEY_BLOG_NAME"
-        private const val REQUEST_CODE_CREATE_POST = 100
-        private const val REQUEST_CODE_DELETE_POST = 200
 
         fun createIntent(context: Context, blogId: String, name: String): Intent =
             Intent(context, PostsListActivity::class.java).apply {
@@ -48,7 +46,7 @@ class PostsListActivity : AppCompatActivity() {
         fab.setOnClickListener {
             val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
             val intent = CreatePostsActivity.createIntent(this@PostsListActivity, blogId)
-            startActivityForResult(intent, REQUEST_CODE_CREATE_POST)
+            startActivityForResult(intent, CreatePostsActivity.REQUEST_CREATE_POSTS)
         }
 
         requestPosts()
@@ -56,16 +54,18 @@ class PostsListActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_CREATE_POST || requestCode == REQUEST_CODE_DELETE_POST) {
-            if (resultCode != Activity.RESULT_CANCELED) {
-                requestPosts()
-            }
-            if (resultCode == CreatePostsActivity.RESULT_CODE_CREATE_POSTS) {
-                view_pager.currentItem = 0
-            }
-            if (resultCode == CreatePostsActivity.RESULT_CODE_CREATE_DRAFT) {
-                view_pager.currentItem = 1
-            }
+        if (resultCode == Activity.RESULT_CANCELED) {
+            return
+        }
+
+        // 更新
+        requestPosts()
+
+        if (resultCode == CreatePostsActivity.RESULT_POSTS_UPDATE) {
+            view_pager.currentItem = 0
+        }
+        if (resultCode == CreatePostsActivity.RESULT_DRAFT_UPDATE) {
+            view_pager.currentItem = 1
         }
     }
 
@@ -87,11 +87,16 @@ class PostsListActivity : AppCompatActivity() {
             }
         })
     }
-    fun onClickPostsItem(posts: Posts) {
-        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
-        val i = PostsDetailActivity.createIntent(this@PostsListActivity, blogId!!, posts)
-        startActivityForResult(i, REQUEST_CODE_DELETE_POST)
-
+    fun onClickPostsItem(posts: Posts, listType: Int) {
+        if (listType == PostsListFragment.LIST_POSTS) {
+            // publish
+            val i = CreatePostsActivity.createPostsIntent(this@PostsListActivity, posts)
+            startActivityForResult(i, CreatePostsActivity.REQUEST_EDIT_POSTS)
+        } else {
+            // draft
+            val i = CreatePostsActivity.createDraftIntent(this@PostsListActivity, posts)
+            startActivityForResult(i, CreatePostsActivity.REQUEST_EDIT_DRAFT)
+        }
     }
 
     /**
@@ -109,9 +114,9 @@ class PostsListActivity : AppCompatActivity() {
         override fun getItem(position: Int): Fragment {
             Log.d("Adapter", "getItem position=$position")
             return if (position == 0) {
-                PostsListFragment.newInstance(livePosts)
+                PostsListFragment.newInstance(livePosts, PostsListFragment.LIST_POSTS)
             } else {
-                PostsListFragment.newInstance(draftPosts)
+                PostsListFragment.newInstance(draftPosts, PostsListFragment.LIST_DRAFT)
             }
         }
 
@@ -143,12 +148,16 @@ class PostsListActivity : AppCompatActivity() {
      */
     class PostsListFragment : Fragment() {
         companion object {
-            private const val EXTRA_POSTS_RESPONSE = "EXTRA_POSTS_RESPONSE"
             private val TAG = PostsListFragment::class.java.simpleName
-            fun newInstance(posts: PostsResponse?): PostsListFragment =
+            private const val EXTRA_POSTS_RESPONSE = "EXTRA_POSTS_RESPONSE"
+            private const val EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE"
+            public const val LIST_POSTS = 1
+            public const val LIST_DRAFT = 2
+            fun newInstance(posts: PostsResponse?, listType: Int): PostsListFragment =
                 PostsListFragment().apply {
                     val bundle = Bundle().apply {
                         putParcelable(EXTRA_POSTS_RESPONSE, posts)
+                        putInt(EXTRA_LIST_TYPE, listType)
                     }
                     arguments = bundle
                 }
@@ -174,7 +183,8 @@ class PostsListActivity : AppCompatActivity() {
                             return
                         }
                         if (activity is PostsListActivity) {
-                            (activity as PostsListActivity).onClickPostsItem(posts)
+                            val type = arguments!!.getInt(EXTRA_LIST_TYPE)
+                            (activity as PostsListActivity).onClickPostsItem(posts, type)
                         }
                     }
                 })

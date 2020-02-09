@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/open_in_browser"
+        android:icon="@drawable/ic_open_in_browser_black_24dp"
+        app:showAsAction="always"
+        android:title="@string/menu_posts_detail_open_in_browser" />
+
+    <item
+        android:id="@+id/delete_posts"
+        android:icon="@drawable/ic_delete_black_24dp"
+        app:showAsAction="always"
+        android:title="@string/menu_posts_detail_delete_posts" />
+
+    <item
+        android:id="@+id/update_draft"
+        android:icon="@drawable/ic_file_upload_black_24dp"
+        app:showAsAction="always"
+        android:title="@string/menu_create_posts_send_draft"/>
+    <item
+        android:id="@+id/update_posts"
+        android:icon="@drawable/ic_send_black_24dp"
+        app:showAsAction="always"
+        android:title="@string/menu_create_posts_send_post" />
+</menu>

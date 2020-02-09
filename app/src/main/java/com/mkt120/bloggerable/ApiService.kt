@@ -46,6 +46,23 @@ interface ApiService {
         @Query("isDraft") isDraft: Boolean = false
     ): Call<Any>
 
+    @PUT("blogger/v3/blogs/{blogId}/posts/{postId}")
+    fun updatePosts(
+        @Header("Authorization") accessToken: String?,
+        @Path("blogId") blogId: String,
+        @Path("postId") postId: String,
+        @Query("key") apiKey: String,
+        @Body post: HashMap<String, Any>
+    ): Call<Any>
+
+    @POST("blogger/v3/blogs/{blogId}/posts/{postId}/publish")
+    fun publishPosts(
+        @Header("Authorization") accessToken: String?,
+        @Path("blogId") blogId: String,
+        @Path("postId") postId: String,
+        @Query("key") apiKey: String
+    ): Call<Any>
+
     @DELETE("blogger/v3/blogs/{blogId}/posts/{postId}")
     fun deletePosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Path("postId") postId: String, @Query("key") apiKey: String): Call<Any>
 

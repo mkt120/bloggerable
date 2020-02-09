@@ -24,7 +24,6 @@
         <activity android:name=".PostsListActivity" />
         <activity android:name=".CreatePostsActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".PostsDetailActivity" />
     </application>
 
 </manifest>

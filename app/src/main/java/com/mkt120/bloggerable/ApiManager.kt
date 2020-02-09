@@ -94,6 +94,9 @@ object ApiManager {
         })
     }
 
+    /**
+     * アクセストークンを再取得する
+     */
     fun refreshToken(
         redirectUri: String,
         refreshToken: String,
@@ -146,10 +149,10 @@ object ApiManager {
         if (PreferenceManager.isExpiredDateMillis()) {
             val refreshToken = PreferenceManager.refreshToken
             refreshToken("", refreshToken, object : Listener {
-                    override fun onResponse() {
-                        getBlogs(listener)
-                    }
-                })
+                override fun onResponse() {
+                    getBlogs(listener)
+                }
+            })
             return
         }
 
@@ -184,13 +187,12 @@ object ApiManager {
         if (PreferenceManager.isExpiredDateMillis()) {
             val refreshToken = PreferenceManager.refreshToken
             refreshToken("", refreshToken, object : Listener {
-                    override fun onResponse() {
-                        getPosts(blogId, listener, status)
-                    }
-                })
+                override fun onResponse() {
+                    getPosts(blogId, listener, status)
+                }
+            })
             return
         }
-
 
         val accessToken = PreferenceManager.accessToken
         apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY, status)
@@ -209,6 +211,9 @@ object ApiManager {
             })
     }
 
+    /**
+     * 投稿する
+     */
     fun createPosts(
         blogId: String,
         title: String,
@@ -220,10 +225,10 @@ object ApiManager {
         if (PreferenceManager.isExpiredDateMillis()) {
             val refreshToken = PreferenceManager.refreshToken
             refreshToken("", refreshToken, object : Listener {
-                    override fun onResponse() {
-                        createPosts(blogId, title, content, labels, isDraft, listener)
-                    }
-                })
+                override fun onResponse() {
+                    createPosts(blogId, title, content, labels, isDraft, listener)
+                }
+            })
             return
         }
 
@@ -251,14 +256,95 @@ object ApiManager {
             })
     }
 
+    /**
+     * 投稿を更新する
+     */
+    fun updatePosts(old: Posts, listener: CompleteListener) {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                override fun onResponse() {
+                    updatePosts(old, listener)
+                }
+            })
+            return
+        }
+
+        val accessToken = PreferenceManager.accessToken
+        val posts = Posts.createPosts(
+            old.title!!,
+            old.content!!,
+            mutableListOf<String>(old.labels.toString())
+        )
+        apiService.updatePosts(
+            "Bearer $accessToken",
+            old.blog!!.id!!,
+            old.id!!,
+            BuildConfig.BLOGGERABLE_API_KEY,
+            posts
+        )
+            .enqueue(object : Callback<Any> {
+                override fun onResponse(
+                    call: Call<Any>,
+                    response: Response<Any>
+                ) {
+                    listener.onComplete()
+                }
+
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d(TAG, "onFailure", t)
+                    listener.onFailed(t)
+                }
+            })
+    }
+
+    /**
+     * 下書きを公開(投稿)する
+     */
+    fun publishPosts(blogId: String, postsId: String, listener: CompleteListener) {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                override fun onResponse() {
+                    publishPosts(blogId, postsId, listener)
+                }
+            })
+            return
+        }
+
+        val accessToken = PreferenceManager.accessToken
+        apiService.publishPosts(
+            "Bearer $accessToken",
+            blogId,
+            postsId,
+            BuildConfig.BLOGGERABLE_API_KEY
+        )
+            .enqueue(object : Callback<Any> {
+                override fun onResponse(
+                    call: Call<Any>,
+                    response: Response<Any>
+                ) {
+                    listener.onComplete()
+                }
+
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d(TAG, "onFailure", t)
+                    listener.onFailed(t)
+                }
+            })
+    }
+
+    /**
+     * 投稿を削除する
+     */
     fun deletePosts(blogId: String, postId: String, listener: CompleteListener) {
         if (PreferenceManager.isExpiredDateMillis()) {
             val refreshToken = PreferenceManager.refreshToken
             refreshToken("", refreshToken, object : Listener {
-                    override fun onResponse() {
-                        deletePosts(blogId, postId, listener)
-                    }
-                })
+                override fun onResponse() {
+                    deletePosts(blogId, postId, listener)
+                }
+            })
             return
         }
 
@@ -294,6 +380,10 @@ object ApiManager {
 
     public interface PostsListener {
         fun onResponse(post: PostsResponse?)
+    }
+
+    public interface PostListener {
+        fun onResponse(post: Posts?)
     }
 
     public interface CompleteListener {
