@@ -50,7 +50,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
             }
 
-        fun createDraftIntent(context: Context, posts:Posts) :Intent =
+        fun createDraftIntent(context: Context, posts: Posts): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
                 putExtra(EXTRA_KEY_REQUEST_CODE, REQUEST_EDIT_DRAFT)
                 putExtra(EXTRA_KEY_BLOG_ID, posts.blog!!.id)
@@ -542,13 +542,17 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
      */
     private fun deletePosts(isDraft: Boolean) {
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
-        val posts= intent.getParcelableExtra<Posts>(EXTRA_KEY_POSTS)!!
+        val posts = intent.getParcelableExtra<Posts>(EXTRA_KEY_POSTS)!!
         ApiManager.deletePosts(
             blogId,
             posts.id!!,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
-                    Toast.makeText(this@CreatePostsActivity, R.string.toast_success_delete_posts, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@CreatePostsActivity,
+                        R.string.toast_success_delete_posts,
+                        Toast.LENGTH_SHORT
+                    ).show()
                     if (isDraft) {
                         setResult(RESULT_DRAFT_UPDATE)
                     } else {
@@ -556,13 +560,18 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                     }
                     finish()
                 }
+
                 override fun onFailed(t: Throwable) {
-                    Toast.makeText(this@CreatePostsActivity, R.string.toast_failed_delete_posts, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@CreatePostsActivity,
+                        R.string.toast_failed_delete_posts,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
     }
 
-    private fun publishPosts(posts:Posts) {
+    private fun publishPosts(posts: Posts) {
         ApiManager.updatePosts(posts, object : ApiManager.CompleteListener {
             override fun onComplete() {
                 Toast.makeText(
@@ -597,17 +606,42 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     }
 
     override fun onBackPressed() {
-        if (edit_text_contents.text.isNotEmpty()) {
-            val confirmDialog: ConfirmDialog = ConfirmDialog.newInstance()
-            confirmDialog.show(supportFragmentManager, null)
-            return
+        val posts = intent.getParcelableExtra<Posts>(EXTRA_KEY_POSTS)
+        val title = edit_text_title.text.toString()
+        val html = edit_text_contents.text.toString()
+        // todo:改善の余地あり
+        if (posts == null) {
+            if (title.isNotEmpty() || html.isNotEmpty()) {
+                val confirmDialog: ConfirmDialog =
+                    ConfirmDialog.newInstance(ConfirmDialog.TYPE_CREATE)
+                confirmDialog.show(supportFragmentManager, null)
+                return
+            }
+        } else {
+            if (posts.isChange(title, html)) {
+                if (intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_POSTS) {
+                    val confirmDialog: ConfirmDialog =
+                        ConfirmDialog.newInstance(ConfirmDialog.TYPE_EDIT_POSTS)
+                    confirmDialog.show(supportFragmentManager, null)
+                } else {
+                    val confirmDialog: ConfirmDialog =
+                        ConfirmDialog.newInstance(ConfirmDialog.TYPE_EDIT_DRAFT)
+                    confirmDialog.show(supportFragmentManager, null)
+                }
+                return
+            }
         }
         super.onBackPressed()
     }
 
-    fun onPositiveClick() {
-        createPosts(true)
+    fun onPositiveClick(createPost: Boolean, isDraft: Boolean = false) {
+        if (createPost) {
+            createPosts(true)
+        } else {
+            updatePosts(isDraft)
+        }
     }
+
     fun onNegativeClick() {
         finish()
     }
@@ -615,25 +649,46 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     class ConfirmDialog : DialogFragment() {
 
         companion object {
-            fun newInstance(): ConfirmDialog = ConfirmDialog()
+            private const val EXTRA_TYPE = "EXTRA_TYPE"
+            const val TYPE_CREATE = 1
+            const val TYPE_EDIT_POSTS = 2
+            const val TYPE_EDIT_DRAFT = 3
+            fun newInstance(type: Int): ConfirmDialog = ConfirmDialog().apply {
+                val bundle = Bundle().apply {
+                    putInt(EXTRA_TYPE, type)
+                }
+                arguments = bundle
+            }
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val builder = AlertDialog.Builder(requireContext())
             builder.setMessage(R.string.create_posts_dialog_message)
-                .setPositiveButton(R.string.create_posts_dialog_positive_button) { _, _ ->
+            val type = arguments!!.getInt(EXTRA_TYPE)
+            if (type == TYPE_CREATE) {
+                builder.setPositiveButton(R.string.create_posts_dialog_positive_button_create_draft) { _, _ ->
                     if (activity is CreatePostsActivity) {
-                        (activity as CreatePostsActivity).onPositiveClick()
+                        (activity as CreatePostsActivity).onPositiveClick(createPost = true, isDraft = false)
                     }
                     dismiss()
                 }
-                .setNegativeButton(R.string.create_posts_dialog_negative_button) { _, _ ->
+            } else {
+                builder.setPositiveButton(R.string.create_posts_dialog_positive_button_update) { _, _ ->
                     if (activity is CreatePostsActivity) {
-                        (activity as CreatePostsActivity).onNegativeClick()
+                        val isDraft = type == TYPE_EDIT_DRAFT
+                        (activity as CreatePostsActivity).onPositiveClick(false, isDraft)
                     }
                     dismiss()
                 }
-                .setNeutralButton(android.R.string.cancel, null)
+            }
+
+            builder.setNegativeButton(R.string.create_posts_dialog_negative_button) { _, _ ->
+                if (activity is CreatePostsActivity) {
+                    (activity as CreatePostsActivity).onNegativeClick()
+                }
+                dismiss()
+            }
+            builder.setNeutralButton(android.R.string.cancel, null)
             return builder.create()
         }
     }
@@ -646,11 +701,12 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
     class ConfirmDeleteDialog : DialogFragment() {
         companion object {
-            fun newInstance() : ConfirmDeleteDialog = ConfirmDeleteDialog()
+            fun newInstance(): ConfirmDeleteDialog = ConfirmDeleteDialog()
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val builder : android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
+            val builder: android.app.AlertDialog.Builder =
+                android.app.AlertDialog.Builder(requireContext())
             builder.setMessage(R.string.create_posts_delete_dialog_message)
                 .setPositiveButton(android.R.string.yes) { _, _ ->
                     if (activity is CreatePostsActivity) {

@@ -2,6 +2,7 @@ package com.mkt120.bloggerable.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.text.Html
 
 data class Posts(
     var kind: String? = null,
@@ -65,7 +66,11 @@ data class Posts(
     }
 
     companion object {
-        public fun createPosts(title: String, content: String, labels: MutableList<String>?): HashMap<String, Any> =
+        public fun createPosts(
+            title: String,
+            content: String,
+            labels: MutableList<String>?
+        ): HashMap<String, Any> =
             HashMap<String, Any>().apply {
                 this["title"] = title
                 this["content"] = content
@@ -79,5 +84,13 @@ data class Posts(
             override fun createFromParcel(source: Parcel): Posts = Posts(source)
             override fun newArray(size: Int): Array<Posts?> = arrayOfNulls(size)
         }
+    }
+
+    fun isChange(title: String, content: String): Boolean {
+        val changeTitle = this.title != title
+        // todo:改善余地あり
+        val changeContent = Html.fromHtml(this.content, Html.FROM_HTML_MODE_COMPACT).toString() != content
+
+        return changeTitle || changeContent
     }
 }
