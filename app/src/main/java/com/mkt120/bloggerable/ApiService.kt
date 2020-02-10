@@ -63,6 +63,14 @@ interface ApiService {
         @Query("key") apiKey: String
     ): Call<Any>
 
+    @POST("blogger/v3/blogs/{blogId}/posts/{postId}/revert")
+    fun revertPosts(
+        @Header("Authorization") accessToken: String?,
+        @Path("blogId") blogId: String,
+        @Path("postId") postId: String,
+        @Query("key") apiKey: String
+    ):Call<Any>
+
     @DELETE("blogger/v3/blogs/{blogId}/posts/{postId}")
     fun deletePosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Path("postId") postId: String, @Query("key") apiKey: String): Call<Any>
 

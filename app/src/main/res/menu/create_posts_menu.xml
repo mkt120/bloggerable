@@ -5,7 +5,7 @@
         android:id="@+id/upload_as_draft"
         android:icon="@drawable/ic_file_upload_black_24dp"
         app:showAsAction="always"
-        android:title="@string/menu_create_posts_send_draft"/>
+        android:title="@string/menu_update_draft"/>
     <item
         android:id="@+id/create_posts"
         android:icon="@drawable/ic_send_black_24dp"

@@ -453,6 +453,14 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 dialog.show(supportFragmentManager, null)
                 return true
             }
+            R.id.publish_draft -> {
+                updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT, true)
+                return true
+            }
+            R.id.revert_posts -> {
+                updatePosts(isDraft = false, isPublish = false, isRevert = true)
+                return true
+            }
         }
         return false
     }
@@ -460,7 +468,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     /**
      * 投稿を更新する
      */
-    private fun updatePosts(isDraft: Boolean, isPublish: Boolean = false) {
+    private fun updatePosts(isDraft: Boolean, isPublish: Boolean = false, isRevert:Boolean = false) {
         val posts = intent.getParcelableExtra<Posts>(EXTRA_KEY_POSTS)!!
         val title = edit_text_title.text.toString()
 
@@ -480,22 +488,23 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         posts.labels = createLabels()
         ApiManager.updatePosts(posts, object : ApiManager.CompleteListener {
             override fun onComplete() {
-                Toast.makeText(
-                    this@CreatePostsActivity,
-                    R.string.toast_success_update_posts,
-                    Toast.LENGTH_SHORT
-                ).show()
-                if (isPublish) {
-                    publishPosts(posts)
-                } else {
-                    // todo: 更新
-                    if (isDraft) {
-                        setResult(RESULT_DRAFT_UPDATE)
-                    } else {
-                        setResult(RESULT_POSTS_UPDATE)
+                when {
+                    isPublish -> publishPosts(posts)
+                    isRevert -> revertPosts(posts.blog!!.id!!, posts.id!!)
+                    else -> {
+                        Toast.makeText(
+                            this@CreatePostsActivity,
+                            R.string.toast_success_update_posts,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        if (isDraft) {
+                            setResult(RESULT_DRAFT_UPDATE)
+                        } else {
+                            setResult(RESULT_POSTS_UPDATE)
+                        }
+                        finish()
                     }
                 }
-                finish()
             }
 
             override fun onFailed(t: Throwable) {
@@ -557,6 +566,25 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             })
     }
 
+    private fun revertPosts(blogId: String, postsId: String) {
+        ApiManager.revertPosts(blogId, postsId, object :ApiManager.CompleteListener {
+            override fun onComplete() {
+                Toast.makeText(
+                    this@CreatePostsActivity,
+                    "投稿を下書きに戻しました",
+                    Toast.LENGTH_SHORT
+                ).show()
+                setResult(RESULT_DRAFT_UPDATE)
+                finish()
+
+            }
+
+            override fun onFailed(t: Throwable) {
+            }
+
+        })
+    }
+
     /**
      * 投稿を削除する
      */
@@ -592,11 +620,11 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     }
 
     private fun publishPosts(posts: Posts) {
-        ApiManager.updatePosts(posts, object : ApiManager.CompleteListener {
+        ApiManager.publishPosts(posts.blog!!.id!!, posts.id!!, object : ApiManager.CompleteListener {
             override fun onComplete() {
                 Toast.makeText(
                     this@CreatePostsActivity,
-                    R.string.toast_success_update_posts,
+                    "投稿を公開しました",
                     Toast.LENGTH_SHORT
                 ).show()
                 setResult(RESULT_POSTS_UPDATE)

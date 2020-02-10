@@ -335,6 +335,42 @@ object ApiManager {
     }
 
     /**
+     * 投稿を下書きに戻す
+     */
+    fun revertPosts(blogId: String, postId: String, listener: CompleteListener) {
+        if (PreferenceManager.isExpiredDateMillis()) {
+            val refreshToken = PreferenceManager.refreshToken
+            refreshToken("", refreshToken, object : Listener {
+                override fun onResponse() {
+                    revertPosts(blogId, postId, listener)
+                }
+            })
+            return
+        }
+
+        val accessToken = PreferenceManager.accessToken
+        apiService.revertPosts(
+            "Bearer $accessToken",
+            blogId,
+            postId,
+            BuildConfig.BLOGGERABLE_API_KEY
+        )
+            .enqueue(object : Callback<Any> {
+                override fun onResponse(
+                    call: Call<Any>,
+                    response: Response<Any>
+                ) {
+                    listener.onComplete()
+                }
+
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    Log.d(TAG, "onFailure", t)
+                    listener.onFailed(t)
+                }
+            })
+    }
+
+    /**
      * 投稿を削除する
      */
     fun deletePosts(blogId: String, postId: String, listener: CompleteListener) {
@@ -380,10 +416,6 @@ object ApiManager {
 
     public interface PostsListener {
         fun onResponse(post: PostsResponse?)
-    }
-
-    public interface PostListener {
-        fun onResponse(post: Posts?)
     }
 
     public interface CompleteListener {
