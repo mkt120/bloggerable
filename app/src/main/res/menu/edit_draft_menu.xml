@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/open_in_browser"
-        android:icon="@drawable/ic_open_in_browser_black_24dp"
-        app:showAsAction="always"
-        android:title="@string/menu_posts_detail_open_in_browser" />
-
-    <item
         android:id="@+id/delete_posts"
         android:icon="@drawable/ic_delete_black_24dp"
         app:showAsAction="always"

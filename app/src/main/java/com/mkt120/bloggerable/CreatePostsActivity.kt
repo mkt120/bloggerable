@@ -73,7 +73,18 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_post)
 
-        tool_bar.setTitle(R.string.create_posts_title)
+        when (intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)) {
+            REQUEST_CREATE_POSTS -> {
+                tool_bar.setTitle(R.string.create_posts_title)
+            }
+            REQUEST_EDIT_POSTS -> {
+                tool_bar.setTitle(R.string.edit_posts_title)
+            }
+            REQUEST_EDIT_DRAFT -> {
+                tool_bar.setTitle(R.string.edit_draft_title)
+            }
+        }
+
         when (intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)) {
             REQUEST_CREATE_POSTS -> {
                 tool_bar.inflateMenu(R.menu.create_posts_menu)
@@ -423,23 +434,25 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 } else {
                     updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT)
                 }
-
                 return true
             }
             R.id.update_posts -> {
                 updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT)
+                return true
             }
             R.id.update_draft -> {
                 updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT)
+                return true
             }
             R.id.upload_as_draft -> {
                 createPosts(true)
+                return true
             }
             R.id.delete_posts -> {
                 val dialog = ConfirmDeleteDialog.newInstance()
                 dialog.show(supportFragmentManager, null)
+                return true
             }
-
         }
         return false
     }
