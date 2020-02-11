@@ -76,7 +76,7 @@
         android:layout_weight="1"
         android:gravity="top"
         android:hint="@string/create_posts_hint_contents"
-        android:inputType="text"
+        android:inputType="textMultiLine"
         android:textSize="@dimen/create_post_edit_text_contents" />
 
     <LinearLayout
