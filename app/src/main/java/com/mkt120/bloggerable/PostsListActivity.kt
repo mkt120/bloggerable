@@ -3,13 +3,16 @@ package com.mkt120.bloggerable
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -17,20 +20,24 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.model.Posts
+import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlinx.android.synthetic.main.activity_posts_list.*
+import kotlinx.android.synthetic.main.activity_posts_list.tool_bar
 import kotlinx.android.synthetic.main.fragment_posts_list.*
 import kotlinx.android.synthetic.main.include_posts_view_holder.view.*
 
-class PostsListActivity : AppCompatActivity() {
+class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
         private const val EXTRA_KEY_BLOG_NAME = "EXTRA_KEY_BLOG_NAME"
+        private const val EXTRA_KEY_BLOG_URL = "EXTRA_KEY_BLOG_URL"
 
-        fun createIntent(context: Context, blogId: String, name: String): Intent =
+        fun createIntent(context: Context, blogId: String, name: String, url:String): Intent =
             Intent(context, PostsListActivity::class.java).apply {
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
                 putExtra(EXTRA_KEY_BLOG_NAME, name)
+                putExtra(EXTRA_KEY_BLOG_URL, url)
             }
     }
 
@@ -40,6 +47,8 @@ class PostsListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_posts_list)
         tool_bar.title = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)
+        tool_bar.inflateMenu(R.menu.posts_list_menu)
+        tool_bar.setOnMenuItemClickListener(this)
         adapter = Adapter(applicationContext, null, null, supportFragmentManager)
         view_pager.adapter = adapter
         tabs.setupWithViewPager(view_pager)
@@ -67,6 +76,23 @@ class PostsListActivity : AppCompatActivity() {
         if (resultCode == CreatePostsActivity.RESULT_DRAFT_UPDATE) {
             view_pager.currentItem = 1
         }
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        item?.let {
+            return when (item.itemId) {
+                R.id.open_in_browser -> {
+                    val url = intent.getStringExtra(EXTRA_KEY_BLOG_URL)
+                    val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(i)
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
+        }
+        return false
     }
 
     private fun requestPosts() {

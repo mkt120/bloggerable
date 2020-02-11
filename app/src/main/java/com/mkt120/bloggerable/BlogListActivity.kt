@@ -35,7 +35,8 @@ class BlogListActivity : AppCompatActivity() {
                         PostsListActivity.createIntent(
                             this@BlogListActivity,
                             blogs.id!!,
-                            blogs.name!!
+                            blogs.name!!,
+                            blogs.url!!
                         )
                     startActivity(intent)
                 }
