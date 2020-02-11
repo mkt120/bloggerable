@@ -3,6 +3,8 @@ package com.mkt120.bloggerable.model
 import android.os.Parcel
 import android.os.Parcelable
 import android.text.Html
+import java.text.SimpleDateFormat
+import java.util.*
 
 data class Posts(
     var kind: String? = null,
@@ -14,6 +16,7 @@ data class Posts(
     var selfLink: String? = null,
     var title: String? = null,
     var content: String? = null,
+    var replies: Reply? = null,
     var labels: Array<String>? = null
 ) : Parcelable {
 
@@ -37,6 +40,45 @@ data class Posts(
         }
     }
 
+    data class Reply(var totalItems: Long? = null) : Parcelable {
+        constructor(source: Parcel) : this(
+            source.readValue(Long::class.java.classLoader) as Long?
+        )
+
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+            writeValue(totalItems)
+        }
+
+        companion object {
+            @JvmField
+            val CREATOR: Parcelable.Creator<Reply> = object : Parcelable.Creator<Reply> {
+                override fun createFromParcel(source: Parcel): Reply = Reply(source)
+                override fun newArray(size: Int): Array<Reply?> = arrayOfNulls(size)
+            }
+        }
+    }
+
+    fun isChange(title: String, content: String): Boolean {
+        val changeTitle = this.title != title
+        // todo:改善余地あり
+        val changeContent =
+            Html.fromHtml(this.content, Html.FROM_HTML_MODE_COMPACT).toString() != content
+
+        return changeTitle || changeContent
+    }
+
+    private fun getDate(): Date {
+        val format = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ", Locale.JAPAN)
+        return format.parse(published)
+    }
+
+    fun getStringDate(): String {
+        val format = SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.JAPAN)
+        return format.format(getDate())
+    }
+
     constructor(source: Parcel) : this(
         source.readString(),
         source.readString(),
@@ -47,6 +89,7 @@ data class Posts(
         source.readString(),
         source.readString(),
         source.readString(),
+        source.readParcelable<Reply>(Reply::class.java.classLoader),
         source.createStringArray()
     )
 
@@ -62,6 +105,7 @@ data class Posts(
         writeString(selfLink)
         writeString(title)
         writeString(content)
+        writeParcelable(replies, 0)
         writeStringArray(labels)
     }
 
@@ -84,13 +128,5 @@ data class Posts(
             override fun createFromParcel(source: Parcel): Posts = Posts(source)
             override fun newArray(size: Int): Array<Posts?> = arrayOfNulls(size)
         }
-    }
-
-    fun isChange(title: String, content: String): Boolean {
-        val changeTitle = this.title != title
-        // todo:改善余地あり
-        val changeContent = Html.fromHtml(this.content, Html.FROM_HTML_MODE_COMPACT).toString() != content
-
-        return changeTitle || changeContent
     }
 }

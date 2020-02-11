@@ -87,6 +87,7 @@ class PostsListActivity : AppCompatActivity() {
             }
         })
     }
+
     fun onClickPostsItem(posts: Posts, listType: Int) {
         if (listType == PostsListFragment.LIST_POSTS) {
             // publish
@@ -109,8 +110,10 @@ class PostsListActivity : AppCompatActivity() {
         fragmentManager: FragmentManager
     ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         companion object {
-            private val PAGE_TITLES = arrayOf(R.string.posts_list_title_posts, R.string.posts_list_title_draft)
+            private val PAGE_TITLES =
+                arrayOf(R.string.posts_list_title_posts, R.string.posts_list_title_draft)
         }
+
         override fun getItem(position: Int): Fragment {
             Log.d("Adapter", "getItem position=$position")
             return if (position == 0) {
@@ -229,11 +232,20 @@ class PostsListActivity : AppCompatActivity() {
                 }
 
                 fun bindData(posts: Posts, listener: PostsClickListener) {
+                    //todo:改善の余地あり
                     itemView.title_view.text =
                         Html.fromHtml(posts.title, Html.FROM_HTML_MODE_LEGACY).toString()
                     itemView.contents_view.text =
                         Html.fromHtml(posts.content, Html.FROM_HTML_MODE_LEGACY).toString().trim()
-                    itemView.published_view.text = posts.published
+                            .replace("\n", " ")
+                    itemView.comment_count_view.text = itemView.context.getString(
+                        R.string.posts_list_comment_count,
+                        posts.replies!!.totalItems.toString()
+                    )
+
+                    val date = posts.getStringDate()
+                    itemView.published_view.text =
+                        itemView.context.getString(R.string.posts_list_publish_date, date)
                     itemView.setOnClickListener {
                         listener.onClick(posts)
                     }
