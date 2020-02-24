@@ -50,4 +50,10 @@
     <dimen name="label_padding_hor">5dp</dimen>
     <dimen name="label_padding_ver">5dp</dimen>
     <dimen name="label_round_corner">10dp</dimen>
+
+    <dimen name="dialog_view_group_padding">15dp</dimen>
+    <dimen name="dialog_title_padding_side">15dp</dimen>
+    <dimen name="dialog_content_padding_side">30dp</dimen>
+    <dimen name="dialog_content_padding_top">15dp</dimen>
+    <dimen name="dialog_content_padding_bottom">@dimen/dialog_content_padding_top</dimen>
 </resources>

@@ -120,6 +120,11 @@ class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
                     startActivity(i)
                     true
                 }
+                R.id.about_this_blog -> {
+                    val dialogFragment = BlogInfoDialogFragment.newInstance(currentBlog!!)
+                    dialogFragment.show(supportFragmentManager, null)
+                    true
+                }
                 else -> {
                     false
                 }

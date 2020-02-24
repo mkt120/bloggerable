@@ -124,12 +124,19 @@ data class Blogs(
         parcel.readParcelable(Posts::class.java.classLoader),
         parcel.readParcelable(Pages::class.java.classLoader),
         parcel.readParcelable(Locale::class.java.classLoader)
-    ) {
+    )
+
+    fun getPublishDate(): Date {
+        return getDate(published!!)
     }
 
     fun getLastUpdate(): Date {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ", java.util.Locale.JAPAN)
-        return simpleDateFormat.parse(updated)
+        return getDate(updated!!)
+    }
+
+    fun getDate(date: String) : Date {
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.JAPAN)
+        return simpleDateFormat.parse(date)
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

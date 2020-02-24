@@ -8,4 +8,10 @@
         app:showAsAction="ifRoom"
         android:title="@string/menu_open_in_browser" />
 
+    <item
+        android:id="@+id/about_this_blog"
+        android:icon="@drawable/ic_info_outline_black_24dp"
+        app:showAsAction="ifRoom"
+        android:title="@string/menu_about_this_blog" />
+
 </menu>

@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Bloggerable</string>
 
+    <string name="close">閉じる</string>
+
     <!-- ブログ一覧 -->
 
     <string name="blogs_posts_title">ブログ一覧</string>
@@ -9,6 +11,13 @@
     <string name="posts_list_publish_date">公開日:%s</string>
     <string name="posts_list_comment_count">コメント数:%s</string>
 
+    <string name="dialog_about_this_blog_title">ブログ情報</string>
+    <string name="dialog_about_this_blog_name">ブログ名</string>
+    <string name="dialog_about_this_blog_description">説明</string>
+    <string name="dialog_about_this_blog_publish_date">公開日</string>
+    <string name="dialog_about_this_blog_last_update">最終更新日</string>
+    <string name="dialog_about_this_blog_last_post_count">投稿数</string>
+
     <string name="drawer_menu_blog_list">ブログ一覧</string>
     <string name="drawer_menu_about_this_app">このアプリについて</string>
 
@@ -16,6 +25,7 @@
     <string name="menu_open_in_browser">ブラウザで開く</string>
     <string name="menu_publish">公開する</string>
     <string name="menu_revert_posts">下書きに戻す</string>
+    <string name="menu_about_this_blog">ブログ情報</string>
 
     <string name="toast_success_delete_posts">投稿を削除しました</string>
     <string name="toast_failed_delete_posts">削除に失敗しました</string>

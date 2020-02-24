@@ -70,12 +70,12 @@ data class Posts(
     }
 
     private fun getDate(): Date {
-        val format = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ", Locale.JAPAN)
+        val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.JAPAN)
         return format.parse(published)
     }
 
     fun getStringDate(): String {
-        val format = SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.JAPAN)
+        val format = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.JAPAN)
         return format.format(getDate())
     }
 
