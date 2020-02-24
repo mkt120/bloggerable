@@ -3,6 +3,11 @@
 
     <dimen name="border_height">1dp</dimen>
 
+    <dimen name="login_icon_size">150dp</dimen>
+    <dimen name="login_sign_in_app_name_text_size">20sp</dimen>
+    <dimen name="login_sign_in_app_name_margin">15dp</dimen>
+    <dimen name="login_sign_in_button_margin">15dp</dimen>
+
     <!-- ブログ一覧 -->
     <dimen name="blogs_item_name">20sp</dimen>
     <dimen name="blogs_item_margin">10dp</dimen>

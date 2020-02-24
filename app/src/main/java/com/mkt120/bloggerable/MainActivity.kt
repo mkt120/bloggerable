@@ -3,6 +3,7 @@ package com.mkt120.bloggerable
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -11,13 +12,16 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.mkt120.bloggerable.api.BlogsResponse
 import kotlinx.android.synthetic.main.activity_main.*
 
-
+/**
+ * ログイン画面
+ */
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        val TAG: String = MainActivity::class.java.simpleName
+        private val TAG: String = MainActivity::class.java.simpleName
 
         const val STRING_SCOPE_BLOGGER = "https://www.googleapis.com/auth/blogger"
 
@@ -26,10 +30,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         if (!PreferenceManager.isExpiredDateMillis()) {
             // 有効期限内トークン
-            goBlogList()
+            requestBlogList()
             return
         }
 
@@ -41,8 +46,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        setContentView(R.layout.activity_main)
-
+        sign_in_button.visibility = View.VISIBLE
         sign_in_button.setSize(SignInButton.SIZE_STANDARD)
         sign_in_button.setOnClickListener {
             // try to sign in
@@ -91,7 +95,7 @@ class MainActivity : AppCompatActivity() {
     private fun requestAccessToken(account: GoogleSignInAccount) {
         ApiManager.requestAccessToken(account.serverAuthCode!!, "", object : ApiManager.Listener {
             override fun onResponse() {
-                goBlogList()
+                requestBlogList()
             }
         })
     }
@@ -101,15 +105,22 @@ class MainActivity : AppCompatActivity() {
         val refreshToken = PreferenceManager.refreshToken
         ApiManager.refreshToken("", refreshToken, object : ApiManager.Listener {
             override fun onResponse() {
-                goBlogList()
+                requestBlogList()
             }
         })
     }
 
-    private fun goBlogList() {
-        val intent = Intent(this@MainActivity, BlogListActivity::class.java)
-        startActivity(intent)
-        finish()
+    private fun requestBlogList() {
+        ApiManager.getBlogs(object : ApiManager.BlogListener {
+            override fun onResponse(blogsResponse: BlogsResponse?) {
+                val intent = PostsListActivity.createIntent(
+                    this@MainActivity,
+                    blogsResponse!!
+                )
+                startActivity(intent)
+                finish()
+            }
+        })
     }
 
 }
