@@ -12,6 +12,26 @@
     <dimen name="blogs_item_count">14sp</dimen>
     <dimen name="blogs_item_last_update">14sp</dimen>
 
+    <dimen name="drawer_menu_width">250dp</dimen>
+    <dimen name="drawer_menu_account_area_height">200dp</dimen>
+    <dimen name="drawer_menu_account_area_padding">20dp</dimen>
+    <dimen name="drawer_menu_account_place_holder_size">50dp</dimen>
+    <dimen name="drawer_menu_account_place_holder_name_margin">5dp</dimen>
+    <dimen name="drawer_menu_account_icon_size">@dimen/drawer_menu_account_place_holder_size</dimen>
+    <dimen name="drawer_menu_content_text_size">16sp</dimen>
+    <dimen name="drawer_menu_content_padding_side">15dp</dimen>
+    <dimen name="drawer_menu_content_padding_top">10dp</dimen>
+    <dimen name="drawer_menu_content_padding_bottom">@dimen/drawer_menu_content_padding_top</dimen>
+    <dimen name="drawer_menu_blog_section_text_size">16sp</dimen>
+    <dimen name="drawer_menu_blog_section_padding_side">@dimen/drawer_menu_content_padding_side</dimen>
+    <dimen name="drawer_menu_blog_section_padding_top">@dimen/drawer_menu_content_padding_top</dimen>
+    <dimen name="drawer_menu_blog_section_padding_bottom">@dimen/drawer_menu_content_padding_bottom</dimen>
+    <dimen name="drawer_menu_blog_item_text_size">14sp</dimen>
+    <dimen name="drawer_menu_blog_item_padding_left">30dp</dimen>
+    <dimen name="drawer_menu_blog_item_padding_top">@dimen/drawer_menu_content_padding_top</dimen>
+    <dimen name="drawer_menu_blog_item_padding_right">@dimen/drawer_menu_content_padding_side</dimen>
+    <dimen name="drawer_menu_blog_item_padding_bottom">@dimen/drawer_menu_content_padding_bottom</dimen>
+
     <!-- 新規投稿画面 CreatePostScreen -->
     <dimen name="create_post_edit_text_title">18sp</dimen>
     <dimen name="create_post_margin_side">10dp</dimen>

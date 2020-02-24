@@ -31,13 +31,10 @@ class BlogListActivity : AppCompatActivity() {
         recycler_view.adapter =
             BlogListAdapter(blogsResponse, object : BlogListAdapter.BlogClickListener {
                 override fun onClick(blogs: Blogs) {
-                    val intent =
-                        PostsListActivity.createIntent(
+                    val intent = PostsListActivity.createIntent(
                             this@BlogListActivity,
-                            blogs.id!!,
-                            blogs.name!!,
-                            blogs.url!!
-                        )
+                        blogsResponse!!
+                    )
                     startActivity(intent)
                 }
             })

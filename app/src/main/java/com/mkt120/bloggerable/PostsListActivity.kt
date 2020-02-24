@@ -11,6 +11,8 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -18,47 +20,77 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
+import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse
+import com.mkt120.bloggerable.model.Blogs
 import com.mkt120.bloggerable.model.Posts
-import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlinx.android.synthetic.main.activity_posts_list.*
-import kotlinx.android.synthetic.main.activity_posts_list.tool_bar
 import kotlinx.android.synthetic.main.fragment_posts_list.*
 import kotlinx.android.synthetic.main.include_posts_view_holder.view.*
 
 class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
     companion object {
-        private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
-        private const val EXTRA_KEY_BLOG_NAME = "EXTRA_KEY_BLOG_NAME"
-        private const val EXTRA_KEY_BLOG_URL = "EXTRA_KEY_BLOG_URL"
+        private const val EXTRA_KEY_BLOG_LIST = "EXTRA_KEY_BLOG_LIST"
 
-        fun createIntent(context: Context, blogId: String, name: String, url:String): Intent =
+        fun createIntent(context: Context, blogsResponse: BlogsResponse): Intent =
             Intent(context, PostsListActivity::class.java).apply {
-                putExtra(EXTRA_KEY_BLOG_ID, blogId)
-                putExtra(EXTRA_KEY_BLOG_NAME, name)
-                putExtra(EXTRA_KEY_BLOG_URL, url)
+                putExtra(EXTRA_KEY_BLOG_LIST, blogsResponse)
             }
     }
 
     private var adapter: Adapter? = null
+    private var currentBlog : Blogs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_posts_list)
-        tool_bar.title = intent.getStringExtra(EXTRA_KEY_BLOG_NAME)
+        val response = intent.getParcelableExtra<BlogsResponse>(EXTRA_KEY_BLOG_LIST)
+        currentBlog = response!!.items!![0]
+        tool_bar.title = currentBlog!!.name
         tool_bar.inflateMenu(R.menu.posts_list_menu)
         tool_bar.setOnMenuItemClickListener(this)
         adapter = Adapter(applicationContext, null, null, supportFragmentManager)
         view_pager.adapter = adapter
         tabs.setupWithViewPager(view_pager)
         fab.setOnClickListener {
-            val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
-            val intent = CreatePostsActivity.createIntent(this@PostsListActivity, blogId)
+            val blogId = currentBlog!!.id
+            val intent = CreatePostsActivity.createIntent(this@PostsListActivity, blogId!!)
             startActivityForResult(intent, CreatePostsActivity.REQUEST_CREATE_POSTS)
         }
 
-        requestPosts()
+        requestPosts(currentBlog!!)
+        drawer_view.bindData(response, object : DrawerView.BlogListAdapter.MenuClickListener {
+            override fun onClick(itemResId: Int) {
+                Toast.makeText(this@PostsListActivity, itemResId, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onClick(blogs: Blogs) {
+                drawer_layout.closeDrawer(drawer_view)
+                currentBlog = blogs
+                tool_bar.title = currentBlog!!.name
+                requestPosts(currentBlog!!)
+            }
+        })
+
+        val actionBarDrawerToggle = ActionBarDrawerToggle(
+            this,
+            drawer_layout,
+            tool_bar,
+            R.string.app_name,
+            R.string.app_name
+        )
+        drawer_layout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+
+    }
+
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(drawer_view)) {
+            drawer_layout.closeDrawer(drawer_view)
+            return
+        }
+        super.onBackPressed()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -68,7 +100,7 @@ class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         }
 
         // 更新
-        requestPosts()
+        requestPosts(currentBlog!!)
 
         if (resultCode == CreatePostsActivity.RESULT_POSTS_UPDATE) {
             view_pager.currentItem = 0
@@ -82,7 +114,7 @@ class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         item?.let {
             return when (item.itemId) {
                 R.id.open_in_browser -> {
-                    val url = intent.getStringExtra(EXTRA_KEY_BLOG_URL)
+                    val url = currentBlog!!.url
                     val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                     startActivity(i)
                     true
@@ -95,8 +127,8 @@ class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         return false
     }
 
-    private fun requestPosts() {
-        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
+    private fun requestPosts(blogs : Blogs) {
+        val blogId = blogs.id
         ApiManager.getPosts(blogId!!, object : ApiManager.PostsListener {
             override fun onResponse(posts: PostsResponse?) {
                 posts?.let {

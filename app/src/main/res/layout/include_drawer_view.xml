@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/drawer_menu_width"
+        android:layout_height="@dimen/drawer_menu_account_area_height"
+        android:background="@color/colorPrimaryDark"
+        android:padding="@dimen/drawer_menu_account_area_padding">
+
+        <androidx.constraintlayout.widget.Placeholder
+            android:id="@+id/place_holder"
+            android:layout_width="@dimen/drawer_menu_account_place_holder_size"
+            android:layout_height="@dimen/drawer_menu_account_place_holder_size"
+            android:background="@android:color/holo_green_light"
+            app:content="@+id/image_view_1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/display_name_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/drawer_menu_account_place_holder_name_margin"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/place_holder"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toEndOf="@id/place_holder"
+            app:layout_constraintTop_toTopOf="@id/place_holder" />
+
+        <ImageView
+            android:id="@+id/image_view_1"
+            android:layout_width="@dimen/drawer_menu_account_icon_size"
+            android:layout_height="@dimen/drawer_menu_account_icon_size"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread_inside" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="@dimen/drawer_menu_width"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+</merge>

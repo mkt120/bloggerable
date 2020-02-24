@@ -9,6 +9,9 @@
     <string name="posts_list_publish_date">公開日:%s</string>
     <string name="posts_list_comment_count">コメント数:%s</string>
 
+    <string name="drawer_menu_blog_list">ブログ一覧</string>
+    <string name="drawer_menu_about_this_app">このアプリについて</string>
+
     <string name="menu_delete_posts">削除する</string>
     <string name="menu_open_in_browser">ブラウザで開く</string>
     <string name="menu_publish">公開する</string>

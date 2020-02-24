@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/drawer_menu_blog_section_padding_side"
+    android:paddingRight="@dimen/drawer_menu_blog_section_padding_side"
+    android:paddingTop="@dimen/drawer_menu_blog_section_padding_top"
+    android:paddingBottom="@dimen/drawer_menu_blog_section_padding_bottom"
+    android:textSize="@dimen/drawer_menu_blog_section_text_size"/>

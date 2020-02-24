@@ -13,6 +13,9 @@ object PreferenceManager {
     private const val KEY_ACCESS_TOKEN = "KEY_ACCESS_TOKEN"
     private const val KEY_REFRESH_TOKEN = "KEY_REFRESH_TOKEN"
     private const val KEY_LABEL_SET = "KEY_LABEL_SET"
+    private const val KEY_GOOGLE_DISPLAY_NAME = "KEY_GOOGLE_DISPLAY_NAME"
+    private const val KEY_GOOGLE_PHOTO_URL = "KEY_GOOGLE_PHOTO_URL"
+
 
     fun init(context: Context) {
         prefs =
@@ -34,6 +37,14 @@ object PreferenceManager {
     var refreshToken: String
         set(refreshToken) = prefs.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply()
         get() = prefs.getString(KEY_REFRESH_TOKEN, "")!!
+
+    var displayName: String
+        set(name) = prefs.edit().putString(KEY_GOOGLE_DISPLAY_NAME, name).apply()
+        get() = prefs.getString(KEY_GOOGLE_DISPLAY_NAME, "")!!
+
+    var photoUrl: String
+        set(url) = prefs.edit().putString(KEY_GOOGLE_PHOTO_URL, url).apply()
+        get() = prefs.getString(KEY_GOOGLE_PHOTO_URL, "")!!
 
     var labelList: MutableList<String>
         set(list) {

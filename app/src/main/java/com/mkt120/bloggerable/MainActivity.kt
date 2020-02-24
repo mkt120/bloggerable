@@ -78,6 +78,9 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "account.displayName=${account.displayName}")
                 Log.d(TAG, "account=${account.grantedScopes}")
                 Log.d(TAG, "account.serverAuthCode=${account.serverAuthCode}")
+                Log.d(TAG, "account.url=${account.photoUrl}")
+                PreferenceManager.photoUrl = account.photoUrl.toString()
+                PreferenceManager.displayName = account.displayName.toString()
                 requestAccessToken(account)
             }
         } catch (e: ApiException) {
