@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -62,7 +61,9 @@ class PostsListActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         requestPosts(currentBlog!!)
         drawer_view.bindData(response, object : DrawerView.BlogListAdapter.MenuClickListener {
             override fun onClick(itemResId: Int) {
-                Toast.makeText(this@PostsListActivity, itemResId, Toast.LENGTH_SHORT).show()
+                drawer_layout.closeDrawer(drawer_view)
+                val intent = Intent(this@PostsListActivity, AboutAppActivity::class.java)
+                startActivity(intent)
             }
 
             override fun onClick(blogs: Blogs) {

@@ -32,6 +32,11 @@
     <dimen name="drawer_menu_blog_item_padding_right">@dimen/drawer_menu_content_padding_side</dimen>
     <dimen name="drawer_menu_blog_item_padding_bottom">@dimen/drawer_menu_content_padding_bottom</dimen>
 
+    <dimen name="about_app_padding">15dp</dimen>
+    <dimen name="about_app_icon_size">50dp</dimen>
+    <dimen name="about_app_app_name">16sp</dimen>
+    <dimen name="about_app_app_version">16sp</dimen>
+
     <!-- 新規投稿画面 CreatePostScreen -->
     <dimen name="create_post_edit_text_title">18sp</dimen>
     <dimen name="create_post_margin_side">10dp</dimen>
