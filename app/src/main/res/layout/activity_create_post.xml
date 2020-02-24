@@ -112,6 +112,7 @@
             android:id="@+id/button_add_font_change"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:src="@drawable/ic_text_fields_black_24dp" />
 
     </LinearLayout>
