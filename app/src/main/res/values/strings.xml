@@ -3,11 +3,6 @@
 
     <string name="close">閉じる</string>
 
-    <!-- ブログ一覧 -->
-
-    <string name="blogs_posts_title">ブログ一覧</string>
-    <string name="blogs_posts_count">投稿数:%s</string>
-
     <string name="posts_list_publish_date">公開日:%s</string>
     <string name="posts_list_comment_count">コメント数:%s</string>
 

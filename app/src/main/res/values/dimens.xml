@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="border_height">1dp</dimen>
-
     <dimen name="login_icon_size">150dp</dimen>
     <dimen name="login_sign_in_app_name_text_size">20sp</dimen>
     <dimen name="login_sign_in_app_name_margin">15dp</dimen>
     <dimen name="login_sign_in_button_margin">15dp</dimen>
 
     <!-- ブログ一覧 -->
-    <dimen name="blogs_item_name">20sp</dimen>
-    <dimen name="blogs_item_margin">10dp</dimen>
-    <dimen name="blogs_item_padding">15dp</dimen>
-    <dimen name="blogs_item_name_margin_bottom">10dp</dimen>
-    <dimen name="blogs_item_border_margin">10dp</dimen>
-    <dimen name="blogs_item_count">14sp</dimen>
-    <dimen name="blogs_item_last_update">14sp</dimen>
-
     <dimen name="drawer_menu_width">250dp</dimen>
     <dimen name="drawer_menu_account_area_height">200dp</dimen>
     <dimen name="drawer_menu_account_area_padding">20dp</dimen>
