@@ -16,6 +16,7 @@ import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.model.Blogs
 import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.top.drawer.BlogListAdapter
 import com.mkt120.bloggerable.top.drawer.DrawerView
 import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
 import kotlinx.android.synthetic.main.activity_top.*
@@ -85,7 +86,7 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
     }
 
     override fun onBindDrawer(response: BlogsResponse) {
-        drawer_view.onBindData(response, object : DrawerView.BlogListAdapter.MenuClickListener {
+        drawer_view.onBindData(response, object : BlogListAdapter.MenuClickListener {
             override fun onClick(itemResId: Int) {
                 presenter.onClickDrawerItem(itemResId)
             }
