@@ -1,4 +1,4 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.create
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
+import com.mkt120.bloggerable.R
 import kotlinx.android.synthetic.main.dialog_add_label.view.*
 
 class AddLabelDialogFragment : DialogFragment(), DialogInterface.OnShowListener {
@@ -27,7 +28,7 @@ class AddLabelDialogFragment : DialogFragment(), DialogInterface.OnShowListener 
         builder.setPositiveButton(android.R.string.ok) { _, _ ->
             rootView?.let {
                 if (it.edit_text.text.isNotEmpty() && activity is OnClickListener) {
-                    (activity as OnClickListener).addLabel(it.edit_text.text.toString())
+                    (activity as OnClickListener).onClickAddLabel(it.edit_text.text.toString())
                 }
             }
         }
@@ -47,6 +48,6 @@ class AddLabelDialogFragment : DialogFragment(), DialogInterface.OnShowListener 
     }
 
     interface OnClickListener {
-        fun addLabel(label: String)
+        fun onClickAddLabel(label: String)
     }
 }

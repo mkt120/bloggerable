@@ -1,119 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tool_bar"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary" />
+            android:layout_height="wrap_content">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/tool_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorPrimary" />
 
-    <EditText
-        android:id="@+id/edit_text_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/create_post_margin_side"
-        android:layout_marginRight="@dimen/create_post_margin_side"
-        android:hint="@string/create_posts_hint_title"
-        android:inputType="text"
-        android:nextFocusDown="@id/edit_text_contents"
-        android:singleLine="true"
-        android:textSize="@dimen/create_post_edit_text_title" />
+        </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/create_post_margin_side"
-        android:layout_marginRight="@dimen/create_post_margin_side"
-        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/edit_text_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/create_post_margin_side"
+            android:layout_marginRight="@dimen/create_post_margin_side"
+            android:hint="@string/create_posts_hint_title"
+            android:inputType="text"
+            android:nextFocusDown="@id/edit_text_contents"
+            android:singleLine="true"
+            android:textSize="@dimen/create_post_edit_text_title" />
 
-        <HorizontalScrollView
-            android:id="@+id/horizontal_scroll"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/create_post_margin_side"
+            android:layout_marginRight="@dimen/create_post_margin_side"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/label_view"
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:id="@+id/horizontal_scroll"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/create_post_label_padding" />
-        </HorizontalScrollView>
+                android:layout_weight="1">
 
-        <ImageButton
-            android:id="@+id/button_add_labels"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/create_post_label_button_padding"
-            android:paddingRight="@dimen/create_post_label_button_padding"
-            android:src="@drawable/ic_label_black_24dp" />
+                <LinearLayout
+                    android:id="@+id/label_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/create_post_label_padding" />
+            </HorizontalScrollView>
 
-        <ImageButton
-            android:id="@+id/button_history"
-            android:layout_width="wrap_content"
+            <ImageButton
+                android:id="@+id/button_add_labels"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/create_post_label_button_padding"
+                android:paddingRight="@dimen/create_post_label_button_padding"
+                android:src="@drawable/ic_label_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/button_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/create_post_label_button_padding"
+                android:paddingRight="@dimen/create_post_label_button_padding"
+                android:src="@drawable/ic_history_black_24dp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/edit_text_contents"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="top"
+            android:hint="@string/create_posts_hint_contents"
+            android:inputType="textMultiLine"
+            android:textSize="@dimen/create_post_edit_text_contents" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/create_post_label_button_padding"
-            android:paddingRight="@dimen/create_post_label_button_padding"
-            android:src="@drawable/ic_history_black_24dp" />
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/button_add_bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_format_bold_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/button_add_italic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_format_italic_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/button_add_strike_through"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_format_strike_through_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/button_add_paste"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_content_paste_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/button_add_font_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_text_fields_black_24dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/edit_text_contents"
+    <FrameLayout
+        android:id="@+id/progress_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="top"
-        android:hint="@string/create_posts_hint_contents"
-        android:inputType="textMultiLine"
-        android:textSize="@dimen/create_post_edit_text_contents" />
+        android:layout_height="match_parent"
+        android:background="#AAFFFFFF"
+        android:clickable="true"
+        android:visibility="gone">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/button_add_bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_format_bold_black_24dp" />
-
-        <ImageButton
-            android:id="@+id/button_add_italic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_format_italic_black_24dp" />
-
-        <ImageButton
-            android:id="@+id/button_add_strike_through"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_format_strike_through_black_24dp" />
-
-        <ImageButton
-            android:id="@+id/button_add_paste"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_content_paste_black_24dp" />
-
-        <ImageButton
-            android:id="@+id/button_add_font_change"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:src="@drawable/ic_text_fields_black_24dp" />
-
-    </LinearLayout>
-</LinearLayout>
+        <ProgressBar
+            style="@android:style/Widget.Material.ProgressBar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+</RelativeLayout>

@@ -1,9 +1,11 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.create
 
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import com.mkt120.bloggerable.PreferenceManager
+import com.mkt120.bloggerable.R
 
 class AddLabelHistoryDialogFragment : DialogFragment() {
     companion object {
@@ -18,7 +20,7 @@ class AddLabelHistoryDialogFragment : DialogFragment() {
         builder.setItems(list) { _, position ->
             val label = list[position]
             if (activity is AddLabelDialogFragment.OnClickListener) {
-                (activity as AddLabelDialogFragment.OnClickListener).addLabel(label)
+                (activity as AddLabelDialogFragment.OnClickListener).onClickAddLabel(label)
             }
         }
         builder.setNegativeButton(android.R.string.cancel) { _, _ ->

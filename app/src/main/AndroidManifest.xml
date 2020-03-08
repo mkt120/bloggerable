@@ -22,7 +22,7 @@
         </activity>
         <activity android:name=".top.TopActivity" />
         <activity
-            android:name=".CreatePostsActivity"
+            android:name=".create.CreatePostsActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".AboutAppActivity" />
     </application>

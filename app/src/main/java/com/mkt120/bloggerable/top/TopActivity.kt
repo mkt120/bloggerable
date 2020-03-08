@@ -10,7 +10,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.mkt120.bloggerable.AboutAppActivity
-import com.mkt120.bloggerable.CreatePostsActivity
+import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse

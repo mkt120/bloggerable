@@ -1,9 +1,10 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.create
 
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
+import com.mkt120.bloggerable.R
 
 class LabelView(context: Context): AppCompatTextView(context) {
     init {
