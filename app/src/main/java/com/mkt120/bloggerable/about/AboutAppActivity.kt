@@ -1,7 +1,9 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.about
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.mkt120.bloggerable.BuildConfig
+import com.mkt120.bloggerable.R
 import kotlinx.android.synthetic.main.activity_about_app.*
 
 /**
