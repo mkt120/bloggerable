@@ -1,4 +1,4 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.top.infodialog
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.Blogs
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,17 +37,32 @@ class BlogInfoDialogFragment : DialogFragment() {
 
         val blog = arguments!!.getParcelable<Blogs>(EXTRA_KEY_BLOG)
 
-        var titleView = TitleView(requireContext(), R.string.dialog_about_this_blog_name)
+        var titleView = TitleView(
+            requireContext(),
+            R.string.dialog_about_this_blog_name
+        )
         viewGroup.addView(titleView)
-        var contentView = ContentView(requireContext(), blog!!.name!!)
+        var contentView = ContentView(
+            requireContext(),
+            blog!!.name!!
+        )
         viewGroup.addView(contentView)
 
-        titleView = TitleView(requireContext(), R.string.dialog_about_this_blog_description)
+        titleView = TitleView(
+            requireContext(),
+            R.string.dialog_about_this_blog_description
+        )
         viewGroup.addView(titleView)
-        contentView = ContentView(requireContext(), blog.description!!)
+        contentView = ContentView(
+            requireContext(),
+            blog.description!!
+        )
         viewGroup.addView(contentView)
 
-        titleView = TitleView(requireContext(), R.string.dialog_about_this_blog_publish_date)
+        titleView = TitleView(
+            requireContext(),
+            R.string.dialog_about_this_blog_publish_date
+        )
         viewGroup.addView(titleView)
         contentView = ContentView(
             requireContext(),
@@ -54,7 +70,10 @@ class BlogInfoDialogFragment : DialogFragment() {
         )
         viewGroup.addView(contentView)
 
-        titleView = TitleView(requireContext(), R.string.dialog_about_this_blog_last_update)
+        titleView = TitleView(
+            requireContext(),
+            R.string.dialog_about_this_blog_last_update
+        )
         viewGroup.addView(titleView)
         contentView = ContentView(
             requireContext(),
@@ -62,9 +81,15 @@ class BlogInfoDialogFragment : DialogFragment() {
         )
         viewGroup.addView(contentView)
 
-        titleView = TitleView(requireContext(), R.string.dialog_about_this_blog_last_post_count)
+        titleView = TitleView(
+            requireContext(),
+            R.string.dialog_about_this_blog_last_post_count
+        )
         viewGroup.addView(titleView)
-        contentView = ContentView(requireContext(), blog.posts!!.totalItems!!)
+        contentView = ContentView(
+            requireContext(),
+            blog.posts!!.totalItems!!
+        )
         viewGroup.addView(contentView)
 
         builder.setView(viewGroup)

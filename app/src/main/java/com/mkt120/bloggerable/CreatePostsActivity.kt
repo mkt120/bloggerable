@@ -50,17 +50,13 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
             }
 
-        fun createDraftIntent(context: Context, posts: Posts): Intent =
+        fun createPostsIntent(context: Context, posts: Posts, isDraft: Boolean): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
-                putExtra(EXTRA_KEY_REQUEST_CODE, REQUEST_EDIT_DRAFT)
-                putExtra(EXTRA_KEY_BLOG_ID, posts.blog!!.id)
-                putExtra(EXTRA_KEY_POSTS, posts)
-
-            }
-
-        fun createPostsIntent(context: Context, posts: Posts): Intent =
-            Intent(context, CreatePostsActivity::class.java).apply {
-                putExtra(EXTRA_KEY_REQUEST_CODE, REQUEST_EDIT_POSTS)
+                if (isDraft) {
+                    putExtra(EXTRA_KEY_REQUEST_CODE, REQUEST_EDIT_DRAFT)
+                } else {
+                    putExtra(EXTRA_KEY_REQUEST_CODE, REQUEST_EDIT_POSTS)
+                }
                 putExtra(EXTRA_KEY_BLOG_ID, posts.blog!!.id)
                 putExtra(EXTRA_KEY_POSTS, posts)
             }
@@ -429,7 +425,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 return true
             }
             R.id.create_posts -> {
-                if (intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)== REQUEST_CREATE_POSTS){
+                if (intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_CREATE_POSTS) {
                     createPosts(false)
                 } else {
                     updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT)
@@ -454,7 +450,10 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                 return true
             }
             R.id.publish_draft -> {
-                updatePosts(intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT, true)
+                updatePosts(
+                    intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0) == REQUEST_EDIT_DRAFT,
+                    true
+                )
                 return true
             }
             R.id.revert_posts -> {
@@ -468,7 +467,11 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     /**
      * 投稿を更新する
      */
-    private fun updatePosts(isDraft: Boolean, isPublish: Boolean = false, isRevert:Boolean = false) {
+    private fun updatePosts(
+        isDraft: Boolean,
+        isPublish: Boolean = false,
+        isRevert: Boolean = false
+    ) {
         val posts = intent.getParcelableExtra<Posts>(EXTRA_KEY_POSTS)!!
         val title = edit_text_title.text.toString()
 
@@ -567,7 +570,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     }
 
     private fun revertPosts(blogId: String, postsId: String) {
-        ApiManager.revertPosts(blogId, postsId, object :ApiManager.CompleteListener {
+        ApiManager.revertPosts(blogId, postsId, object : ApiManager.CompleteListener {
             override fun onComplete() {
                 Toast.makeText(
                     this@CreatePostsActivity,
@@ -620,21 +623,24 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     }
 
     private fun publishPosts(posts: Posts) {
-        ApiManager.publishPosts(posts.blog!!.id!!, posts.id!!, object : ApiManager.CompleteListener {
-            override fun onComplete() {
-                Toast.makeText(
-                    this@CreatePostsActivity,
-                    "投稿を公開しました",
-                    Toast.LENGTH_SHORT
-                ).show()
-                setResult(RESULT_POSTS_UPDATE)
-                finish()
-            }
+        ApiManager.publishPosts(
+            posts.blog!!.id!!,
+            posts.id!!,
+            object : ApiManager.CompleteListener {
+                override fun onComplete() {
+                    Toast.makeText(
+                        this@CreatePostsActivity,
+                        "投稿を公開しました",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    setResult(RESULT_POSTS_UPDATE)
+                    finish()
+                }
 
-            override fun onFailed(t: Throwable) {
-                // todo:onFailed
-            }
-        })
+                override fun onFailed(t: Throwable) {
+                    // todo:onFailed
+                }
+            })
 
     }
 
@@ -718,7 +724,10 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
             if (type == TYPE_CREATE) {
                 builder.setPositiveButton(R.string.create_posts_dialog_positive_button_create_draft) { _, _ ->
                     if (activity is CreatePostsActivity) {
-                        (activity as CreatePostsActivity).onPositiveClick(createPost = true, isDraft = false)
+                        (activity as CreatePostsActivity).onPositiveClick(
+                            createPost = true,
+                            isDraft = false
+                        )
                     }
                     dismiss()
                 }

@@ -6,9 +6,9 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.common.SignInButton
-import com.mkt120.bloggerable.PostsListActivity
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.top.TopActivity
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -57,7 +57,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
     }
 
     override fun showBlogListScreen(blogsResponse: BlogsResponse?) {
-        val intent = PostsListActivity.createIntent(
+        val intent = TopActivity.createIntent(
             this@LoginActivity,
             blogsResponse!!
         )

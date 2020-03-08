@@ -1,4 +1,4 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.top.drawer
 
 import android.content.Context
 import android.util.AttributeSet
@@ -12,6 +12,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
+import com.mkt120.bloggerable.PreferenceManager
+import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.model.Blogs
 import com.squareup.picasso.Picasso
@@ -20,7 +22,8 @@ import kotlinx.android.synthetic.main.include_drawer_view.view.*
 /**
  * ドロワーメニュー
  */
-class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, attr, 0) {
+class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, attr, 0),
+    DrawerContract.DrawerView {
     companion object {
         private val TAG = DrawerView::class.java.simpleName
     }
@@ -42,12 +45,13 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
         display_name_view.text = PreferenceManager.displayName
     }
 
-    fun bindData(
+    fun onBindData(
         blogsList: BlogsResponse,
         listener: BlogListAdapter.MenuClickListener
     ) {
-        Log.i(TAG, "bindData")
-        recycler_view.adapter = BlogListAdapter(blogsList, listener)
+        Log.i(TAG, "onBindData")
+        recycler_view.adapter =
+            BlogListAdapter(blogsList, listener)
         recycler_view.adapter!!.notifyDataSetChanged()
     }
 
@@ -64,11 +68,17 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return if (viewType == VIEW_TYPE_TITLE) {
-                TitleViewHolder.createViewHolder(parent)
+                TitleViewHolder.createViewHolder(
+                    parent
+                )
             } else if (viewType == VIEW_TYPE_BLOG) {
-                BlogItemViewHolder.createViewHolder(parent)
+                BlogItemViewHolder.createViewHolder(
+                    parent
+                )
             } else {
-                ContentViewHolder.createViewHolder(parent)
+                ContentViewHolder.createViewHolder(
+                    parent
+                )
             }
         }
 
@@ -93,7 +103,7 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
                     position -= it.items!!.size
                 }
                 if (position == 0) {
-//                    holder.bindData(R.string.side_menu_account, listener)
+//                    holder.onBindData(R.string.side_menu_account, listener)
 //                } else {
                     holder.bindData(R.string.drawer_menu_about_this_app, listener)
                 }
@@ -127,42 +137,19 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
             companion object {
                 val TAG = TitleViewHolder::class.java.simpleName
 
-                fun createViewHolder(rootView: ViewGroup): TitleViewHolder = TitleViewHolder(
-                    LayoutInflater.from(rootView.context).inflate(
-                        R.layout.include_drawer_title_section,
-                        rootView,
-                        false
+                fun createViewHolder(rootView: ViewGroup): TitleViewHolder =
+                    TitleViewHolder(
+                        LayoutInflater.from(rootView.context).inflate(
+                            R.layout.include_drawer_title_section,
+                            rootView,
+                            false
+                        )
                     )
-                )
             }
 
             fun bindData(titleResId: Int) {
                 if (itemView is TextView) {
                     itemView.setText(titleResId)
-                }
-            }
-        }
-
-        class BlogItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            companion object {
-                val TAG = BlogItemViewHolder::class.java.simpleName
-
-                fun createViewHolder(rootView: ViewGroup): BlogItemViewHolder = BlogItemViewHolder(
-                    LayoutInflater.from(rootView.context).inflate(
-                        R.layout.include_drawer_blog_item_view_holder,
-                        rootView,
-                        false
-                    )
-                )
-            }
-
-            fun bindData(blogs: Blogs, listener: MenuClickListener) {
-                Log.d(TAG, "bindData blogs.name=${blogs.name}")
-                if (itemView is TextView) {
-                    itemView.text = blogs.name
-                    itemView.setOnClickListener {
-                        listener.onClick(blogs)
-                    }
                 }
             }
         }

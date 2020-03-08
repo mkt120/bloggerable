@@ -50,7 +50,7 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.mkt120.bloggerable.DrawerView
+    <com.mkt120.bloggerable.top.drawer.DrawerView
         android:id="@+id/drawer_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
