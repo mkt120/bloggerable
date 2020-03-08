@@ -122,19 +122,8 @@
         </LinearLayout>
     </LinearLayout>
 
-    <FrameLayout
+    <include
         android:id="@+id/progress_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#AAFFFFFF"
-        android:focusable="true"
-        android:clickable="true"
-        android:visibility="gone">
+        layout="@layout/include_progress"/>
 
-        <ProgressBar
-            style="@android:style/Widget.Material.ProgressBar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center" />
-    </FrameLayout>
 </RelativeLayout>

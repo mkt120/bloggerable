@@ -89,6 +89,7 @@ class TopPresenter(private val view: TopContract.TopView) :
     }
 
     private fun requestPosts(blogs: Blogs) {
+        view.showProgress()
         val blogId = blogs.id
         ApiManager.getPosts(
             blogId!!,
@@ -98,6 +99,8 @@ class TopPresenter(private val view: TopContract.TopView) :
                         PreferenceManager.labelList = posts.createLabelList()
                         view.updateLivePosts(posts)
                     }
+                    // todo: 待ち合わせ
+                    view.dismissProgress()
                 }
             })
         ApiManager.getDraftPosts(
@@ -107,6 +110,8 @@ class TopPresenter(private val view: TopContract.TopView) :
                     posts?.let {
                         view.updateDraftPost(posts)
                     }
+                    // todo: 待ち合わせ
+                    view.dismissProgress()
                 }
             })
     }

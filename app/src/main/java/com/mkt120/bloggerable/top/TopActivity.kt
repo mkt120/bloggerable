@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -166,6 +167,14 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return presenter.onMenuItemClick(item?.itemId)
+    }
+
+    override fun showProgress() {
+        progress_view.visibility = View.VISIBLE
+    }
+
+    override fun dismissProgress() {
+        progress_view.visibility = View.GONE
     }
 
     fun onClickPostsItem(posts: Posts, listType: Int) {

@@ -20,6 +20,8 @@ interface TopContract {
         fun closeDrawer()
         fun isDrawerOpen(): Boolean
         fun onBindDrawer(response: BlogsResponse)
+        fun showProgress()
+        fun dismissProgress()
     }
 
     interface TopPresenter {
