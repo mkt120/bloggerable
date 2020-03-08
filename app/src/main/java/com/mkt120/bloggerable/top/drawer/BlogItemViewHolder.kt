@@ -33,7 +33,7 @@ class BlogItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
             )
     }
 
-    fun bindData(blogs: Blogs, listener: DrawerView.BlogListAdapter.MenuClickListener) {
+    fun bindData(blogs: Blogs, listener: BlogListAdapter.MenuClickListener) {
         Log.d(TAG, "onBindData blogs.name=${blogs.name}")
         presenter.onBindData(blogs)
         itemView.setOnClickListener {
