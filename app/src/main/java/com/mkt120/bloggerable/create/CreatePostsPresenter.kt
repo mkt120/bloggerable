@@ -20,6 +20,7 @@ class CreatePostsPresenter(
     CreatePostsContract.Presenter {
 
     private val labelList = mutableListOf<String>()
+    private var isExecuting = false
 
     /**
      * Italicを追加・削除する
@@ -230,6 +231,9 @@ class CreatePostsPresenter(
     }
 
     override fun onBackPressed(title: String, content: String): Boolean {
+        if (isExecuting) {
+            return true
+        }
         if (posts == null) {
             if (title.isNotEmpty() || content.isNotEmpty()) {
                 view.showConfirmDialog(ConfirmDialog.TYPE_CREATE)
@@ -315,6 +319,7 @@ class CreatePostsPresenter(
             return
         }
 
+        isExecuting = true
         view.showProgress()
         val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         ApiManager.createPosts(
@@ -325,6 +330,7 @@ class CreatePostsPresenter(
             isDraft,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
+                    isExecuting = false
                     val messageResId: Int = if (isDraft) {
                         R.string.toast_create_draft_success
                     } else {
@@ -340,6 +346,7 @@ class CreatePostsPresenter(
                 }
 
                 override fun onFailed(t: Throwable) {
+                    isExecuting = false
                     view.showToast(R.string.toast_create_posts_failed)
                 }
             })
@@ -361,6 +368,7 @@ class CreatePostsPresenter(
             view.showToast(R.string.toast_error_create_posts_no_title)
             return
         }
+        isExecuting = true
         view.showProgress()
         val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         posts!!.title = title
@@ -370,6 +378,7 @@ class CreatePostsPresenter(
             posts,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
+                    isExecuting = false
                     when {
                         isPublish -> publishPosts(posts)
                         isRevert -> revertPosts(posts.blog!!.id!!, posts.id!!)
@@ -386,17 +395,20 @@ class CreatePostsPresenter(
                 }
 
                 override fun onFailed(t: Throwable) {
+                    isExecuting = false
                 }
             })
     }
 
     private fun revertPosts(blogId: String, postsId: String) {
+        isExecuting = true
         view.showProgress()
         ApiManager.revertPosts(
             blogId,
             postsId,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
+                    isExecuting = false
                     view.showToast("投稿を下書きに戻しました")
                     view.onComplete(CreatePostsActivity.RESULT_DRAFT_UPDATE)
                 }
@@ -433,11 +445,13 @@ class CreatePostsPresenter(
      */
     private fun deletePosts(isDraft: Boolean) {
         view.showProgress()
+        isExecuting = true
         ApiManager.deletePosts(
             blogId,
             posts!!.id!!,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
+                    isExecuting = false
                     view.showToast(R.string.toast_success_delete_posts)
                     val result = if (isDraft) {
                         (CreatePostsActivity.RESULT_DRAFT_UPDATE)
@@ -448,6 +462,7 @@ class CreatePostsPresenter(
                 }
 
                 override fun onFailed(t: Throwable) {
+                    isExecuting = false
                     view.showToast(R.string.toast_failed_delete_posts)
                 }
             })
