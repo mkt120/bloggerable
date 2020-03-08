@@ -8,6 +8,8 @@ import android.text.style.StyleSpan
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.Posts
+import kotlin.math.max
+import kotlin.math.min
 
 class CreatePostsPresenter(
     private val view: CreatePostsContract.View,
@@ -23,8 +25,8 @@ class CreatePostsPresenter(
      * Italicを追加・削除する
      */
     override fun onClickItalic(selectionStart: Int, selectionEnd: Int, text: Editable) {
-        val selectionLeft = Math.min(selectionStart, selectionEnd)
-        val selectionRight = Math.max(selectionStart, selectionEnd)
+        val selectionLeft = min(selectionStart, selectionEnd)
+        val selectionRight = max(selectionStart, selectionEnd)
         val spans = text.getSpans(selectionLeft, selectionRight, StyleSpan::class.java)
         val hasItalic = spans.isNotEmpty() && spans.any { (it.style != Typeface.BOLD) }
 
@@ -66,8 +68,8 @@ class CreatePostsPresenter(
      * boldを追加・削除する
      */
     override fun onClickBold(selectionStart: Int, selectionEnd: Int, text: Editable) {
-        val selectionLeft = Math.min(selectionStart, selectionEnd)
-        val selectionRight = Math.max(selectionStart, selectionEnd)
+        val selectionLeft = min(selectionStart, selectionEnd)
+        val selectionRight = max(selectionStart, selectionEnd)
         val spans = text.getSpans(selectionLeft, selectionRight, StyleSpan::class.java)
         val hasBold = spans.isNotEmpty() && spans.any { (it.style != Typeface.ITALIC) }
         if (spans.isEmpty() || !hasBold) {
@@ -107,8 +109,8 @@ class CreatePostsPresenter(
      * 打消し線を追加・削除する
      */
     override fun onClickStrikeThrough(selectionStart: Int, selectionEnd: Int, text: Editable) {
-        val selectionLeft = Math.min(selectionStart, selectionEnd)
-        val selectionRight = Math.max(selectionStart, selectionEnd)
+        val selectionLeft = min(selectionStart, selectionEnd)
+        val selectionRight = max(selectionStart, selectionEnd)
         val spans = text.getSpans(selectionLeft, selectionRight, StrikethroughSpan::class.java)
         if (spans.isEmpty()) {
             view.addSpan(StrikethroughSpan(), selectionLeft, selectionRight)
@@ -163,8 +165,8 @@ class CreatePostsPresenter(
     }
 
     override fun onClickPaste(selectionLeft: Int, selectionRight: Int, text: String) {
-        val left = Math.min(selectionLeft, selectionRight)
-        val right = Math.max(selectionLeft, selectionRight)
+        val left = min(selectionLeft, selectionRight)
+        val right = max(selectionLeft, selectionRight)
         view.replaceContent(left, right, text)
     }
 

@@ -19,6 +19,8 @@ import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.Posts
 import kotlinx.android.synthetic.main.activity_create_post.*
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * 新規投稿画面 CreatePostsScreen
@@ -229,12 +231,12 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         finish()
     }
 
-    override fun getSpanLeft(span: ParcelableSpan): Int = Math.min(
+    override fun getSpanLeft(span: ParcelableSpan): Int = min(
         edit_text_contents.text.getSpanStart(span),
         edit_text_contents.text.getSpanEnd(span)
     )
 
-    override fun getSpanRight(span: ParcelableSpan): Int = Math.max(
+    override fun getSpanRight(span: ParcelableSpan): Int = max(
         edit_text_contents.text.getSpanStart(span),
         edit_text_contents.text.getSpanEnd(span)
     )
@@ -267,10 +269,8 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
      */
     private fun addRelativeSize() {
         Log.i(TAG, "addRelativeSize")
-        val cursorLeft =
-            Math.min(edit_text_contents.selectionStart, edit_text_contents.selectionEnd)
-        val cursorRight =
-            Math.max(edit_text_contents.selectionStart, edit_text_contents.selectionEnd)
+        val cursorLeft = min(edit_text_contents.selectionStart, edit_text_contents.selectionEnd)
+        val cursorRight = max(edit_text_contents.selectionStart, edit_text_contents.selectionEnd)
         val spans =
             edit_text_contents.text.getSpans(cursorLeft, cursorRight, RelativeSizeSpan::class.java)
         if (spans.isEmpty()) {

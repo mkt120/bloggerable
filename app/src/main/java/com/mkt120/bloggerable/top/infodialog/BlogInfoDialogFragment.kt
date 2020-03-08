@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.Blogs
@@ -100,7 +101,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         return builder.create()
     }
 
-    class TitleView(context: Context, titleResId: Int) : TextView(context) {
+    class TitleView(context: Context, titleResId: Int) : AppCompatTextView(context) {
         init {
             val side = context.resources.getDimensionPixelSize(R.dimen.dialog_title_padding_side)
             setPadding(side, 0, side, 0)
@@ -109,7 +110,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         }
     }
 
-    class ContentView(context: Context, content: String) : TextView(context) {
+    class ContentView(context: Context, content: String) : AppCompatTextView(context) {
         init {
             val side = context.resources.getDimensionPixelSize(R.dimen.dialog_content_padding_side)
             val top = context.resources.getDimensionPixelSize(R.dimen.dialog_content_padding_top)

@@ -134,7 +134,7 @@ data class Blogs(
         return getDate(updated!!)
     }
 
-    fun getDate(date: String) : Date {
+    private fun getDate(date: String) : Date {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.JAPAN)
         return simpleDateFormat.parse(date)
     }
