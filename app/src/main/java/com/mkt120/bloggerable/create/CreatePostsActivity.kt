@@ -16,8 +16,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.DialogFragment
+import com.mkt120.bloggerable.BaseActivity
+import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.model.posts.Posts
 import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlin.math.max
 import kotlin.math.min
@@ -25,14 +28,14 @@ import kotlin.math.min
 /**
  * 新規投稿画面 CreatePostsScreen
  */
-class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener,
+class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
     AddLabelDialogFragment.OnClickListener, CreatePostsContract.View,
     ConfirmDialog.OnClickListener {
 
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
         private const val EXTRA_KEY_REQUEST_CODE = "EXTRA_KEY_REQUEST_CODE"
-        private const val EXTRA_KEY_POSTS = "EXTRA_KEY_POSTS"
+        private const val EXTRA_KEY_POSTS_ID = "EXTRA_KEY_POSTS_ID"
         private const val RELATIVE_FONT_SIZE_X_LARGE = 2.0f
         private const val RELATIVE_FONT_SIZE_LARGE = 1.5f
         private val TAG = CreatePostsActivity::class.java.simpleName
@@ -66,7 +69,8 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
                     )
                 }
                 putExtra(EXTRA_KEY_BLOG_ID, posts.blog!!.id)
-                putExtra(EXTRA_KEY_POSTS, posts)
+
+                putExtra(EXTRA_KEY_POSTS_ID, posts.id)
             }
     }
 
@@ -78,9 +82,9 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
         setContentView(R.layout.activity_create_post)
         // draft
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
-        val posts = intent.getParcelableExtra<Posts>(EXTRA_KEY_POSTS)
+        val postsId = intent.getStringExtra(EXTRA_KEY_POSTS_ID)
         val requestCode = intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)
-        presenter = CreatePostsPresenter(this@CreatePostsActivity, blogId, posts, requestCode)
+        presenter = CreatePostsPresenter(RealmManager(getRealm()), this@CreatePostsActivity, blogId, postsId, requestCode)
         presenter.onCreate()
 
         // タイトル
@@ -221,8 +225,7 @@ class CreatePostsActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener
     }
 
     override fun openBrowser(url: String) {
-        val posts: Posts = intent.getParcelableExtra(EXTRA_KEY_POSTS)!!
-        val i = Intent(Intent.ACTION_VIEW, Uri.parse(posts.url))
+        val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         startActivity(i)
     }
 

@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.posts.PostsAdapter
 import kotlinx.android.synthetic.main.include_posts_view_holder.view.*
 

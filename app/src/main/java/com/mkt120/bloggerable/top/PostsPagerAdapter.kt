@@ -15,8 +15,7 @@ import com.mkt120.bloggerable.top.posts.PostsListFragment
  */
 class PostsPagerAdapter(
     private var context: Context,
-    private var livePosts: PostsResponse?,
-    private var draftPosts: PostsResponse?,
+    private val blogsId: String,
     fragmentManager: FragmentManager
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     companion object {
@@ -31,19 +30,18 @@ class PostsPagerAdapter(
         Log.d("PostsPagerAdapter", "getItem position=$position")
         return if (position == 0) {
             PostsListFragment.newInstance(
-                livePosts,
+                blogsId,
                 PostsListFragment.LIST_POSTS
             )
         } else {
             PostsListFragment.newInstance(
-                draftPosts,
+                blogsId,
                 PostsListFragment.LIST_DRAFT
             )
         }
     }
 
-    fun updateListPosts(posts: PostsResponse) {
-        livePosts = posts
+    fun updateListPosts() {
         notifyDataSetChanged()
     }
 
@@ -51,8 +49,7 @@ class PostsPagerAdapter(
         return PagerAdapter.POSITION_NONE
     }
 
-    fun updateDraftPosts(posts: PostsResponse) {
-        draftPosts = posts
+    fun updateDraftPosts() {
         notifyDataSetChanged()
     }
 

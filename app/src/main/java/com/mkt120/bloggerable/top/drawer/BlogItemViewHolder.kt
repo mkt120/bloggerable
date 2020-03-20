@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.model.Blogs
+import com.mkt120.bloggerable.model.blogs.Blogs
 
 class BlogItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
     DrawerContract.BlogsItemView {

@@ -7,20 +7,30 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.model.posts.Posts
+import io.realm.RealmList
 import kotlin.math.max
 import kotlin.math.min
 
 class CreatePostsPresenter(
+    private val realmManager: RealmManager,
     private val view: CreatePostsContract.View,
     private val blogId: String,
-    private val posts: Posts?,
+    private val postsId: String? = null,
     private val requestCode: Int
 ) :
     CreatePostsContract.Presenter {
 
+    init {
+        postsId?.let {
+            posts = realmManager.findPosts(blogId, postsId)
+        }
+    }
+
     private val labelList = mutableListOf<String>()
     private var isExecuting = false
+    private var posts:Posts? = null
 
     /**
      * Italicを追加・削除する
@@ -239,7 +249,7 @@ class CreatePostsPresenter(
                 view.showConfirmDialog(ConfirmDialog.TYPE_CREATE)
                 return true
             }
-        } else if (posts.isChange(title, content)) {
+        } else if (posts!!.isChange(title, content)) {
             val type = if (requestCode == CreatePostsActivity.REQUEST_EDIT_POSTS) {
                 ConfirmDialog.TYPE_EDIT_POSTS
             } else {
@@ -371,17 +381,20 @@ class CreatePostsPresenter(
         isExecuting = true
         view.showProgress()
         val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
-        posts!!.title = title
-        posts.content = html
-        posts.labels = labels
+        posts?.apply {
+            this.title = title
+            this.content = html
+            this.labels = RealmList<String>()
+            this.labels!!.addAll(labels!!)
+        }
         ApiManager.updatePosts(
-            posts,
+            posts!!,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
                     when {
-                        isPublish -> publishPosts(posts)
-                        isRevert -> revertPosts(posts.blog!!.id!!, posts.id!!)
+                        isPublish -> publishPosts(posts!!)
+                        isRevert -> revertPosts(posts!!.blog!!.id!!, posts!!.id!!)
                         else -> {
                             view.showToast(R.string.toast_success_update_posts)
                             val result = if (isDraft) {

@@ -4,9 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.common.SignInButton
+import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.top.TopActivity
 import kotlinx.android.synthetic.main.activity_login.*
@@ -14,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 /**
  * ログイン画面
  */
-class LoginActivity : AppCompatActivity(), LoginContract.View {
+class LoginActivity : BaseActivity(), LoginContract.View {
 
     companion object {
         private val TAG: String = LoginActivity::class.java.simpleName
@@ -32,8 +33,10 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         sign_in_button.setOnClickListener {
             presenter.onClickSignIn()
         }
+
         presenter = LoginPresenter(
             this@LoginActivity,
+            RealmManager(getRealm()),
             LoginStaticWrapper(this@LoginActivity)
         )
         presenter.onCreate()

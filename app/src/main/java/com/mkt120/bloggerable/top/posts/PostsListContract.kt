@@ -1,16 +1,15 @@
 package com.mkt120.bloggerable.top.posts
 
-import com.mkt120.bloggerable.api.PostsResponse
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 
 interface PostsListContract {
     interface PostsListView {
-        fun setPostsResponse(response: PostsResponse?)
+        fun setPostsResponse(response: List<Posts>)
         fun showPostsItem(posts: Posts, type: Int)
     }
 
     interface PostsListPresenter {
-        fun onActivityCreated(response: PostsResponse?)
+        fun onActivityCreated()
         fun onClickPosts(posts: Posts)
     }
 

@@ -1,7 +1,7 @@
 package com.mkt120.bloggerable.top.posts.item
 
 import android.text.Html
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 
 
 class PostsItemPresenter(val view: PostsItemContract.PostsItemView) :

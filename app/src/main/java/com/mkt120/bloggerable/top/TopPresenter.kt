@@ -3,22 +3,24 @@ package com.mkt120.bloggerable.top
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.PreferenceManager
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.create.CreatePostsActivity
-import com.mkt120.bloggerable.model.Blogs
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.posts.PostsListFragment
 
-class TopPresenter(private val view: TopContract.TopView) :
+class TopPresenter(private val realmManager: RealmManager, private val view: TopContract.TopView) :
     TopContract.TopPresenter {
 
     private lateinit var currentBlog: Blogs
 
-    override fun onCreate(response: BlogsResponse) {
-        currentBlog = response.items!![0]
+    override fun onCreate() {
+        val blogs = realmManager.findAllBlogs()
+        currentBlog = blogs!![0]
         view.setTitle(currentBlog.name!!)
-        view.onBindDrawer(response)
+        view.onBindDrawer(blogs)
         requestPosts(currentBlog)
     }
 
@@ -96,7 +98,10 @@ class TopPresenter(private val view: TopContract.TopView) :
             object : ApiManager.PostsListener {
                 override fun onResponse(posts: PostsResponse?) {
                     posts?.let {
-                        PreferenceManager.labelList = posts.createLabelList()
+                        if (it.items != null) {
+                            realmManager.addAllPosts(it.items!!.toList(), true)
+                            PreferenceManager.labelList = posts.createLabelList()
+                        }
                         view.updateLivePosts(posts)
                     }
                     // todo: 待ち合わせ
@@ -108,7 +113,10 @@ class TopPresenter(private val view: TopContract.TopView) :
             object : ApiManager.PostsListener {
                 override fun onResponse(posts: PostsResponse?) {
                     posts?.let {
-                        view.updateDraftPost(posts)
+                        if (it.items != null) {
+                            realmManager.addAllPosts(it.items!!.toList(), false)
+                        }
+                        view.updateDraftPost(it)
                     }
                     // todo: 待ち合わせ
                     view.dismissProgress()

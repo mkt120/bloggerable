@@ -1,6 +1,6 @@
 package com.mkt120.bloggerable.top.posts.item
 
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 
 class PostsItemContract {
     interface PostsItemView {

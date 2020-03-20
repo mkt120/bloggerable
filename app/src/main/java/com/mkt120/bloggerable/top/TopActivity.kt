@@ -10,26 +10,29 @@ import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.mkt120.bloggerable.BaseActivity
+import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.about.AboutAppActivity
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse
-import com.mkt120.bloggerable.model.Blogs
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
-import com.mkt120.bloggerable.top.drawer.DrawerView
 import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
 import kotlinx.android.synthetic.main.activity_top.*
 
-class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopContract.TopView {
+class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract.TopView {
 
     companion object {
-        private const val EXTRA_KEY_BLOG_LIST = "EXTRA_KEY_BLOG_LIST"
+        private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
 
         fun createIntent(context: Context, blogsResponse: BlogsResponse): Intent =
             Intent(context, TopActivity::class.java).apply {
-                putExtra(EXTRA_KEY_BLOG_LIST, blogsResponse)
+                val blog = blogsResponse.items
+                putExtra(EXTRA_KEY_BLOG_ID, blog!![0].id)
             }
     }
 
@@ -41,10 +44,11 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
         setContentView(R.layout.activity_top)
         tool_bar.inflateMenu(R.menu.posts_list_menu)
         tool_bar.setOnMenuItemClickListener(this)
+
+        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
         adapter = PostsPagerAdapter(
             applicationContext,
-            null,
-            null,
+            blogId,
             supportFragmentManager
         )
 
@@ -54,7 +58,6 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
             presenter.onClickFab()
         }
 
-        val response = intent.getParcelableExtra<BlogsResponse>(EXTRA_KEY_BLOG_LIST)!!
         val actionBarDrawerToggle = ActionBarDrawerToggle(
             this,
             drawer_layout,
@@ -65,8 +68,8 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
         drawer_layout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
 
-        presenter = TopPresenter(this@TopActivity)
-        presenter.onCreate(response)
+        presenter = TopPresenter(RealmManager(getRealm()), this@TopActivity)
+        presenter.onCreate()
     }
 
     override fun setTitle(title: String) {
@@ -74,11 +77,11 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
     }
 
     override fun updateDraftPost(posts: PostsResponse) {
-        adapter.updateDraftPosts(posts)
+        adapter.updateDraftPosts()
     }
 
     override fun updateLivePosts(posts: PostsResponse) {
-        adapter.updateListPosts(posts)
+        adapter.updateListPosts()
     }
 
     override fun showAboutAppScreen() {
@@ -86,7 +89,7 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
         startActivity(intent)
     }
 
-    override fun onBindDrawer(response: BlogsResponse) {
+    override fun onBindDrawer(response: List<Blogs>) {
         drawer_view.onBindData(response, object : BlogListAdapter.MenuClickListener {
             override fun onClick(itemResId: Int) {
                 presenter.onClickDrawerItem(itemResId)
@@ -150,11 +153,11 @@ class TopActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, TopCon
     }
 
     override fun showAboutDialog(blogs: Blogs) {
-        val dialogFragment =
-            BlogInfoDialogFragment.newInstance(
-                blogs
-            )
-        dialogFragment.show(supportFragmentManager, null)
+//        val dialogFragment =
+//            BlogInfoDialogFragment.newInstance(
+//                blogs
+//            )
+//        dialogFragment.show(supportFragmentManager, null)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

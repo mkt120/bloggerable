@@ -4,7 +4,7 @@ import android.util.Log
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.OauthResponse
 import com.mkt120.bloggerable.api.PostsResponse
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -29,7 +29,6 @@ object ApiManager {
 
     // AuthorizationCode を使ってAccessTokenをもらう
     private const val CLIENT_SECRET = BuildConfig.BLOGGERABLE_CLIENT_SECRET
-
 
     private val apiService: ApiService
 
@@ -274,7 +273,7 @@ object ApiManager {
         val posts = Posts.createPosts(
             old.title!!,
             old.content!!,
-            old.labels
+            old.labels!!.toTypedArray()
         )
         apiService.updatePosts(
             "Bearer $accessToken",

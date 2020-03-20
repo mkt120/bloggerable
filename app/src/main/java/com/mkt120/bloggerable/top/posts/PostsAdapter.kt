@@ -3,7 +3,7 @@ package com.mkt120.bloggerable.top.posts
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.api.PostsResponse
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.posts.item.PostsItemViewHolder
 
 
@@ -11,7 +11,7 @@ import com.mkt120.bloggerable.top.posts.item.PostsItemViewHolder
  * 記事を表示するAdapter
  */
 class PostsAdapter(
-    private var posts: PostsResponse? = null,
+    private var posts: List<Posts>? = null,
     private val listener: PostsClickListener
 ) :
     RecyclerView.Adapter<PostsItemViewHolder>() {
@@ -23,17 +23,17 @@ class PostsAdapter(
     }
 
     override fun onBindViewHolder(holder: PostsItemViewHolder, position: Int) {
-        holder.bindData(posts!!.items!![position], listener)
+        holder.bindData(posts!![position], listener)
     }
 
     override fun getItemCount(): Int {
-        if (posts == null || posts!!.items == null) {
+        if (posts == null) {
             return 0
         }
-        if (posts!!.items!!.isEmpty()) {
+        if (posts!!.isEmpty()) {
             // todo: emptyView
         }
-        return posts!!.items!!.size
+        return posts!!.size
     }
 
 

@@ -5,11 +5,10 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.model.Blogs
+import com.mkt120.bloggerable.model.blogs.Blogs
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,7 +22,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         fun newInstance(blogs: Blogs): BlogInfoDialogFragment =
             BlogInfoDialogFragment().apply {
                 val arg = Bundle()
-                arg.putParcelable(EXTRA_KEY_BLOG, blogs)
+//                arg.putParcelable(EXTRA_KEY_BLOG, blogs)
                 arguments = arg
             }
     }
@@ -36,7 +35,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         val padding = context!!.resources.getDimensionPixelSize(R.dimen.dialog_view_group_padding)
         viewGroup.setPadding(0, padding, 0, padding)
 
-        val blog = arguments!!.getParcelable<Blogs>(EXTRA_KEY_BLOG)
+        val blog = Blogs() // arguments!!.getParcelable<Blogs>(EXTRA_KEY_BLOG)
 
         var titleView = TitleView(
             requireContext(),
@@ -89,7 +88,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         viewGroup.addView(titleView)
         contentView = ContentView(
             requireContext(),
-            blog.posts!!.totalItems!!
+            blog.post!!.totalItems!!
         )
         viewGroup.addView(contentView)
 

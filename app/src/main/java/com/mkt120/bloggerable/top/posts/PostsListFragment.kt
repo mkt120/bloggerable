@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.RealmManager
 import com.mkt120.bloggerable.api.PostsResponse
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.TopActivity
 import kotlinx.android.synthetic.main.fragment_posts_list.*
 
@@ -19,14 +21,14 @@ class PostsListFragment : Fragment(),
     PostsListContract.PostsListView {
     companion object {
         private val TAG = PostsListFragment::class.java.simpleName
-        private const val EXTRA_POSTS_RESPONSE = "EXTRA_POSTS_RESPONSE"
+        private const val EXTRA_BLOGS_ID = "EXTRA_BLOGS_ID"
         private const val EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE"
         public const val LIST_POSTS = 1
         public const val LIST_DRAFT = 2
-        fun newInstance(posts: PostsResponse?, listType: Int): PostsListFragment =
+        fun newInstance(blogId: String, listType: Int): PostsListFragment =
             PostsListFragment().apply {
                 val bundle = Bundle().apply {
-                    putParcelable(EXTRA_POSTS_RESPONSE, posts)
+                    putString(EXTRA_BLOGS_ID, blogId)
                     putInt(EXTRA_LIST_TYPE, listType)
                 }
                 arguments = bundle
@@ -46,15 +48,19 @@ class PostsListFragment : Fragment(),
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val response = arguments!!.getParcelable<PostsResponse>(EXTRA_POSTS_RESPONSE)
+        val blogId = arguments!!.getString(EXTRA_BLOGS_ID)
         val type = arguments!!.getInt(EXTRA_LIST_TYPE)
-        Log.d(TAG, "onActivityCreated response=$response")
-        postsListPresenter =
-            PostsListPresenter(this@PostsListFragment, type)
-        postsListPresenter.onActivityCreated(response)
+
+        // FIXME:
+        if (requireActivity().application is BloggerableApplication) {
+            val realm = (requireActivity().application as BloggerableApplication).getRealm()
+            postsListPresenter =
+                PostsListPresenter(RealmManager(realm), this@PostsListFragment, blogId!!, type)
+            postsListPresenter.onActivityCreated()
+        }
     }
 
-    override fun setPostsResponse(response: PostsResponse?) {
+    override fun setPostsResponse(response: List<Posts>) {
         // todo:ちょっと微妙
         recycler_view.adapter =
             PostsAdapter(

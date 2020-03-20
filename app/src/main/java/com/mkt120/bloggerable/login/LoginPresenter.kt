@@ -7,10 +7,12 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.PreferenceManager
+import com.mkt120.bloggerable.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 
 class LoginPresenter(
     private val view: LoginContract.View,
+    private val realmManager: RealmManager,
     private val wrapper: LoginStaticWrapper
 ) : LoginContract.Presenter {
     companion object {
@@ -106,6 +108,7 @@ class LoginPresenter(
         ApiManager.getBlogs(object :
             ApiManager.BlogListener {
             override fun onResponse(blogsResponse: BlogsResponse?) {
+                realmManager.addAllBlogs(blogsResponse!!.items!!)
                 view.showBlogListScreen(blogsResponse)
             }
         })

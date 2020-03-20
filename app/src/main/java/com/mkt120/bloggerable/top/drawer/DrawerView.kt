@@ -11,6 +11,7 @@ import androidx.transition.TransitionManager
 import com.mkt120.bloggerable.PreferenceManager
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.model.blogs.Blogs
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.include_drawer_view.view.*
 
@@ -40,7 +41,7 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
     }
 
     fun onBindData(
-        blogsList: BlogsResponse,
+        blogsList: List<Blogs>,
         listener: BlogListAdapter.MenuClickListener
     ) {
         Log.i(TAG, "onBindData")

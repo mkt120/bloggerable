@@ -2,8 +2,8 @@ package com.mkt120.bloggerable.top
 
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse
-import com.mkt120.bloggerable.model.Blogs
-import com.mkt120.bloggerable.model.Posts
+import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.model.posts.Posts
 
 interface TopContract {
 
@@ -19,13 +19,13 @@ interface TopContract {
         fun updateLivePosts(posts: PostsResponse)
         fun closeDrawer()
         fun isDrawerOpen(): Boolean
-        fun onBindDrawer(response: BlogsResponse)
+        fun onBindDrawer(response: List<Blogs>)
         fun showProgress()
         fun dismissProgress()
     }
 
     interface TopPresenter {
-        fun onCreate(response: BlogsResponse)
+        fun onCreate()
         fun onClickFab()
         fun onClickBlog(blogs: Blogs)
         fun onClickDrawerItem(itemsResId: Int)

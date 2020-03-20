@@ -7,10 +7,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.api.BlogsResponse
-import com.mkt120.bloggerable.model.Blogs
+import com.mkt120.bloggerable.model.blogs.Blogs
 
 class BlogListAdapter(
-    private var blogList: BlogsResponse? = null,
+    private var blogList: List<Blogs>? = null,
     private val listener: MenuClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -46,12 +46,11 @@ class BlogListAdapter(
                 // todo: emptyView
                 return
             }
-            val items = blogList!!.items
-            holder.bindData(items!![position], listener)
+            holder.bindData(blogList!![position], listener)
 
         } else if (holder is ContentViewHolder) {
             blogList?.let {
-                position -= it.items!!.size
+                position -= it.size
             }
             if (position == 0) {
 //                    holder.onBindData(R.string.side_menu_account, listener)
@@ -70,7 +69,7 @@ class BlogListAdapter(
             return VIEW_TYPE_CONTENT
         }
         val position = position - 1
-        return if (position < blogList!!.items!!.size) {
+        return if (position < blogList!!.size) {
             VIEW_TYPE_BLOG
         } else {
             VIEW_TYPE_CONTENT
@@ -81,7 +80,7 @@ class BlogListAdapter(
         if (blogList == null || blogList!!.isEmpty()) {
             return 0
         }
-        return blogList!!.items!!.size + 2
+        return blogList!!.size + 2
     }
 
     class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
