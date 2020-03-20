@@ -7,7 +7,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.model.posts.Posts
 import io.realm.RealmList
 import kotlin.math.max

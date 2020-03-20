@@ -1,10 +1,9 @@
 package com.mkt120.bloggerable.top
 
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.PreferenceManager
+import com.mkt120.bloggerable.util.PreferenceManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.RealmManager
-import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.blogs.Blogs

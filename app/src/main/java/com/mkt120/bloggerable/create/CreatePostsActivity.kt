@@ -13,13 +13,11 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.BaseActivity
-import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.model.posts.Posts
 import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlin.math.max

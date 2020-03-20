@@ -6,8 +6,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.PreferenceManager
-import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.util.PreferenceManager
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 
 class LoginPresenter(

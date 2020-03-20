@@ -8,9 +8,8 @@ import android.view.View.OnClickListener
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.transition.TransitionManager
-import com.mkt120.bloggerable.PreferenceManager
+import com.mkt120.bloggerable.util.PreferenceManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.include_drawer_view.view.*

@@ -5,6 +5,7 @@ import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.OauthResponse
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.util.PreferenceManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call

@@ -8,7 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.PreferenceManager
+import com.mkt120.bloggerable.util.PreferenceManager
 
 class LoginStaticWrapper(val context: Context) {
     companion object {

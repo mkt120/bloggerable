@@ -7,7 +7,7 @@ import android.view.View
 import com.google.android.gms.common.SignInButton
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.top.TopActivity
 import kotlinx.android.synthetic.main.activity_login.*

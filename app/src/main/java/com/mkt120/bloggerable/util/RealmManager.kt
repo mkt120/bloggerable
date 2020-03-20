@@ -1,4 +1,4 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.util
 
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts

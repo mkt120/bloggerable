@@ -1,7 +1,6 @@
 package com.mkt120.bloggerable.top.posts
 
-import com.mkt120.bloggerable.RealmManager
-import com.mkt120.bloggerable.api.PostsResponse
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.model.posts.Posts
 
 class PostsListPresenter(

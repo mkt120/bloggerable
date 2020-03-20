@@ -1,6 +1,7 @@
 package com.mkt120.bloggerable
 
 import android.app.Application
+import com.mkt120.bloggerable.util.PreferenceManager
 import io.realm.Realm
 import io.realm.RealmConfiguration
 

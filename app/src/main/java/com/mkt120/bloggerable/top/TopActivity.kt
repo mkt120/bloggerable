@@ -8,20 +8,17 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.mkt120.bloggerable.BaseActivity
-import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.about.AboutAppActivity
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.RealmManager
+import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
-import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
 import kotlinx.android.synthetic.main.activity_top.*
 
 class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract.TopView {

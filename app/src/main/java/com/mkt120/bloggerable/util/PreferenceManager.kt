@@ -1,4 +1,4 @@
-package com.mkt120.bloggerable
+package com.mkt120.bloggerable.util
 
 import android.content.Context
 import android.content.SharedPreferences
