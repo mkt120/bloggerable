@@ -15,7 +15,7 @@ import com.mkt120.bloggerable.top.posts.PostsListFragment
  */
 class PostsPagerAdapter(
     private var context: Context,
-    private val blogsId: String,
+    private var blogsId: String,
     fragmentManager: FragmentManager
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     companion object {
@@ -41,16 +41,13 @@ class PostsPagerAdapter(
         }
     }
 
-    fun updateListPosts() {
+    fun updateCurrentBlog(blogsId: String) {
+        this.blogsId = blogsId
         notifyDataSetChanged()
     }
 
     override fun getItemPosition(`object`: Any): Int {
         return PagerAdapter.POSITION_NONE
-    }
-
-    fun updateDraftPosts() {
-        notifyDataSetChanged()
     }
 
     override fun getCount(): Int {

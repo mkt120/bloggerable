@@ -15,6 +15,7 @@ object PreferenceManager {
     private const val KEY_LABEL_SET = "KEY_LABEL_SET"
     private const val KEY_GOOGLE_DISPLAY_NAME = "KEY_GOOGLE_DISPLAY_NAME"
     private const val KEY_GOOGLE_PHOTO_URL = "KEY_GOOGLE_PHOTO_URL"
+    private const val KEY_LAST_SELECT_BLOG_ID = "KEY_LAST_SELECT_BLOG_ID"
 
 
     fun init(context: Context) {
@@ -56,4 +57,9 @@ object PreferenceManager {
             return Gson().fromJson(text, object : TypeToken<MutableList<String>>() {
             }.type)
         }
+
+    var lastSelectBlogId: String
+        set(value) = prefs.edit().putString(KEY_LAST_SELECT_BLOG_ID, value).apply()
+        get() = prefs.getString(KEY_LAST_SELECT_BLOG_ID, "")!!
+
 }

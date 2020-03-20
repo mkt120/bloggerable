@@ -1,14 +1,14 @@
 package com.mkt120.bloggerable.top
 
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.util.PreferenceManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.posts.PostsListFragment
+import com.mkt120.bloggerable.util.PreferenceManager
+import com.mkt120.bloggerable.util.RealmManager
 
 class TopPresenter(private val realmManager: RealmManager, private val view: TopContract.TopView) :
     TopContract.TopPresenter {
@@ -17,10 +17,27 @@ class TopPresenter(private val realmManager: RealmManager, private val view: Top
 
     override fun onCreate() {
         val blogs = realmManager.findAllBlogs()
-        currentBlog = blogs!![0]
-        view.setTitle(currentBlog.name!!)
-        view.onBindDrawer(blogs)
-        requestPosts(currentBlog)
+        if (blogs != null) {
+            // todo: blogsが空
+            val blogId = PreferenceManager.lastSelectBlogId
+            if (blogId.isEmpty()) {
+                currentBlog = blogs[0]
+                PreferenceManager.lastSelectBlogId = currentBlog.id ?: ""
+            } else {
+                for (blog in blogs) {
+                    if (blogId == blog.id) {
+                        currentBlog = blog
+                        break
+                    }
+                }
+            }
+            view.setTitle(currentBlog.name!!)
+            view.onBindDrawer(blogs)
+            val posts = realmManager.findAllPosts(currentBlog.id!!, true)
+            if (posts == null) {
+                requestPosts(currentBlog)
+            }
+        }
     }
 
     override fun onClickFab() {
@@ -30,11 +47,17 @@ class TopPresenter(private val realmManager: RealmManager, private val view: Top
 
     override fun onClickBlog(blogs: Blogs) {
         currentBlog = blogs
+        PreferenceManager.lastSelectBlogId = currentBlog.id!!
         if (view.isDrawerOpen()) {
             view.closeDrawer()
         }
         view.setTitle(currentBlog.name!!)
-        requestPosts(currentBlog)
+        val posts = realmManager.findAllPosts(currentBlog.id!!, true)
+        if (posts == null) {
+            requestPosts(currentBlog)
+        } else {
+            view.updateCurrentBlog(currentBlog.id!!)
+        }
     }
 
     override fun onClickDrawerItem(itemsResId: Int) {
@@ -101,7 +124,7 @@ class TopPresenter(private val realmManager: RealmManager, private val view: Top
                             realmManager.addAllPosts(it.items!!.toList(), true)
                             PreferenceManager.labelList = posts.createLabelList()
                         }
-                        view.updateLivePosts(posts)
+                        view.notifyDataSetChanged()
                     }
                     // todo: 待ち合わせ
                     view.dismissProgress()
@@ -115,7 +138,7 @@ class TopPresenter(private val realmManager: RealmManager, private val view: Top
                         if (it.items != null) {
                             realmManager.addAllPosts(it.items!!.toList(), false)
                         }
-                        view.updateDraftPost(it)
+                        view.notifyDataSetChanged()
                     }
                     // todo: 待ち合わせ
                     view.dismissProgress()

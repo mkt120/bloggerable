@@ -73,12 +73,12 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         tool_bar.title = title
     }
 
-    override fun updateDraftPost(posts: PostsResponse) {
-        adapter.updateDraftPosts()
+    override fun notifyDataSetChanged() {
+        adapter.notifyDataSetChanged()
     }
 
-    override fun updateLivePosts(posts: PostsResponse) {
-        adapter.updateListPosts()
+    override fun updateCurrentBlog(blogId: String) {
+        adapter.updateCurrentBlog(blogId)
     }
 
     override fun showAboutAppScreen() {

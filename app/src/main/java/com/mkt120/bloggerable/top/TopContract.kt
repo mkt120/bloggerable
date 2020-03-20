@@ -1,7 +1,5 @@
 package com.mkt120.bloggerable.top
 
-import com.mkt120.bloggerable.api.BlogsResponse
-import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 
@@ -15,8 +13,8 @@ interface TopContract {
         fun setPagerPosition(position: Int)
         fun openBrowser(url: String)
         fun showAboutDialog(blogs: Blogs)
-        fun updateDraftPost(posts: PostsResponse)
-        fun updateLivePosts(posts: PostsResponse)
+        fun notifyDataSetChanged()
+        fun updateCurrentBlog(blogId: String)
         fun closeDrawer()
         fun isDrawerOpen(): Boolean
         fun onBindDrawer(response: List<Blogs>)
