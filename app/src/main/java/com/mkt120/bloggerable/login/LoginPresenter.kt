@@ -15,12 +15,13 @@ class LoginPresenter(
     private val realmManager: RealmManager,
     private val wrapper: LoginStaticWrapper
 ) : LoginContract.Presenter {
+
     companion object {
         private val TAG: String = LoginPresenter::class.java.simpleName
     }
 
-    override fun onCreate() {
-        Log.i(TAG, "onCreate")
+    override fun initialize() {
+        Log.i(TAG, "initialize")
         if (!wrapper.isExpiredDateMillis()) {
             // 有効期限内トークン
             requestBlogList()

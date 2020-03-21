@@ -11,7 +11,7 @@ interface LoginContract {
         fun requestSignIn(intent: Intent, requestCode: Int)
     }
     interface Presenter {
-        fun onCreate()
+        fun initialize()
         fun onClickSignIn()
         fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
     }

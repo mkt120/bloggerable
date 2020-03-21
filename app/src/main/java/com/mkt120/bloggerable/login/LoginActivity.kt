@@ -39,7 +39,7 @@ class LoginActivity : BaseActivity(), LoginContract.View {
             RealmManager(getRealm()),
             LoginStaticWrapper(this@LoginActivity)
         )
-        presenter.onCreate()
+        presenter.initialize()
     }
 
     override fun showLoginButton() {
