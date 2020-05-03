@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import com.mkt120.bloggerable.BaseActivity
@@ -16,11 +17,12 @@ import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
+import com.mkt120.bloggerable.login.LoginActivity
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.repository.AccessTokenRepository
-import com.mkt120.bloggerable.repository.BlogsRepository
-import com.mkt120.bloggerable.repository.LastSelectBlogIdRepository
+import com.mkt120.bloggerable.repository.AccountRepository
+import com.mkt120.bloggerable.repository.BlogRepository
+import com.mkt120.bloggerable.repository.CurrentBlogIdRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
 import com.mkt120.bloggerable.usecase.*
@@ -28,7 +30,6 @@ import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_top.*
 
 class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract.TopView {
-
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
 
@@ -72,33 +73,31 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
 
         val realmDataSource = RealmDataSource(RealmManager(getRealm()))
         val preferenceDataSource = PreferenceDataSource()
-        val lastSelectBlogIdRepository = LastSelectBlogIdRepository(preferenceDataSource)
+        val currentBlogIdRepository = CurrentBlogIdRepository(preferenceDataSource)
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val blogsRepository =
-            BlogsRepository(
-                bloggerApiDataSource,
-                realmDataSource
-            )
+            BlogRepository(bloggerApiDataSource, realmDataSource)
 
-        val getLastSelectBlogId = GetLastSelectBlogId(lastSelectBlogIdRepository)
-        val saveLastSelectBlogId = SaveLastSelectBlogId(lastSelectBlogIdRepository)
+        val saveLastSelectBlogId = SaveCurrentBlogId(currentBlogIdRepository)
 
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val saveAllPosts = SaveAllPosts(postsRepository)
-        val findAllBlogs = FindAllBlogs(blogsRepository)
-        val accessTokenRepository =
-            AccessTokenRepository(bloggerApiDataSource, preferenceDataSource)
-        val getAccessToken = GetAccessToken(accessTokenRepository)
+        val findAllBlogs = FindAllBlog(blogsRepository)
+        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val getCurrentAccount = GetCurrentAccount(accountRepository)
+        val getAccessToken = GetAccessToken(accountRepository)
         val getAllPosts = RequestAllPosts(getAccessToken, postsRepository)
+        val getLabels = GetLabels(blogsRepository)
 
         presenter = TopPresenter(
             this@TopActivity,
-            getLastSelectBlogId,
+            getCurrentAccount,
             saveLastSelectBlogId,
             findAllBlogs,
             getAllPosts,
-            saveAllPosts
+            saveAllPosts,
+            getLabels
         )
         presenter.initialize()
     }
@@ -150,10 +149,11 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         return drawer_layout.isDrawerOpen(drawer_view)
     }
 
-    override fun showCreateScreen(blogId: String) {
+    override fun showCreateScreen(blogId: String, labels: ArrayList<String>) {
         val intent = CreatePostsActivity.createIntent(
             this@TopActivity,
-            blogId
+            blogId,
+            labels
         )
         startActivityForResult(
             intent,
@@ -161,10 +161,11 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         )
     }
 
-    override fun showEditScreen(posts: Posts, isDraft: Boolean) {
+    override fun showEditScreen(posts: Posts, labels: ArrayList<String>, isDraft: Boolean) {
         val i = CreatePostsActivity.createPostsIntent(
             this@TopActivity,
             posts,
+            labels,
             isDraft
         )
         val requestCode = if (isDraft) {
@@ -201,6 +202,18 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return presenter.onMenuItemClick(item?.itemId)
+    }
+
+    override fun showLoginScreen() {
+        val intent = Intent(applicationContext, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    override fun showError(code: Int, message: String?) {
+        message?.let {
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun showProgress() {

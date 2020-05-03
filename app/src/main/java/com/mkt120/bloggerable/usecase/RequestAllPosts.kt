@@ -1,40 +1,84 @@
 package com.mkt120.bloggerable.usecase
 
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.repository.AccessTokenRepository
+import com.mkt120.bloggerable.api.PostResponse
+import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 
 class RequestAllPosts(
     private val getAccessToken: GetAccessToken,
     private val postsRepository: PostsRepository
 ) {
-    fun execute(isDraft: Boolean, blogId: String, postsListener: ApiManager.PostsListener) {
-        val accessToken = getAccessToken.execute(object : AccessTokenRepository.OnRefreshListener {
-            override fun onRefresh() {
-                execute(isDraft, blogId, postsListener)
-            }
-        })
-        if (accessToken != null) {
+    fun execute(
+        now:Long,
+        userId: String,
+        isDraft: Boolean,
+        blog: Blogs,
+        listener: ApiManager.PostsListener
+    ) {
+        val accessToken =
+            getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
+                override fun onRefresh() {
+                    execute(now, userId, isDraft, blog, listener)
+                }
+
+                override fun onErrorResponse(code: Int, message: String) {
+                    listener.onErrorResponse(code, message)
+                }
+
+                override fun onFailed(t: Throwable) {
+                    listener.onFailed(t)
+                }
+            })
+        accessToken?.let {
             if (isDraft) {
-                getDraftPosts(accessToken, blogId, postsListener)
+                getDraftPosts(now, accessToken, blog, listener)
             } else {
-                getLivePosts(accessToken, blogId, postsListener)
+                getLivePosts(now, accessToken, blog, listener)
             }
         }
     }
 
     private fun getLivePosts(
+        now: Long,
         accessToken: String,
-        blogId: String,
-        postsListener: ApiManager.PostsListener
+        blog: Blogs,
+        listener: ApiManager.PostsListener
     ) {
-        postsRepository.requestLivePosts(accessToken, blogId, postsListener)
+        postsRepository.requestLivePosts(accessToken, blog.id!!, object : ApiManager.PostsListener {
+            override fun onResponse(post: PostResponse?) {
+                blog.updateLastRequest(now)
+                listener.onResponse(post)
+            }
+
+            override fun onErrorResponse(code: Int, message: String) {
+                listener.onErrorResponse(code, message)
+            }
+
+            override fun onFailed(t: Throwable) {
+                listener.onFailed(t)
+            }
+        })
     }
 
     private fun getDraftPosts(
+        now: Long,
         accessToken: String,
-        blogId: String, postsListener: ApiManager.PostsListener
+        blog: Blogs,
+        listener: ApiManager.PostsListener
     ) {
-        postsRepository.requestDraftPosts(accessToken, blogId, postsListener)
+        postsRepository.requestDraftPosts(accessToken, blog.id!!, object : ApiManager.PostsListener {
+            override fun onResponse(post: PostResponse?) {
+                blog.updateLastRequest(now)
+                listener.onResponse(post)
+            }
+            override fun onErrorResponse(code: Int, message: String) {
+                listener.onErrorResponse(code, message)
+            }
+            override fun onFailed(t: Throwable) {
+                listener.onFailed(t)
+            }
+        })
     }
 }

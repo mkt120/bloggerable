@@ -12,8 +12,8 @@ import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
-import com.mkt120.bloggerable.repository.AccessTokenRepository
-import com.mkt120.bloggerable.repository.BlogsRepository
+import com.mkt120.bloggerable.repository.AccountRepository
+import com.mkt120.bloggerable.repository.BlogRepository
 import com.mkt120.bloggerable.repository.GoogleAccountRepository
 import com.mkt120.bloggerable.top.TopActivity
 import com.mkt120.bloggerable.usecase.*
@@ -42,22 +42,25 @@ class LoginActivity : BaseActivity(), LoginContract.View {
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val preferenceDataSource = PreferenceDataSource()
-        val accessTokenRepository =
-            AccessTokenRepository(bloggerApiDataSource, preferenceDataSource)
-        val requestAccessToken = RequestAccessToken(accessTokenRepository)
+        val accountRepository =
+            AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val requestAccessToken = RequestAccessToken(accountRepository)
         val googleOauthApiDataSource = GoogleOauthApiDataSource(applicationContext)
         val googleAccountRepository =
             GoogleAccountRepository(preferenceDataSource, googleOauthApiDataSource)
         val authorizeGoogleAccount = AuthorizeGoogleAccount(googleAccountRepository)
         val realmDataSource = RealmDataSource(RealmManager(getRealm()))
-        val blogsRepository = BlogsRepository(bloggerApiDataSource, realmDataSource)
-        val getAccessToken = GetAccessToken(accessTokenRepository)
+        val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
+        val getAccessToken = GetAccessToken(accountRepository)
         val saveAllBlogs = SaveAllBlogs(blogsRepository)
+        val getCurrentAccount =
+            GetCurrentAccount(accountRepository)
         val requestAllBlogs = RequestAllBlogs(getAccessToken, blogsRepository)
         presenter = LoginPresenter(
             this@LoginActivity,
             requestAccessToken,
             saveAllBlogs,
+            getCurrentAccount,
             authorizeGoogleAccount,
             requestAllBlogs
         )
@@ -84,8 +87,11 @@ class LoginActivity : BaseActivity(), LoginContract.View {
         finish()
     }
 
-    override fun showError() {
-        Toast.makeText(this@LoginActivity, "情報取得に失敗しました", Toast.LENGTH_SHORT).show()
+    override fun showError(message: String) {
+        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
     }
 
+    override fun showEmptyBlogScreen() {
+        // todo:empty
+    }
 }

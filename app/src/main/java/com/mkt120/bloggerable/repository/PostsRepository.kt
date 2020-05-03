@@ -3,6 +3,7 @@ package com.mkt120.bloggerable.repository
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
+import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 
 class PostsRepository(
@@ -78,5 +79,10 @@ class PostsRepository(
         listener: ApiManager.CompleteListener
     ) {
         bloggerApiDataSource.deletePosts(accessToken, blogId, postsId, listener)
+    }
+
+    fun updateLastRequest(blog:Blogs, update:Long) {
+        blog.lastRequestPosts = update
+        realmDataSource.saveBlogs(blog)
     }
 }

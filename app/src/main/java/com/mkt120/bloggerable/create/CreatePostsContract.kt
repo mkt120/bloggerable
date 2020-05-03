@@ -22,8 +22,8 @@ interface CreatePostsContract {
 
         fun openBrowser(url: String)
 
-        fun showToast(textResId: Int)
-        fun showToast(text: String)
+        fun showMessage(textResId: Int)
+        fun showMessage(text: String)
 
         fun showProgress()
         fun dismissProgress()

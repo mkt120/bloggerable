@@ -20,7 +20,7 @@ open class Posts(
     var replies: Reply? = null,
     var isPost: Boolean = false,
     var labels: RealmList<String>? = null
-) : RealmObject() {
+) :RealmObject() {
 
     fun isChange(title: String, content: String): Boolean {
         val changeTitle = this.title != title
@@ -54,6 +54,5 @@ open class Posts(
                     this["labels"] = labels
                 }
             }
-
     }
 }

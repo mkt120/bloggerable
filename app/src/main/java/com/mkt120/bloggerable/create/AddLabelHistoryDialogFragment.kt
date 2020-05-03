@@ -9,15 +9,20 @@ import com.mkt120.bloggerable.R
 
 class AddLabelHistoryDialogFragment : DialogFragment() {
     companion object {
-        fun newInstance(): AddLabelHistoryDialogFragment =
-            AddLabelHistoryDialogFragment()
+        private const val EXTRA_KEY_LABELS = "EXTRA_KEY_LABELS"
+        fun newInstance(labels:ArrayList<String>): AddLabelHistoryDialogFragment =
+            AddLabelHistoryDialogFragment().apply {
+                val bundle = Bundle()
+                bundle.putStringArrayList(EXTRA_KEY_LABELS, labels)
+                arguments = bundle
+            }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle(R.string.create_posts_select_label)
-        val list = PreferenceManager.labelList.toTypedArray()
-        builder.setItems(list) { _, position ->
+        val list = arguments!!.getStringArrayList(EXTRA_KEY_LABELS)
+        builder.setItems(list!!.toTypedArray()) { _, position ->
             val label = list[position]
             if (activity is AddLabelDialogFragment.OnClickListener) {
                 (activity as AddLabelDialogFragment.OnClickListener).onClickAddLabel(label)

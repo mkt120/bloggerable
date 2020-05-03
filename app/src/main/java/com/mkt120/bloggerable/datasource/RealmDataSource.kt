@@ -6,8 +6,12 @@ import com.mkt120.bloggerable.util.RealmManager
 
 class RealmDataSource(private val manager: RealmManager) {
 
-    fun saveBlog(blogsList: List<Blogs>) {
-        manager.addAllBlogs(blogsList)
+    fun saveBlogs(blogs: Blogs) {
+        manager.saveBlog(blogs)
+    }
+
+    fun addAllBlogs(blogsList: List<Blogs>) {
+        manager.saveAllBlogs(blogsList)
     }
 
     fun savePosts(posts: List<Posts>, isDraft: Boolean) {
@@ -16,9 +20,7 @@ class RealmDataSource(private val manager: RealmManager) {
 
     fun findPosts(blogId: String, postsId: String): Posts? = manager.findPosts(blogId, postsId)
 
-    fun findAllBlogs(): List<Blogs> = manager.findAllBlogs()
+    fun findAllBlogs(id: String): List<Blogs> = manager.findAllBlogs(id)
 
-    fun findAllPosts(blogsId: String, isPost: Boolean): List<Posts> =
-        manager.findAllPosts(blogsId, isPost)
-
+    fun findAllLabels(blogId: String): ArrayList<String> = manager.findAllLabels(blogId)
 }

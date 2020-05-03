@@ -2,7 +2,7 @@ package com.mkt120.bloggerable
 
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.OauthResponse
-import com.mkt120.bloggerable.api.PostsResponse
+import com.mkt120.bloggerable.api.PostResponse
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -35,7 +35,7 @@ interface ApiService {
     fun listByUser(@Header("Authorization") accessToken: String?, @Path("userId") userId: String, @Query("key") apiKey: String): Call<BlogsResponse>
 
     @GET("blogger/v3/blogs/{blogId}/posts")
-    fun getPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String, @Query("status") status:String? = null): Call<PostsResponse>
+    fun getPosts(@Header("Authorization") accessToken: String?, @Path("blogId") blogId: String, @Query("key") apiKey: String, @Query("status") status:String? = null): Call<PostResponse>
 
     @POST("blogger/v3/blogs/{blogId}/posts")
     fun createPosts(

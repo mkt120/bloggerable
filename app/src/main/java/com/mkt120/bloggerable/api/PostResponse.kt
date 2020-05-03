@@ -2,7 +2,7 @@ package com.mkt120.bloggerable.api
 
 import com.mkt120.bloggerable.model.posts.Posts
 
-data class PostsResponse(
+data class PostResponse(
     var kind: String? = null,
     var nextPageToken: String? = null,
     var items: List<Posts>? = null

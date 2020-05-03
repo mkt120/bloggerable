@@ -7,30 +7,24 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.api.OauthResponse
-import com.mkt120.bloggerable.repository.AccessTokenRepository
+import com.mkt120.bloggerable.repository.AccountRepository
 
-class RequestAccessToken(private val accessTokenRepository: AccessTokenRepository) {
+class RequestAccessToken(private val accountRepository: AccountRepository) {
 
     fun execute(intent: Intent?, listener: OnCompleteListener) {
-
         val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)
         val account: GoogleSignInAccount? = task.getResult(ApiException::class.java)
-        val serverAuthCode= account!!.serverAuthCode!!
+        val serverAuthCode = account!!.serverAuthCode!!
 
-        accessTokenRepository.requestAccessToken(serverAuthCode, object : ApiManager.OauthListener {
+        accountRepository.requestAccessToken(serverAuthCode, object : ApiManager.OauthListener {
             override fun onResponse(response: OauthResponse) {
-                // アクセストークン
-                response.access_token?.let {
-                    accessTokenRepository.saveAccessToken(it)
-                }
-                // リフレッシュトークン
-                response.refresh_token?.let {
-                    accessTokenRepository.saveRefreshToken(it)
-                }
-                // 有効期限
-                response.expires_in?.let {
-                    val expiresIn = System.currentTimeMillis() + it * 1000L
-                    accessTokenRepository.saveExpiredDateMillis(expiresIn)
+                response.let {
+                    // アクセストークン
+                    // リフレッシュトークン
+                    // 有効期限
+                    val expiresIn = System.currentTimeMillis() + (it.expires_in!! * 1000L)
+                    val newAccount = accountRepository.saveNewAccount(account, it.access_token!!, expiresIn, it.refresh_token!!)
+                    accountRepository.setCurrentAccount(newAccount)
                 }
                 listener.onComplete()
             }
@@ -39,7 +33,7 @@ class RequestAccessToken(private val accessTokenRepository: AccessTokenRepositor
                 listener.onErrorResponse(code, message)
             }
 
-            override fun onFailed(t: Throwable?) {
+            override fun onFailed(t: Throwable) {
                 listener.onFailed(t)
             }
         })
@@ -47,7 +41,7 @@ class RequestAccessToken(private val accessTokenRepository: AccessTokenRepositor
 
     interface OnCompleteListener {
         fun onComplete()
-        fun onErrorResponse(code:Int, message:String)
-        fun onFailed(t:Throwable?)
+        fun onErrorResponse(code: Int, message: String)
+        fun onFailed(t: Throwable)
     }
 }

@@ -5,7 +5,7 @@ import android.text.Spanned
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.repository.AccessTokenRepository
+import com.mkt120.bloggerable.repository.AccountRepository
 import io.realm.RealmList
 
 class UpdatePosts(
@@ -14,20 +14,26 @@ class UpdatePosts(
 ) {
 
     fun execute(
+        userId:String,
         posts: Posts,
         title: String,
         content: Spanned,
         labels: Array<String>?,
-        completeListener: ApiManager.CompleteListener
+        listener: ApiManager.CompleteListener
     ) {
-        val accessToken = getAccessToken.execute(object : AccessTokenRepository.OnRefreshListener {
+        val accessToken = getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
             override fun onRefresh() {
-                execute(posts, title, content, labels, completeListener)
+                execute(userId, posts, title, content, labels, listener)
+            }
+            override fun onErrorResponse(code: Int, message: String) {
+                listener.onErrorResponse(code, message)
+            }
+            override fun onFailed(t: Throwable) {
+                listener.onFailed(t)
             }
         })
-
-        if (accessToken != null) {
-            updatePosts(accessToken, posts, title, content, labels, completeListener)
+        accessToken?.let {
+            updatePosts(accessToken, posts, title, content, labels, listener)
         }
     }
 

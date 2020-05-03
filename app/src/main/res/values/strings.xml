@@ -9,7 +9,7 @@
     <string name="dialog_about_this_blog_title">ブログ情報</string>
     <string name="dialog_about_this_blog_name">ブログ名</string>
     <string name="dialog_about_this_blog_description">説明</string>
-    <string name="dialog_about_this_blog_publish_date">公開日</string>
+    <string name="dialog_about_this_blog_publish_date">投稿日</string>
     <string name="dialog_about_this_blog_last_update">最終更新日</string>
     <string name="dialog_about_this_blog_last_post_count">投稿数</string>
 

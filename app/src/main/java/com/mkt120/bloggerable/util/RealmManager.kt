@@ -7,7 +7,13 @@ import io.realm.kotlin.where
 
 class RealmManager(private val realm: Realm) {
 
-    fun addAllBlogs(blogsList: List<Blogs>) {
+    fun saveBlog(blog:Blogs) {
+        val list = mutableListOf<Blogs>()
+        list.add(blog)
+        saveAllBlogs(list)
+    }
+
+    fun saveAllBlogs(blogsList: List<Blogs>) {
         realm.executeTransaction {
             realm.insertOrUpdate(blogsList)
         }
@@ -20,7 +26,7 @@ class RealmManager(private val realm: Realm) {
         }
     }
 
-    fun findAllBlogs(): MutableList<Blogs> {
+    fun findAllBlogs(userId:String): MutableList<Blogs> {
         val blogsList = realm.where<Blogs>().findAll()
         if (blogsList != null) {
             return realm.copyFromRealm(blogsList)
@@ -44,6 +50,15 @@ class RealmManager(private val realm: Realm) {
             return realm.copyFromRealm(posts)
         }
         return null
+    }
+
+    fun findAllLabels(blogsId: String) : ArrayList<String> {
+        val posts = realm.where<Posts>().equalTo("blog.id", blogsId).findAll()
+        val labels = mutableListOf<String>()
+        for (post in posts) {
+            labels.addAll(post.labels!!)
+        }
+        return ArrayList<String>(labels.toHashSet())
     }
 
 }

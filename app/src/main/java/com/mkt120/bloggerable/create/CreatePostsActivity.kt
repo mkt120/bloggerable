@@ -21,7 +21,7 @@ import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.repository.AccessTokenRepository
+import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.usecase.*
 import com.mkt120.bloggerable.util.RealmManager
@@ -40,6 +40,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
         private const val EXTRA_KEY_REQUEST_CODE = "EXTRA_KEY_REQUEST_CODE"
         private const val EXTRA_KEY_POSTS_ID = "EXTRA_KEY_POSTS_ID"
+        private const val EXTRA_KEY_LABELS = "EXTRA_KEY_LABELS"
         private const val RELATIVE_FONT_SIZE_X_LARGE = 2.0f
         private const val RELATIVE_FONT_SIZE_LARGE = 1.5f
         private val TAG = CreatePostsActivity::class.java.simpleName
@@ -50,16 +51,22 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         const val RESULT_POSTS_UPDATE = 100
         const val RESULT_DRAFT_UPDATE = 200
 
-        fun createIntent(context: Context, blogId: String): Intent =
+        fun createIntent(context: Context, blogId: String, labels: ArrayList<String>): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
                 putExtra(
                     EXTRA_KEY_REQUEST_CODE,
                     REQUEST_CREATE_POSTS
                 )
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
+                putExtra(EXTRA_KEY_LABELS, labels)
             }
 
-        fun createPostsIntent(context: Context, posts: Posts, isDraft: Boolean): Intent =
+        fun createPostsIntent(
+            context: Context,
+            posts: Posts,
+            labels: ArrayList<String>,
+            isDraft: Boolean
+        ): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
                 if (isDraft) {
                     putExtra(
@@ -73,8 +80,8 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
                     )
                 }
                 putExtra(EXTRA_KEY_BLOG_ID, posts.blog!!.id)
-
                 putExtra(EXTRA_KEY_POSTS_ID, posts.id)
+                putExtra(EXTRA_KEY_LABELS, labels)
             }
     }
 
@@ -89,15 +96,14 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val postsId = intent.getStringExtra(EXTRA_KEY_POSTS_ID)
         val requestCode = intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)
 
-
         val bloggerApiDataSource = BloggerApiDataSource()
         val realmDataSource = RealmDataSource(RealmManager(getRealm()))
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findPosts = FindPosts(postsRepository)
         val preferenceDataSource = PreferenceDataSource()
-        val accessTokenRepository =
-            AccessTokenRepository(bloggerApiDataSource, preferenceDataSource)
-        val getAccessToken = GetAccessToken(accessTokenRepository)
+        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val getCurrentUser = GetCurrentAccount(accountRepository)
+        val getAccessToken = GetAccessToken(accountRepository)
         val createPosts = CreatePosts(getAccessToken, postsRepository)
         val updatePosts = UpdatePosts(getAccessToken, bloggerApiDataSource)
         val revertPosts = RevertPosts(getAccessToken, postsRepository)
@@ -105,6 +111,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val deletePosts = DeletePosts(getAccessToken, postsRepository)
         presenter = CreatePostsPresenter(
             this@CreatePostsActivity,
+            getCurrentUser,
             blogId,
             postsId,
             findPosts,
@@ -189,13 +196,14 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
             dialogFragment = AddLabelDialogFragment.newInstance()
             dialogFragment!!.show(supportFragmentManager, null)
         }
+        val labels = intent.getStringArrayListExtra(EXTRA_KEY_LABELS)
         button_history.setOnClickListener {
             val isShowing = dialogFragment?.dialog?.isShowing
             if (isShowing != null && isShowing) {
                 return@setOnClickListener
             }
             dialogFragment =
-                AddLabelHistoryDialogFragment.newInstance()
+                AddLabelHistoryDialogFragment.newInstance(labels!!)
             dialogFragment!!.show(supportFragmentManager, null)
         }
         button_add_font_change.setOnClickListener {
@@ -242,11 +250,11 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         progress_view.visibility = View.GONE
     }
 
-    override fun showToast(textResId: Int) {
-        showToast(applicationContext.getString(textResId))
+    override fun showMessage(textResId: Int) {
+        showMessage(applicationContext.getString(textResId))
     }
 
-    override fun showToast(text: String) {
+    override fun showMessage(text: String) {
         Toast.makeText(
             this@CreatePostsActivity,
             text,

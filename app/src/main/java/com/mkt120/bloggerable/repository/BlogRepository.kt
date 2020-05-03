@@ -5,18 +5,20 @@ import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
 
-class BlogsRepository(
+class BlogRepository(
     private val bloggerApiDataSource: BloggerApiDataSource,
     private val realmDataSource: RealmDataSource
 ) {
-    fun findAllBlogs(): List<Blogs> = realmDataSource.findAllBlogs()
 
-    fun saveAllBlogs(blogs: List<Blogs>) {
-        realmDataSource.saveBlog(blogs)
+    fun findAllBlog(userId: String): List<Blogs> = realmDataSource.findAllBlogs(userId)
+
+    fun saveAllBlog(blogList: List<Blogs>) {
+        realmDataSource.addAllBlogs(blogList)
     }
 
-    fun requestAllBlogs(accessToken: String, listener: ApiManager.BlogListener) {
+    fun requestAllBlog(accessToken: String, listener: ApiManager.BlogListener) {
         bloggerApiDataSource.getBlogs(accessToken, listener)
     }
 
+    fun findAllLabels(blogId: String): ArrayList<String> = realmDataSource.findAllLabels(blogId)
 }

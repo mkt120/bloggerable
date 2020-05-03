@@ -9,11 +9,12 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.transition.TransitionManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
+import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
-import com.mkt120.bloggerable.repository.GoogleAccountRepository
-import com.mkt120.bloggerable.usecase.GetGoogleAccount
+import com.mkt120.bloggerable.repository.AccountRepository
+import com.mkt120.bloggerable.usecase.GetAllAccount
+import com.mkt120.bloggerable.usecase.GetCurrentAccount
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.include_drawer_view.view.*
 
@@ -43,12 +44,12 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
         }
         image_view_1.setOnClickListener(clickListener)
 
+        val bloggerApiDataSource = BloggerApiDataSource()
         val preferenceDataSource = PreferenceDataSource()
-        val googleOauthApiDataSource = GoogleOauthApiDataSource(getContext())
-        val googleAccountRepository =
-            GoogleAccountRepository(preferenceDataSource, googleOauthApiDataSource)
-        val getGoogleAccount = GetGoogleAccount(googleAccountRepository)
-        presenter = DrawerPresenter(this@DrawerView, getGoogleAccount)
+        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val getAllAccount = GetAllAccount(accountRepository)
+        val getGoogleAccount = GetCurrentAccount(accountRepository)
+        presenter = DrawerPresenter(this@DrawerView, getAllAccount, getGoogleAccount)
         presenter.initialize()
     }
 

@@ -2,19 +2,17 @@ package com.mkt120.bloggerable.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.mkt120.bloggerable.model.Account
 
 object PreferenceManager {
 
     private lateinit var prefs: SharedPreferences
 
-    private const val KEY_ACCESS_EXPIRES_MILLIS = "KEY_ACCESS_EXPIRES_MILLIS"
-    private const val KEY_ACCESS_TOKEN = "KEY_ACCESS_TOKEN"
-    private const val KEY_REFRESH_TOKEN = "KEY_REFRESH_TOKEN"
-    private const val KEY_LABEL_SET = "KEY_LABEL_SET"
-    private const val KEY_GOOGLE_DISPLAY_NAME = "KEY_GOOGLE_DISPLAY_NAME"
-    private const val KEY_GOOGLE_PHOTO_URL = "KEY_GOOGLE_PHOTO_URL"
+    private const val KEY_ACCOUNTS = "KEY_ACCOUNTS"
+    private const val KEY_CURRENT_ACCOUNT_ID = "KEY_CURRENT_ACCOUNT_ID"
     private const val KEY_LAST_SELECT_BLOG_ID = "KEY_LAST_SELECT_BLOG_ID"
 
 
@@ -23,39 +21,57 @@ object PreferenceManager {
             context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
     }
 
-    var accessToken: String
-        set(accessToken) = prefs.edit().putString(KEY_ACCESS_TOKEN, accessToken).apply()
-        get() = prefs.getString(KEY_ACCESS_TOKEN, "")!!
-
-    var tokenExpiredDateMillis: Long
-        set(expiredMillis) = prefs.edit().putLong(KEY_ACCESS_EXPIRES_MILLIS, expiredMillis).apply()
-        get() = prefs.getLong(KEY_ACCESS_EXPIRES_MILLIS, 0L)
-
-    var refreshToken: String
-        set(refreshToken) = prefs.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply()
-        get() = prefs.getString(KEY_REFRESH_TOKEN, "")!!
-
-    var displayName: String
-        set(name) = prefs.edit().putString(KEY_GOOGLE_DISPLAY_NAME, name).apply()
-        get() = prefs.getString(KEY_GOOGLE_DISPLAY_NAME, "")!!
-
-    var photoUrl: String
-        set(url) = prefs.edit().putString(KEY_GOOGLE_PHOTO_URL, url).apply()
-        get() = prefs.getString(KEY_GOOGLE_PHOTO_URL, "")!!
-
-    var labelList: MutableList<String>
-        set(list) {
-            val text = Gson().toJson(list)
-            prefs.edit().putString(KEY_LABEL_SET, text).apply()
-        }
-        get() {
-            val text = prefs.getString(KEY_LABEL_SET, null)
-            return Gson().fromJson(text, object : TypeToken<MutableList<String>>() {
-            }.type)
-        }
-
-    var lastSelectBlogId: String
+    var currentBlogId: String
         set(value) = prefs.edit().putString(KEY_LAST_SELECT_BLOG_ID, value).apply()
         get() = prefs.getString(KEY_LAST_SELECT_BLOG_ID, "")!!
 
+    fun setCurrentAccount(account: Account) {
+        prefs.edit().putString(KEY_CURRENT_ACCOUNT_ID, account.getId()).apply()
+    }
+
+    fun getCurrentAccount(): Account {
+        val id = prefs.getString(KEY_CURRENT_ACCOUNT_ID, "")!!
+        return getAccount(id) ?: getAccounts()[0]
+    }
+
+    fun getAccount(id: String): Account? {
+        val accounts = getAccounts()
+        return accounts.find { account -> account.getId() == id }
+    }
+
+    fun getAccounts(): ArrayList<Account> {
+        val json = prefs.getString(KEY_ACCOUNTS, null) ?: return arrayListOf()
+        val typeToken = object : TypeToken<ArrayList<Account>>() {}
+        return Gson().fromJson<ArrayList<Account>>(json, typeToken.type)
+    }
+
+    fun saveAccount(
+        newAccount: Account,
+        accessToken: String,
+        tokenExpiredDateMillis: Long,
+        refreshToken: String
+    ) {
+        val accounts = getAccounts()
+        val found = accounts.find { item -> item.getId() == newAccount.getId() }
+        found?.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
+        prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
+    }
+
+    fun saveNewAccount(
+        newAccount: GoogleSignInAccount,
+        accessToken: String,
+        tokenExpiredDateMillis: Long,
+        refreshToken: String
+    ) :Account {
+        val accounts = getAccounts()
+        var account = accounts.find { item -> item.getId() == newAccount.id }
+        if (account != null) {
+            account.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
+        } else {
+            account = Account(newAccount, accessToken, tokenExpiredDateMillis, refreshToken)
+            accounts.add(account)
+        }
+        prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
+        return account
+    }
 }

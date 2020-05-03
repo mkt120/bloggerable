@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.TopActivity
+import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.fragment_posts_list.*
 
 /**

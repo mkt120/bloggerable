@@ -10,8 +10,8 @@ import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.blogs.Blogs
 
 class BlogItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-    DrawerContract.BlogsItemView {
-    private val presenter: DrawerContract.BlogsItemPresenter
+    DrawerContract.BlogItemView {
+    private val presenter: DrawerContract.BlogItemPresenter
 
     companion object {
         val TAG = BlogItemViewHolder::class.java.simpleName
@@ -47,10 +47,10 @@ class BlogItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         }
     }
 
-    class BlogsItemPresenter(val view: DrawerContract.BlogsItemView) :
-        DrawerContract.BlogsItemPresenter {
-        override fun onBindData(blogs: Blogs) {
-            view.setBlogName(blogs.name!!)
+    class BlogsItemPresenter(val view: DrawerContract.BlogItemView) :
+        DrawerContract.BlogItemPresenter {
+        override fun onBindData(blog: Blogs) {
+            view.setBlogName(blog.name!!)
         }
     }
 }

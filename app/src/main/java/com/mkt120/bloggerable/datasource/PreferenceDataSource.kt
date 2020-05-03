@@ -1,40 +1,48 @@
 package com.mkt120.bloggerable.datasource
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.util.PreferenceManager
 
 class PreferenceDataSource {
 
-    fun saveLastSelectBlogId(blogId: String) {
-        PreferenceManager.lastSelectBlogId = blogId
-    }
-    fun getLastSelectBlogId() :String = PreferenceManager.lastSelectBlogId
+    fun getCurrentBlogId(): String = PreferenceManager.currentBlogId
 
-    fun getExpiredDateMillis(): Long {
-        return  PreferenceManager.tokenExpiredDateMillis
-    }
-    fun saveExpiredDateMillis(millis: Long) {
-        PreferenceManager.tokenExpiredDateMillis = millis
+    fun getCurrentAccount(): Account? = PreferenceManager.getCurrentAccount()
+
+    fun saveCurrentAccount(account: Account) {
+        PreferenceManager.setCurrentAccount(account)
     }
 
-    fun getRefreshToken(): String = PreferenceManager.refreshToken
-    fun saveRefreshToken (refreshToken: String) {
-        PreferenceManager.refreshToken = refreshToken
+    fun saveNewAccount(
+        account: GoogleSignInAccount,
+        accessToken: String,
+        tokenExpiredDateMillis: Long,
+        refreshToken: String
+    ): Account {
+        return PreferenceManager.saveNewAccount(
+            account,
+            accessToken,
+            tokenExpiredDateMillis,
+            refreshToken
+        )
     }
 
-    fun getAccessToken() :String = PreferenceManager.accessToken
-    fun saveAccessToken(accessToken: String) {
-        PreferenceManager.accessToken = accessToken
+    fun saveAccessToken(
+        id: String,
+        accessToken: String,
+        refreshToken: String,
+        expired: Long
+    ) {
+        val account = getAccount(id)
+        account?.let {
+            it.updateAccessToken(accessToken, refreshToken, expired)
+            PreferenceManager.saveAccount(it, accessToken, expired, refreshToken)
+
+        }
     }
 
-    fun getPhotoUrl() :String = PreferenceManager.photoUrl
+    fun getAccounts(): ArrayList<Account> = PreferenceManager.getAccounts()
 
-    fun savePhotoUrl(photoUrl: String) {
-        PreferenceManager.photoUrl = photoUrl
-    }
-
-    fun getDisplayName() :String = PreferenceManager.displayName
-    fun saveDisplayName(displayName: String) {
-        PreferenceManager.displayName = displayName
-    }
-
+    fun getAccount(id: String): Account? = PreferenceManager.getAccount(id)
 }

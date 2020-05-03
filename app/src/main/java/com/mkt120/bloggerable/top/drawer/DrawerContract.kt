@@ -12,11 +12,11 @@ interface DrawerContract {
         fun initialize()
     }
 
-    interface BlogsItemView {
+    interface BlogItemView {
         fun setBlogName(name: String)
     }
 
-    interface BlogsItemPresenter {
-        fun onBindData(blogs: Blogs)
+    interface BlogItemPresenter {
+        fun onBindData(blog: Blogs)
     }
 }

@@ -16,7 +16,8 @@ open class Blogs(
     var selfLink: String? = null,
     var post: Post? = null,
     var pages: Pages? = null,
-    var locale: Locale? = null
+    var locale: Locale? = null,
+    var lastRequestPosts:Long = 0
 ) : RealmObject() {
 
     fun getPublishDate(): Date {
@@ -30,6 +31,14 @@ open class Blogs(
     private fun getDate(date: String): Date {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.JAPAN)
         return simpleDateFormat.parse(date)
+    }
+
+    fun isExpired(now:Long) : Boolean {
+        return now - lastRequestPosts >= 24 * 60 * 60 * 1000
+    }
+
+    fun updateLastRequest(update:Long) {
+        lastRequestPosts = update
     }
 
 }

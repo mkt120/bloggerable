@@ -7,8 +7,9 @@ interface TopContract {
 
     interface TopView {
         fun setTitle(title: String)
-        fun showCreateScreen(blogId: String)
-        fun showEditScreen(posts: Posts, isDraft: Boolean)
+        fun showLoginScreen()
+        fun showCreateScreen(blogId: String, labels: ArrayList<String>)
+        fun showEditScreen(posts: Posts, labels: ArrayList<String>, isDraft: Boolean)
         fun showAboutAppScreen()
         fun setPagerPosition(position: Int)
         fun openBrowser(url: String)
@@ -20,6 +21,7 @@ interface TopContract {
         fun onBindDrawer(response: List<Blogs>)
         fun showProgress()
         fun dismissProgress()
+        fun showError(code: Int, message: String?)
     }
 
     interface TopPresenter {

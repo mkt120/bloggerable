@@ -3,7 +3,7 @@ package com.mkt120.bloggerable
 import android.util.Log
 import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.api.OauthResponse
-import com.mkt120.bloggerable.api.PostsResponse
+import com.mkt120.bloggerable.api.PostResponse
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import okhttp3.OkHttpClient
@@ -64,23 +64,16 @@ object ApiManager {
             GRANT_TYPE_AUTHORIZATION_CODE,
             ACCESS_TYPE
         ).enqueue(object : Callback<OauthResponse> {
-            override fun onResponse(
-                call: Call<OauthResponse>?,
-                response: Response<OauthResponse>?
-            ) {
+            override fun onResponse(call: Call<OauthResponse>, response: Response<OauthResponse>) {
                 Log.d(TAG, "onResponse")
-                if (response != null) {
-                    if (response.isSuccessful) {
-                        listener.onResponse(response.body()!!)
-                    } else {
-                        listener.onErrorResponse(response.code(), response.message())
-                    }
+                if (response.isSuccessful) {
+                    listener.onResponse(response.body()!!)
                 } else {
-                    listener.onFailed(Exception("response is null"))
+                    listener.onErrorResponse(response.code(), response.message())
                 }
             }
 
-            override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {
+            override fun onFailure(call: Call<OauthResponse>?, t: Throwable) {
                 listener.onFailed(t)
             }
         })
@@ -102,23 +95,20 @@ object ApiManager {
             GRANT_TYPE_REFRESH_TOKEN
         )
             .enqueue(object : Callback<OauthResponse> {
+
                 override fun onResponse(
-                    call: Call<OauthResponse>?,
-                    response: Response<OauthResponse>?
+                    call: Call<OauthResponse>,
+                    response: Response<OauthResponse>
                 ) {
                     Log.d(TAG, "onResponse")
-                    if (response != null) {
-                        if (response.isSuccessful) {
-                            listener.onResponse(response.body()!!)
-                        } else {
-                            listener.onErrorResponse(response.code(), response.message())
-                        }
+                    if (response.isSuccessful) {
+                        listener.onResponse(response.body()!!)
                     } else {
-                        listener.onFailed(Exception("response is null"))
+                        listener.onErrorResponse(response.code(), response.message())
                     }
-
                 }
-                override fun onFailure(call: Call<OauthResponse>?, t: Throwable?) {
+
+                override fun onFailure(call: Call<OauthResponse>, t: Throwable) {
                     listener.onFailed(t)
                 }
             })
@@ -135,12 +125,17 @@ object ApiManager {
                     call: Call<BlogsResponse>,
                     response: Response<BlogsResponse>
                 ) {
-                    val list = response.body()
-                    listener.onResponse(list!!.items)
+                    if (response.isSuccessful) {
+                        val list = response.body()
+                        listener.onResponse(list!!.items)
+                    } else {
+                        listener.onErrorResponse(response.code(), response.message())
+                    }
                 }
 
                 override fun onFailure(call: Call<BlogsResponse>, t: Throwable) {
                     Log.d(TAG, "onFailure", t)
+                    listener.onFailed(t)
                 }
             })
     }
@@ -155,18 +150,28 @@ object ApiManager {
     /**
      * 記事一覧を取得する
      */
-    fun getPosts(accessToken: String, blogId: String, listener: PostsListener, status: String = "live") {
+    fun getPosts(
+        accessToken: String,
+        blogId: String,
+        listener: PostsListener,
+        status: String = "live"
+    ) {
         apiService.getPosts("Bearer $accessToken", blogId, BuildConfig.BLOGGERABLE_API_KEY, status)
-            .enqueue(object : Callback<PostsResponse> {
+            .enqueue(object : Callback<PostResponse> {
                 override fun onResponse(
-                    call: Call<PostsResponse>,
-                    response: Response<PostsResponse>
+                    call: Call<PostResponse>,
+                    response: Response<PostResponse>
                 ) {
-                    val list = response.body()
-                    listener.onResponse(list)
+                    if (response.isSuccessful) {
+                        val list = response.body()
+                        listener.onResponse(list)
+                    } else {
+                        listener.onErrorResponse(response.code(), response.message())
+                    }
                 }
 
-                override fun onFailure(call: Call<PostsResponse>, t: Throwable) {
+                override fun onFailure(call: Call<PostResponse>, t: Throwable) {
+                    listener.onFailed(t)
                 }
 
             })
@@ -197,7 +202,11 @@ object ApiManager {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                    listener.onComplete()
+                    if (response.isSuccessful) {
+                        listener.onComplete()
+                    } else {
+                        listener.onErrorResponse(response.code(), response.message())
+                    }
                 }
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -210,7 +219,7 @@ object ApiManager {
     /**
      * 投稿を更新する
      */
-    fun updatePosts(accessToken :String, old: Posts, listener: CompleteListener) {
+    fun updatePosts(accessToken: String, old: Posts, listener: CompleteListener) {
         val posts = Posts.createPosts(
             old.title!!,
             old.content!!,
@@ -228,7 +237,11 @@ object ApiManager {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                    listener.onComplete()
+                    if (response.isSuccessful) {
+                        listener.onComplete()
+                    } else {
+                        listener.onErrorResponse(response.code(), response.message())
+                    }
                 }
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -241,7 +254,12 @@ object ApiManager {
     /**
      * 下書きを公開(投稿)する
      */
-    fun publishPosts(accessToken: String, blogId: String, postsId: String, listener: CompleteListener) {
+    fun publishPosts(
+        accessToken: String,
+        blogId: String,
+        postsId: String,
+        listener: CompleteListener
+    ) {
         apiService.publishPosts(
             "Bearer $accessToken",
             blogId,
@@ -253,7 +271,11 @@ object ApiManager {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                    listener.onComplete()
+                    if (response.isSuccessful) {
+                        listener.onComplete()
+                    } else {
+                        listener.onErrorResponse(response.code(), response.message())
+                    }
                 }
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -266,8 +288,10 @@ object ApiManager {
     /**
      * 投稿を下書きに戻す
      */
-    fun revertPosts(accessToken: String,
-                    blogId: String, postId: String, listener: CompleteListener) {
+    fun revertPosts(
+        accessToken: String,
+        blogId: String, postId: String, listener: CompleteListener
+    ) {
         apiService.revertPosts(
             "Bearer $accessToken",
             blogId,
@@ -279,7 +303,11 @@ object ApiManager {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                    listener.onComplete()
+                    if (response.isSuccessful) {
+                        listener.onComplete()
+                    } else {
+                        listener.onErrorResponse(response.code(), response.message())
+                    }
                 }
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {
@@ -292,7 +320,12 @@ object ApiManager {
     /**
      * 投稿を削除する
      */
-    fun deletePosts(accessToken: String, blogId: String, postId: String, listener: CompleteListener) {
+    fun deletePosts(
+        accessToken: String,
+        blogId: String,
+        postId: String,
+        listener: CompleteListener
+    ) {
         apiService.deletePosts(
             "Bearer $accessToken",
             blogId,
@@ -317,19 +350,24 @@ object ApiManager {
     interface OauthListener {
         fun onResponse(response: OauthResponse)
         fun onErrorResponse(code: Int, message: String)
-        fun onFailed(t: Throwable?)
+        fun onFailed(t: Throwable)
     }
 
     interface BlogListener {
         fun onResponse(blogList: List<Blogs>?)
+        fun onErrorResponse(code: Int, message: String)
+        fun onFailed(t: Throwable)
     }
 
     interface PostsListener {
-        fun onResponse(post: PostsResponse?)
+        fun onResponse(post: PostResponse?)
+        fun onErrorResponse(code: Int, message: String)
+        fun onFailed(t: Throwable)
     }
 
     interface CompleteListener {
         fun onComplete()
+        fun onErrorResponse(code: Int, message: String)
         fun onFailed(t: Throwable)
     }
 }

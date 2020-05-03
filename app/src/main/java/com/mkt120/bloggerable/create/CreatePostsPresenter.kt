@@ -7,6 +7,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.usecase.*
 import kotlin.math.max
@@ -14,6 +15,7 @@ import kotlin.math.min
 
 class CreatePostsPresenter(
     private val view: CreatePostsContract.View,
+    private val getCurrentAccount: GetCurrentAccount,
     private val blogId: String,
     private val postsId: String? = null,
     private val findPosts: FindPosts,
@@ -25,6 +27,8 @@ class CreatePostsPresenter(
     private val requestCode: Int
 ) :
     CreatePostsContract.Presenter {
+
+    private var currentAccount: Account = getCurrentAccount.execute()!!
 
     init {
         postsId?.let {
@@ -54,7 +58,7 @@ class CreatePostsPresenter(
 
     private fun addLabel(label: String) {
         if (labelList.contains(label)) {
-            view.showToast("already inserted.")
+            view.showMessage("already inserted.")
             return
         }
         if (label.isEmpty()) {
@@ -198,6 +202,7 @@ class CreatePostsPresenter(
             createPosts(true, title, content, labelList.toTypedArray())
         } else {
             updatePosts(
+                currentAccount.getId(),
                 isDraft,
                 isPublish = false,
                 isRevert = false,
@@ -220,6 +225,7 @@ class CreatePostsPresenter(
 
     override fun onClickPublishDraft(title: String, content: Editable) {
         updatePosts(
+            currentAccount.getId(),
             isDraft = true,
             isPublish = true,
             isRevert = false,
@@ -234,6 +240,7 @@ class CreatePostsPresenter(
         content: Editable
     ) {
         updatePosts(
+            currentAccount.getId(),
             requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT,
             isPublish = false,
             isRevert = false,
@@ -276,6 +283,7 @@ class CreatePostsPresenter(
             createPosts(false, title, content, labelList.toTypedArray())
         } else {
             updatePosts(
+                currentAccount.getId(),
                 requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT,
                 isPublish = false,
                 isRevert = false,
@@ -304,6 +312,7 @@ class CreatePostsPresenter(
         content: Editable
     ) {
         updatePosts(
+            currentAccount.getId(),
             requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT,
             isPublish = false,
             isRevert = false,
@@ -321,6 +330,7 @@ class CreatePostsPresenter(
         content: Editable
     ) {
         updatePosts(
+            currentAccount.getId(),
             isDraft = false,
             isPublish = false,
             isRevert = true,
@@ -335,7 +345,7 @@ class CreatePostsPresenter(
      */
     override fun onClickDeletePosts() {
         val isDraft = requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT
-        deletePosts(isDraft)
+        deletePosts(currentAccount.getId(), isDraft)
     }
 
     /**
@@ -349,7 +359,7 @@ class CreatePostsPresenter(
     ) {
         if (!isDraft && title.isEmpty()) {
             // 空 empty title
-            view.showToast(R.string.toast_error_create_posts_no_title)
+            view.showMessage(R.string.toast_error_create_posts_no_title)
             return
         }
 
@@ -357,6 +367,7 @@ class CreatePostsPresenter(
         view.showProgress()
         val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         createPost.execute(
+            currentAccount.getId(),
             blogId,
             title,
             html,
@@ -370,7 +381,7 @@ class CreatePostsPresenter(
                     } else {
                         R.string.toast_create_posts_success
                     }
-                    view.showToast(messageResId)
+                    view.showMessage(messageResId)
                     val result = if (isDraft) {
                         (CreatePostsActivity.RESULT_DRAFT_UPDATE)
                     } else {
@@ -379,9 +390,15 @@ class CreatePostsPresenter(
                     view.onComplete(result)
                 }
 
+                override fun onErrorResponse(code: Int, message: String) {
+                    //todo:
+                    isExecuting = false
+                    view.showMessage(R.string.toast_create_posts_failed)
+                }
+
                 override fun onFailed(t: Throwable) {
                     isExecuting = false
-                    view.showToast(R.string.toast_create_posts_failed)
+                    view.showMessage(R.string.toast_create_posts_failed)
                 }
             })
     }
@@ -390,6 +407,7 @@ class CreatePostsPresenter(
      * 投稿を更新する
      */
     private fun updatePosts(
+        userId: String,
         isDraft: Boolean,
         isPublish: Boolean = false,
         isRevert: Boolean = false,
@@ -399,20 +417,20 @@ class CreatePostsPresenter(
     ) {
         if (title.isEmpty()) {
             // 空 empty title
-            view.showToast(R.string.toast_error_create_posts_no_title)
+            view.showMessage(R.string.toast_error_create_posts_no_title)
             return
         }
         isExecuting = true
         view.showProgress()
-        updatePost.execute(posts!!, title, content, labels,
+        updatePost.execute(userId, posts!!, title, content, labels,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
                     when {
-                        isPublish -> publishPosts(posts!!)
-                        isRevert -> revertPosts(posts!!.blog!!.id!!, posts!!.id!!)
+                        isPublish -> publishPosts(userId, posts!!)
+                        isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
                         else -> {
-                            view.showToast(R.string.toast_success_update_posts)
+                            view.showMessage(R.string.toast_success_update_posts)
                             val result = if (isDraft) {
                                 (CreatePostsActivity.RESULT_DRAFT_UPDATE)
                             } else {
@@ -423,8 +441,14 @@ class CreatePostsPresenter(
                     }
                 }
 
+                override fun onErrorResponse(code: Int, message: String) {
+                    isExecuting = false
+                    view.showMessage(R.string.toast_create_posts_failed)
+                }
+
                 override fun onFailed(t: Throwable) {
                     isExecuting = false
+                    view.showMessage(R.string.toast_create_posts_failed)
                 }
             })
     }
@@ -432,20 +456,26 @@ class CreatePostsPresenter(
     /**
      * 下書きに戻す
      */
-    private fun revertPosts(blogId: String, postsId: String) {
+    private fun revertPosts(userId: String, blogId: String, postsId: String) {
         isExecuting = true
         view.showProgress()
         revertPosts.execute(
+            userId,
             blogId,
             postsId,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
-                    view.showToast("投稿を下書きに戻しました")
+                    view.showMessage("投稿を下書きに戻しました")
                     view.onComplete(CreatePostsActivity.RESULT_DRAFT_UPDATE)
                 }
 
+                override fun onErrorResponse(code: Int, message: String) {
+                    isExecuting = false
+                }
+
                 override fun onFailed(t: Throwable) {
+                    isExecuting = false
                 }
             })
     }
@@ -453,17 +483,24 @@ class CreatePostsPresenter(
     /**
      * 下書きを公開する
      */
-    private fun publishPosts(posts: Posts) {
+    private fun publishPosts(userId: String, posts: Posts) {
         view.showProgress()
-        publishPosts.execute(blogId, posts.id!!,
+        publishPosts.execute(userId, blogId, posts.id!!,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
-                    view.showToast("投稿を公開しました")
+                    isExecuting = false
+                    view.showMessage("投稿を公開しました")
                     view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
                 }
 
+                override fun onErrorResponse(code: Int, message: String) {
+                    isExecuting = false
+                    view.showMessage(R.string.toast_create_posts_failed)
+                }
+
                 override fun onFailed(t: Throwable) {
-                    // todo:onFailed
+                    isExecuting = false
+                    view.showMessage(R.string.toast_create_posts_failed)
                 }
             })
     }
@@ -471,16 +508,17 @@ class CreatePostsPresenter(
     /**
      * 投稿を削除する
      */
-    private fun deletePosts(isDraft: Boolean) {
+    private fun deletePosts(userId: String, isDraft: Boolean) {
         view.showProgress()
         isExecuting = true
         deletePosts.execute(
+            userId,
             blogId,
             posts!!.id!!,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
-                    view.showToast(R.string.toast_success_delete_posts)
+                    view.showMessage(R.string.toast_success_delete_posts)
                     val result = if (isDraft) {
                         (CreatePostsActivity.RESULT_DRAFT_UPDATE)
                     } else {
@@ -489,9 +527,15 @@ class CreatePostsPresenter(
                     view.onComplete(result)
                 }
 
+                override fun onErrorResponse(code: Int, message: String) {
+                    isExecuting = false
+                    //todo:
+                    view.showMessage(R.string.toast_failed_delete_posts)
+                }
+
                 override fun onFailed(t: Throwable) {
                     isExecuting = false
-                    view.showToast(R.string.toast_failed_delete_posts)
+                    view.showMessage(R.string.toast_failed_delete_posts)
                 }
             })
     }

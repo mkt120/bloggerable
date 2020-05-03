@@ -4,15 +4,13 @@ import android.content.Intent
 import android.util.Log
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.model.blogs.Blogs
-import com.mkt120.bloggerable.usecase.AuthorizeGoogleAccount
-import com.mkt120.bloggerable.usecase.RequestAccessToken
-import com.mkt120.bloggerable.usecase.RequestAllBlogs
-import com.mkt120.bloggerable.usecase.SaveAllBlogs
+import com.mkt120.bloggerable.usecase.*
 
 class LoginPresenter(
     private val view: LoginContract.View,
     private val requestAccessToken: RequestAccessToken,
     private val saveAllBlogs: SaveAllBlogs,
+    private val getCurrentAccount: GetCurrentAccount,
     private val authorizeGoogleAccount: AuthorizeGoogleAccount,
     private val requestAllBlogs: RequestAllBlogs
 ) : LoginContract.Presenter {
@@ -24,8 +22,8 @@ class LoginPresenter(
 
     override fun initialize() {
         Log.i(TAG, "initialize")
-        val accessToken = authorizeGoogleAccount.getAccessToken()
-        if (accessToken.isEmpty()) {
+        val alreadyAuthorized = authorizeGoogleAccount.alreadyAuthorized()
+        if (!alreadyAuthorized) {
             view.showLoginButton()
             return
         }
@@ -44,28 +42,44 @@ class LoginPresenter(
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult")
         if (requestCode == REQUEST_SIGN_IN) {
-            authorizeGoogleAccount.saveAccountInfo(data)
             requestAccessToken.execute(data, object : RequestAccessToken.OnCompleteListener {
                 override fun onComplete() {
                     requestAllBlogs()
                 }
 
                 override fun onErrorResponse(code: Int, message: String) {
-                    view.showError()
+                    view.showError(message)
                 }
 
-                override fun onFailed(t: Throwable?) {
-                    view.showError()
+                override fun onFailed(t: Throwable) {
+                    if (t.message != null) {
+                        view.showError(t.message!!)
+                    }
                 }
             })
         }
     }
+
     fun requestAllBlogs() {
-        requestAllBlogs.execute(object :ApiManager.BlogListener {
+        val currentAccount = getCurrentAccount.execute()!!
+        requestAllBlogs.execute(currentAccount, object : ApiManager.BlogListener {
             override fun onResponse(blogList: List<Blogs>?) {
-                //todo: empty
                 saveAllBlogs.execute(blogList)
-                view.showBlogListScreen(blogList!![0].id!!)
+                if (blogList == null || blogList.isEmpty()) {
+                    view.showEmptyBlogScreen()
+                } else {
+                    view.showBlogListScreen(blogList[0].id!!)
+                }
+            }
+
+            override fun onErrorResponse(code: Int, message: String) {
+                view.showError(message)
+            }
+
+            override fun onFailed(t: Throwable) {
+                if (t.message != null) {
+                    view.showError(t.message!!)
+                }
             }
         })
     }
