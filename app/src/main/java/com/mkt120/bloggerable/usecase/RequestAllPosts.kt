@@ -11,7 +11,7 @@ class RequestAllPosts(
     private val postsRepository: PostsRepository
 ) {
     fun execute(
-        now:Long,
+        now: Long,
         userId: String,
         isDraft: Boolean,
         blog: Blogs,
@@ -68,17 +68,22 @@ class RequestAllPosts(
         blog: Blogs,
         listener: ApiManager.PostsListener
     ) {
-        postsRepository.requestDraftPosts(accessToken, blog.id!!, object : ApiManager.PostsListener {
-            override fun onResponse(post: PostResponse?) {
-                blog.updateLastRequest(now)
-                listener.onResponse(post)
-            }
-            override fun onErrorResponse(code: Int, message: String) {
-                listener.onErrorResponse(code, message)
-            }
-            override fun onFailed(t: Throwable) {
-                listener.onFailed(t)
-            }
-        })
+        postsRepository.requestDraftPosts(
+            accessToken,
+            blog.id!!,
+            object : ApiManager.PostsListener {
+                override fun onResponse(post: PostResponse?) {
+                    blog.updateLastRequest(now)
+                    listener.onResponse(post)
+                }
+
+                override fun onErrorResponse(code: Int, message: String) {
+                    listener.onErrorResponse(code, message)
+                }
+
+                override fun onFailed(t: Throwable) {
+                    listener.onFailed(t)
+                }
+            })
     }
 }

@@ -37,6 +37,22 @@ class DeletePosts(
         postsId: String,
         listener: ApiManager.CompleteListener
     ) {
-        postsRepository.deletePosts(accessToken, blogId, postsId, listener)
+        postsRepository.deletePosts(
+            accessToken,
+            blogId,
+            postsId,
+            object : ApiManager.CompleteListener {
+                override fun onComplete() {
+                    postsRepository.deletePosts(blogId, postsId)
+                    listener.onComplete()
+                }
+
+                override fun onErrorResponse(code: Int, message: String) {
+                    listener.onErrorResponse(code, message)
+                }
+                override fun onFailed(t: Throwable) {
+                    listener.onFailed(t)
+                }
+            })
     }
 }

@@ -81,7 +81,14 @@ class PostsRepository(
         bloggerApiDataSource.deletePosts(accessToken, blogId, postsId, listener)
     }
 
-    fun updateLastRequest(blog:Blogs, update:Long) {
+    fun deletePosts(
+        blogId: String,
+        postsId: String
+    ) {
+        realmDataSource.deletePosts(blogId, postsId)
+    }
+
+    fun updateLastRequest(blog: Blogs, update: Long) {
         blog.lastRequestPosts = update
         realmDataSource.saveBlogs(blog)
     }
