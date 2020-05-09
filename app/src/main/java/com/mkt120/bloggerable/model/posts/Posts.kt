@@ -1,6 +1,6 @@
 package com.mkt120.bloggerable.model.posts
 
-import android.text.Html
+import androidx.core.text.HtmlCompat
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -20,14 +20,13 @@ open class Posts(
     var replies: Reply? = null,
     var isPost: Boolean = false,
     var labels: RealmList<String>? = null
-) :RealmObject() {
+) : RealmObject() {
 
-    fun isChange(title: String, content: String): Boolean {
+    fun isChange(title: String, html: String): Boolean {
         val changeTitle = this.title != title
-        // todo:改善余地あり
-        val changeContent =
-            Html.fromHtml(this.content, Html.FROM_HTML_MODE_COMPACT).toString() != content
-
+        val fromHtml = HtmlCompat.fromHtml(content!!, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        val toHtml = HtmlCompat.toHtml(fromHtml, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
+        val changeContent = toHtml != html
         return changeTitle || changeContent
     }
 

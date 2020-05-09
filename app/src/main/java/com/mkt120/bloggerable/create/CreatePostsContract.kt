@@ -3,14 +3,55 @@ package com.mkt120.bloggerable.create
 import android.text.Editable
 import android.text.ParcelableSpan
 import android.text.Spanned
+import com.mkt120.bloggerable.R
 
 interface CreatePostsContract {
+    public enum class TYPE(
+        val messageResId: Int,
+        val positiveButtonResId: Int,
+        val negativeButtonResId: Int,
+        val neutralButtonResId: Int
+    ) {
+        EXIST_BACK_UP(
+            R.string.confirm_dialog_exist_backup_message,
+            R.string.confirm_dialog_exist_backup_positive_button,
+            R.string.confirm_dialog_exist_backup_negative_button,
+            0
+        ),
+        BACK_EDIT_POSTS(
+            R.string.confirm_dialog_back_post_message,
+            R.string.confirm_dialog_positive_button_update,
+            R.string.confirm_dialog_negative_button,
+            R.string.confirm_dialog_neutral_button
+        ),
+        BACK_EDIT_DRAFT(
+            R.string.confirm_dialog_back_post_message,
+            R.string.confirm_dialog_positive_button_update,
+            R.string.confirm_dialog_negative_button,
+            R.string.confirm_dialog_neutral_button
+        ),
+        DELETE_POST(
+            R.string.create_posts_delete_dialog_message,
+            android.R.string.yes,
+            android.R.string.no,
+            0
+        );
+
+        fun isDraft(): Boolean {
+            return this == BACK_EDIT_DRAFT
+        }
+
+        fun isShowNeutral(): Boolean {
+            return neutralButtonResId != 0
+        }
+    }
+
     interface View {
         fun setBlogTitle(title: String?)
         fun setBlogContent(content: Spanned?)
         fun replaceContent(left: Int, right: Int, text: String)
 
-        fun showConfirmDialog(type: Int)
+        fun showConfirmDialog(type: TYPE)
 
         fun getSpanLeft(span: ParcelableSpan): Int
         fun getSpanRight(span: ParcelableSpan): Int
@@ -33,11 +74,16 @@ interface CreatePostsContract {
 
     interface Presenter {
         fun initialize()
-        fun onBackPressed(title: String, content: String): Boolean
+        fun onBackPressed(title: String, html: String): Boolean
 
         fun onClickConfirmPositive(
-            isCreatePost: Boolean,
-            isDraft: Boolean,
+            type: TYPE,
+            title: String,
+            html: String
+        )
+        fun onClickConfirmNegative(type: TYPE)
+        fun onConfirmNeutralButton(
+            type: TYPE,
             title: String,
             html: String
         )
@@ -63,4 +109,6 @@ interface CreatePostsContract {
 
         fun onClickOpenBlower()
     }
+
+
 }

@@ -92,38 +92,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_post)
-        // draft
-        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
-        val postsId = intent.getStringExtra(EXTRA_KEY_POSTS_ID)
         val requestCode = intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)
-
-        val bloggerApiDataSource = BloggerApiDataSource()
-        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
-        val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
-        val findPosts = FindPosts(postsRepository)
-        val preferenceDataSource = PreferenceDataSource()
-        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
-        val getCurrentUser = GetCurrentAccount(accountRepository)
-        val getAccessToken = GetAccessToken(accountRepository)
-        val createPosts = CreatePosts(getAccessToken, postsRepository)
-        val updatePosts = UpdatePosts(getAccessToken, bloggerApiDataSource)
-        val revertPosts = RevertPosts(getAccessToken, postsRepository)
-        val publishPost = PublishPosts(getAccessToken, postsRepository)
-        val deletePosts = DeletePosts(getAccessToken, postsRepository)
-        presenter = CreatePostsPresenter(
-            this@CreatePostsActivity,
-            getCurrentUser,
-            blogId,
-            postsId,
-            findPosts,
-            createPosts,
-            updatePosts,
-            revertPosts,
-            publishPost,
-            deletePosts,
-            requestCode
-        )
-        presenter.initialize()
 
         // タイトル
         when (requestCode) {
@@ -210,11 +179,46 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         button_add_font_change.setOnClickListener {
             addRelativeSize()
         }
-    }
 
-    override fun showConfirmDialog(type: Int) {
-        val confirmDialog: ConfirmDialog = ConfirmDialog.newInstance(type)
-        confirmDialog.show(supportFragmentManager, null)
+        // draft
+        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
+        val postsId = intent.getStringExtra(EXTRA_KEY_POSTS_ID)
+
+        val readBackupFile = ReadBackupFile(cacheDir)
+        val createBackupFile = CreateBackupFile(cacheDir)
+        val deleteBackupFile = DeleteBackupFile(cacheDir)
+
+        val bloggerApiDataSource = BloggerApiDataSource()
+        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
+        val findPosts = FindPosts(postsRepository)
+        val preferenceDataSource = PreferenceDataSource()
+        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val getCurrentUser = GetCurrentAccount(accountRepository)
+        val getAccessToken = GetAccessToken(accountRepository)
+        val createPosts = CreatePosts(getAccessToken, postsRepository)
+        val updatePosts = UpdatePosts(getAccessToken, bloggerApiDataSource)
+        val revertPosts = RevertPosts(getAccessToken, postsRepository)
+        val publishPost = PublishPosts(getAccessToken, postsRepository)
+        val deletePosts = DeletePosts(getAccessToken, postsRepository)
+        presenter = CreatePostsPresenter(
+            this@CreatePostsActivity,
+            getCurrentUser,
+            blogId,
+            postsId,
+            readBackupFile,
+            createBackupFile,
+            deleteBackupFile,
+            findPosts,
+            createPosts,
+            updatePosts,
+            revertPosts,
+            publishPost,
+            deletePosts,
+            requestCode
+        )
+        presenter.initialize()
+
     }
 
     override fun setBlogTitle(title: String?) {
@@ -273,6 +277,92 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         finish()
     }
 
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        val title = edit_text_title.text.toString()
+        val content = HtmlCompat.toHtml(
+            edit_text_contents.text,
+            HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
+        )
+        when (item!!.itemId) {
+            R.id.open_in_browser -> {
+                presenter.onClickOpenBlower()
+                return true
+            }
+            R.id.create_posts -> {
+                presenter.onClickUploadAsPosts(title, content)
+                return true
+            }
+            R.id.update_posts -> {
+                presenter.onClickUpdatePosts(title, content)
+                return true
+            }
+            R.id.update_draft -> {
+                presenter.onClickUpdateDraft(title, content)
+                return true
+            }
+            R.id.publish_draft -> {
+                presenter.onClickPublishDraft(title, content)
+                return true
+            }
+            R.id.revert_posts -> {
+                presenter.onClickRevertPosts(title, content)
+                return true
+            }
+            R.id.upload_as_draft -> {
+                presenter.onClickUploadAsDraft(title, content)
+                return true
+            }
+            R.id.delete_posts -> {
+                val dialog = ConfirmDialog.newInstance(CreatePostsContract.TYPE.DELETE_POST)
+                dialog.show(supportFragmentManager, null)
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun onBackPressed() {
+        val title = edit_text_title.text.toString()
+        val html = HtmlCompat.toHtml(
+            edit_text_contents.text,
+            HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
+        )
+        if (presenter.onBackPressed(title, html)) {
+            return
+        }
+        super.onBackPressed()
+    }
+
+    // region *** handle confirmDialog ***
+    override fun showConfirmDialog(type: CreatePostsContract.TYPE) {
+        val confirmDialog: ConfirmDialog = ConfirmDialog.newInstance(type)
+        confirmDialog.show(supportFragmentManager, null)
+    }
+
+    override fun onConfirmPositiveClick(type: CreatePostsContract.TYPE) {
+        val title = edit_text_title.text.toString()
+        val html = HtmlCompat.toHtml(
+            edit_text_contents.text,
+            HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
+        )
+        presenter.onClickConfirmPositive(type, title, html)
+    }
+
+    override fun onConfirmNegativeClick(type: CreatePostsContract.TYPE) {
+        presenter.onClickConfirmNegative(type)
+    }
+
+    override fun onConfirmNeutralClick(type: CreatePostsContract.TYPE) {
+        val title = edit_text_title.text.toString()
+        val html = HtmlCompat.toHtml(
+            edit_text_contents.text,
+            HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
+        )
+        presenter.onConfirmNeutralButton(type, title, html)
+    }
+    // endregion
+
+    // region *** edit Content ***
     override fun getSpanLeft(span: ParcelableSpan): Int = min(
         edit_text_contents.text.getSpanStart(span),
         edit_text_contents.text.getSpanEnd(span)
@@ -357,69 +447,6 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         setSelection(cursorLeft, cursorRight)
     }
 
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        val title = edit_text_title.text.toString()
-        val content = HtmlCompat.toHtml(edit_text_contents.text, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
-        when (item!!.itemId) {
-            R.id.open_in_browser -> {
-                presenter.onClickOpenBlower()
-                return true
-            }
-            R.id.create_posts -> {
-                presenter.onClickUploadAsPosts(title, content)
-                return true
-            }
-            R.id.update_posts -> {
-                presenter.onClickUpdatePosts(title, content)
-                return true
-            }
-            R.id.update_draft -> {
-                presenter.onClickUpdateDraft(title, content)
-                return true
-            }
-            R.id.publish_draft -> {
-                presenter.onClickPublishDraft(title, content)
-                return true
-            }
-            R.id.revert_posts -> {
-                presenter.onClickRevertPosts(title, content)
-                return true
-            }
-            R.id.upload_as_draft -> {
-                presenter.onClickUploadAsDraft(title, content)
-                return true
-            }
-            R.id.delete_posts -> {
-                val dialog =
-                    ConfirmDeleteDialog.newInstance()
-                dialog.show(supportFragmentManager, null)
-                return true
-            }
-        }
-        return false
-    }
+    // endregion editContent
 
-    override fun onBackPressed() {
-        val title = edit_text_title.text.toString()
-        val html = HtmlCompat.toHtml(edit_text_contents.text, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
-        if (presenter.onBackPressed(title, html)) {
-            return
-        }
-        super.onBackPressed()
-    }
-
-    override fun onConfirmPositiveClick(isCreatePost: Boolean, isDraft: Boolean) {
-        val title = edit_text_title.text.toString()
-        val html = HtmlCompat.toHtml(edit_text_contents.text, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
-        presenter.onClickConfirmPositive(isCreatePost, isDraft, title, html)
-    }
-
-    override fun onConfirmNegativeClick() {
-        finish()
-    }
-
-    fun onClickDelete() {
-        // 削除ボタン
-        presenter.onClickDeletePosts()
-    }
 }

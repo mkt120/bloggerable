@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.Html
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.Account
@@ -18,6 +19,9 @@ class CreatePostsPresenter(
     private val getCurrentAccount: GetCurrentAccount,
     private val blogId: String,
     private val postsId: String? = null,
+    private val readBackupFile: ReadBackupFile,
+    private val createBackupFile: CreateBackupFile,
+    private val deleteBackupFile: DeleteBackupFile,
     private val findPosts: FindPosts,
     private val createPost: CreatePosts,
     private val updatePost: UpdatePosts,
@@ -29,16 +33,17 @@ class CreatePostsPresenter(
     CreatePostsContract.Presenter {
 
     private var currentAccount: Account = getCurrentAccount.execute()!!
+    private val labelList = mutableListOf<String>()
+    private var isExecuting = false
+    private var posts: Posts? = null
+    private var backupPost: Posts? = null
 
     init {
         postsId?.let {
             posts = findPosts.execute(blogId, postsId)
         }
+        backupPost = readBackupFile.execute(blogId, postsId)
     }
-
-    private val labelList = mutableListOf<String>()
-    private var isExecuting = false
-    private var posts: Posts? = null
 
     override fun initialize() {
         posts?.let {
@@ -50,27 +55,128 @@ class CreatePostsPresenter(
                 }
             }
         }
-    }
-
-    override fun onClickAddLabel(label: String) {
-        addLabel(label)
-    }
-
-    private fun addLabel(label: String) {
-        if (labelList.contains(label)) {
-            view.showMessage("already inserted.")
-            return
+        backupPost?.let {
+            Log.i("CreatePostsPresenter", "backupPost title=${it.title}, html=${it.content}")
+            view.showConfirmDialog(CreatePostsContract.TYPE.EXIST_BACK_UP)
         }
-        if (label.isEmpty()) {
-            // 空のラベルは入れられない
-            return
-        }
-        labelList.add(label)
-        view.addLabel(label)
     }
 
-    override fun onClickLabel(label: String) {
-        labelList.remove(label)
+    override fun onClickOpenBlower() {
+        view.openBrowser(posts!!.url!!)
+    }
+
+    override fun onBackPressed(title: String, html: String): Boolean {
+        if (isExecuting) {
+            return true
+        }
+        val isEmptyContent = (title.isEmpty() && html.isEmpty())
+        if (postsId == null) {
+            // 新規
+            return if (!isEmptyContent) {
+                // 何か書いてる 下書きとしてアップロード
+                createPosts(true, title, html, labelList.toTypedArray())
+                true
+            } else {
+                // 何も書いてない
+                false
+            }
+        }
+
+        if (posts != null && posts!!.isChange(title, html)) {
+            // 変更あり
+            val type: CreatePostsContract.TYPE =
+                if (requestCode == CreatePostsActivity.REQUEST_EDIT_POSTS) {
+                    CreatePostsContract.TYPE.BACK_EDIT_POSTS
+                } else {
+                    CreatePostsContract.TYPE.BACK_EDIT_DRAFT
+                }
+            view.showConfirmDialog(type)
+            return true
+        }
+        return false
+    }
+
+    // region *** handle confirm dialog ***
+
+    override fun onClickConfirmPositive(
+        type: CreatePostsContract.TYPE,
+        title: String,
+        html: String
+    ) {
+
+        when (type) {
+            CreatePostsContract.TYPE.EXIST_BACK_UP -> {
+                backupPost?.let {
+                    Log.i(
+                        "CreatePostsPresenter",
+                        "backupPost title=${it.title}, html=${it.content}"
+                    )
+                    view.setBlogTitle(it.title)
+                    view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_COMPACT))
+                }
+            }
+            CreatePostsContract.TYPE.DELETE_POST -> {
+                val isDraft = requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT
+                deletePosts(currentAccount.getId(), isDraft)
+
+                // ファイルを削除する
+                deleteBackupFile.execute(blogId, postsId)
+            }
+            else -> {
+                updatePosts(
+                    currentAccount.getId(),
+                    isDraft = type.isDraft(),
+                    isPublish = false,
+                    isRevert = false,
+                    title = title,
+                    html = html,
+                    labels = labelList.toTypedArray()
+                )
+            }
+        }
+    }
+
+    override fun onClickConfirmNegative(type: CreatePostsContract.TYPE) {
+        when (type) {
+            CreatePostsContract.TYPE.EXIST_BACK_UP -> {
+                // ファイルを削除する
+                deleteBackupFile.execute(blogId, postsId)
+            }
+            CreatePostsContract.TYPE.DELETE_POST -> {
+                // 何もしない
+            }
+            else -> {
+                // 終了する
+                deleteBackupFile.execute(blogId, postsId)
+                val isDraft = requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT
+                val result = if (isDraft) {
+                    CreatePostsActivity.RESULT_DRAFT_UPDATE
+                } else {
+                    CreatePostsActivity.RESULT_POSTS_UPDATE
+                }
+                view.onComplete(result)
+            }
+        }
+    }
+
+    override fun onConfirmNeutralButton(
+        type: CreatePostsContract.TYPE,
+        title: String, html: String
+    ) {
+        createBackupFile.execute(blogId, postsId, title, html)
+        if (type.isDraft()) {
+            view.onComplete(CreatePostsActivity.RESULT_DRAFT_UPDATE)
+        } else {
+            view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
+        }
+    }
+    // endregion
+
+    // region *** handle content ***
+    override fun onClickPaste(selectionLeft: Int, selectionRight: Int, text: String) {
+        val left = min(selectionLeft, selectionRight)
+        val right = max(selectionLeft, selectionRight)
+        view.replaceContent(left, right, text)
     }
 
     /**
@@ -113,7 +219,6 @@ class CreatePostsPresenter(
             }
         }
         view.setSelection(selectionLeft, selectionRight)
-
     }
 
     /**
@@ -192,37 +297,34 @@ class CreatePostsPresenter(
         view.setSelection(selectionLeft, selectionRight)
     }
 
-    override fun onClickConfirmPositive(
-        isCreatePost: Boolean,
-        isDraft: Boolean,
-        title: String,
-        html: String
-    ) {
-        if (isCreatePost) {
-            createPosts(true, title, html, labelList.toTypedArray())
-        } else {
-            updatePosts(
-                currentAccount.getId(),
-                isDraft,
-                isPublish = false,
-                isRevert = false,
-                title = title,
-                html = html,
-                labels = labelList.toTypedArray()
-            )
+    // endregion
+
+    // region *** handle label ***
+
+    override fun onClickAddLabel(label: String) {
+        addLabel(label)
+    }
+
+    private fun addLabel(label: String) {
+        if (labelList.contains(label)) {
+            view.showMessage("already inserted.")
+            return
         }
+        if (label.isEmpty()) {
+            // 空のラベルは入れられない
+            return
+        }
+        labelList.add(label)
+        view.addLabel(label)
     }
 
-    override fun onClickOpenBlower() {
-        view.openBrowser(posts!!.url!!)
+    override fun onClickLabel(label: String) {
+        labelList.remove(label)
     }
 
-    override fun onClickPaste(selectionLeft: Int, selectionRight: Int, text: String) {
-        val left = min(selectionLeft, selectionRight)
-        val right = max(selectionLeft, selectionRight)
-        view.replaceContent(left, right, text)
-    }
+    // endregion
 
+    // region *** handle post ***
     override fun onClickPublishDraft(title: String, html: String) {
         updatePosts(
             currentAccount.getId(),
@@ -249,27 +351,6 @@ class CreatePostsPresenter(
             labels = labelList.toTypedArray()
         )
 
-    }
-
-    override fun onBackPressed(title: String, content: String): Boolean {
-        if (isExecuting) {
-            return true
-        }
-        if (posts == null) {
-            if (title.isNotEmpty() || content.isNotEmpty()) {
-                view.showConfirmDialog(ConfirmDialog.TYPE_CREATE)
-                return true
-            }
-        } else if (posts!!.isChange(title, content)) {
-            val type = if (requestCode == CreatePostsActivity.REQUEST_EDIT_POSTS) {
-                ConfirmDialog.TYPE_EDIT_POSTS
-            } else {
-                ConfirmDialog.TYPE_EDIT_DRAFT
-            }
-            view.showConfirmDialog(type)
-            return true
-        }
-        return false
     }
 
     /**
@@ -382,9 +463,9 @@ class CreatePostsPresenter(
                     }
                     view.showMessage(messageResId)
                     val result = if (isDraft) {
-                        (CreatePostsActivity.RESULT_DRAFT_UPDATE)
+                        CreatePostsActivity.RESULT_DRAFT_UPDATE
                     } else {
-                        (CreatePostsActivity.RESULT_POSTS_UPDATE)
+                        CreatePostsActivity.RESULT_POSTS_UPDATE
                     }
                     view.onComplete(result)
                 }
@@ -431,9 +512,9 @@ class CreatePostsPresenter(
                         else -> {
                             view.showMessage(R.string.toast_success_update_posts)
                             val result = if (isDraft) {
-                                (CreatePostsActivity.RESULT_DRAFT_UPDATE)
+                                CreatePostsActivity.RESULT_DRAFT_UPDATE
                             } else {
-                                (CreatePostsActivity.RESULT_POSTS_UPDATE)
+                                CreatePostsActivity.RESULT_POSTS_UPDATE
                             }
                             view.onComplete(result)
                         }
@@ -519,9 +600,9 @@ class CreatePostsPresenter(
                     isExecuting = false
                     view.showMessage(R.string.toast_success_delete_posts)
                     val result = if (isDraft) {
-                        (CreatePostsActivity.RESULT_DRAFT_UPDATE)
+                        CreatePostsActivity.RESULT_DRAFT_UPDATE
                     } else {
-                        (CreatePostsActivity.RESULT_POSTS_UPDATE)
+                        CreatePostsActivity.RESULT_POSTS_UPDATE
                     }
                     view.onComplete(result)
                 }
@@ -538,4 +619,6 @@ class CreatePostsPresenter(
                 }
             })
     }
+
+    // endregion
 }
