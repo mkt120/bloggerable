@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
@@ -358,7 +359,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         val title = edit_text_title.text.toString()
-        val content = edit_text_contents.text
+        val content = HtmlCompat.toHtml(edit_text_contents.text, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
         when (item!!.itemId) {
             R.id.open_in_browser -> {
                 presenter.onClickOpenBlower()
@@ -400,7 +401,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
 
     override fun onBackPressed() {
         val title = edit_text_title.text.toString()
-        val html = edit_text_contents.text.toString()
+        val html = HtmlCompat.toHtml(edit_text_contents.text, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
         if (presenter.onBackPressed(title, html)) {
             return
         }
@@ -409,8 +410,8 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
 
     override fun onConfirmPositiveClick(isCreatePost: Boolean, isDraft: Boolean) {
         val title = edit_text_title.text.toString()
-        val content = edit_text_contents.text
-        presenter.onClickConfirmPositive(isCreatePost, isDraft, title, content)
+        val html = HtmlCompat.toHtml(edit_text_contents.text, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
+        presenter.onClickConfirmPositive(isCreatePost, isDraft, title, html)
     }
 
     override fun onConfirmNegativeClick() {

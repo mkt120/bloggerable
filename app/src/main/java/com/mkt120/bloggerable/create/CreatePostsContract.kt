@@ -39,7 +39,7 @@ interface CreatePostsContract {
             isCreatePost: Boolean,
             isDraft: Boolean,
             title: String,
-            content: Editable
+            html: String
         )
 
         fun onClickAddLabel(label: String)
@@ -50,14 +50,14 @@ interface CreatePostsContract {
         fun onClickStrikeThrough(selectionStart: Int, selectionEnd: Int, text: Editable)
         fun onClickPaste(selectionLeft: Int, selectionRight: Int, text: String)
 
-        fun onClickUploadAsPosts(title: String, content: Editable)
-        fun onClickUploadAsDraft(title: String, content: Editable)
+        fun onClickUploadAsPosts(title: String, html: String)
+        fun onClickUploadAsDraft(title: String, html: String)
 
-        fun onClickUpdatePosts(title: String, content: Editable)
-        fun onClickUpdateDraft(title: String, content: Editable)
+        fun onClickUpdatePosts(title: String, html: String)
+        fun onClickUpdateDraft(title: String, html: String)
 
-        fun onClickRevertPosts(title: String, content: Editable)
-        fun onClickPublishDraft(title: String, content: Editable)
+        fun onClickRevertPosts(title: String, html: String)
+        fun onClickPublishDraft(title: String, html: String)
 
         fun onClickDeletePosts()
 

@@ -1,7 +1,5 @@
 package com.mkt120.bloggerable.usecase
 
-import android.text.Html
-import android.text.Spanned
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.model.posts.Posts
@@ -14,26 +12,29 @@ class UpdatePosts(
 ) {
 
     fun execute(
-        userId:String,
+        userId: String,
         posts: Posts,
         title: String,
-        content: Spanned,
+        html: String,
         labels: Array<String>?,
         listener: ApiManager.CompleteListener
     ) {
-        val accessToken = getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
-            override fun onRefresh() {
-                execute(userId, posts, title, content, labels, listener)
-            }
-            override fun onErrorResponse(code: Int, message: String) {
-                listener.onErrorResponse(code, message)
-            }
-            override fun onFailed(t: Throwable) {
-                listener.onFailed(t)
-            }
-        })
+        val accessToken =
+            getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
+                override fun onRefresh() {
+                    execute(userId, posts, title, html, labels, listener)
+                }
+
+                override fun onErrorResponse(code: Int, message: String) {
+                    listener.onErrorResponse(code, message)
+                }
+
+                override fun onFailed(t: Throwable) {
+                    listener.onFailed(t)
+                }
+            })
         accessToken?.let {
-            updatePosts(accessToken, posts, title, content, labels, listener)
+            updatePosts(accessToken, posts, title, html, labels, listener)
         }
     }
 
@@ -41,11 +42,10 @@ class UpdatePosts(
         accessToken: String,
         posts: Posts,
         title: String,
-        content: Spanned,
+        html: String,
         labels: Array<String>?,
         completeListener: ApiManager.CompleteListener
     ) {
-        val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         posts.apply {
             this.title = title
             this.content = html

@@ -196,10 +196,10 @@ class CreatePostsPresenter(
         isCreatePost: Boolean,
         isDraft: Boolean,
         title: String,
-        content: Editable
+        html: String
     ) {
         if (isCreatePost) {
-            createPosts(true, title, content, labelList.toTypedArray())
+            createPosts(true, title, html, labelList.toTypedArray())
         } else {
             updatePosts(
                 currentAccount.getId(),
@@ -207,7 +207,7 @@ class CreatePostsPresenter(
                 isPublish = false,
                 isRevert = false,
                 title = title,
-                content = content,
+                html = html,
                 labels = labelList.toTypedArray()
             )
         }
@@ -223,21 +223,21 @@ class CreatePostsPresenter(
         view.replaceContent(left, right, text)
     }
 
-    override fun onClickPublishDraft(title: String, content: Editable) {
+    override fun onClickPublishDraft(title: String, html: String) {
         updatePosts(
             currentAccount.getId(),
             isDraft = true,
             isPublish = true,
             isRevert = false,
             title = title,
-            content = content,
+            html = html,
             labels = labelList.toTypedArray()
         )
     }
 
     override fun onClickUpdateDraft(
         title: String,
-        content: Editable
+        html: String
     ) {
         updatePosts(
             currentAccount.getId(),
@@ -245,7 +245,7 @@ class CreatePostsPresenter(
             isPublish = false,
             isRevert = false,
             title = title,
-            content = content,
+            html = html,
             labels = labelList.toTypedArray()
         )
 
@@ -277,10 +277,10 @@ class CreatePostsPresenter(
      */
     override fun onClickUploadAsPosts(
         title: String,
-        content: Editable
+        html: String
     ) {
         if (requestCode == CreatePostsActivity.REQUEST_CREATE_POSTS) {
-            createPosts(false, title, content, labelList.toTypedArray())
+            createPosts(false, title, html, labelList.toTypedArray())
         } else {
             updatePosts(
                 currentAccount.getId(),
@@ -288,7 +288,7 @@ class CreatePostsPresenter(
                 isPublish = false,
                 isRevert = false,
                 title = title,
-                content = content,
+                html = html,
                 labels = labelList.toTypedArray()
             )
         }
@@ -299,9 +299,9 @@ class CreatePostsPresenter(
      */
     override fun onClickUploadAsDraft(
         title: String,
-        content: Editable
+        html: String
     ) {
-        createPosts(true, title, content, labelList.toTypedArray())
+        createPosts(true, title, html, labelList.toTypedArray())
     }
 
     /**
@@ -309,7 +309,7 @@ class CreatePostsPresenter(
      */
     override fun onClickUpdatePosts(
         title: String,
-        content: Editable
+        html: String
     ) {
         updatePosts(
             currentAccount.getId(),
@@ -317,7 +317,7 @@ class CreatePostsPresenter(
             isPublish = false,
             isRevert = false,
             title = title,
-            content = content,
+            html = html,
             labels = labelList.toTypedArray()
         )
     }
@@ -327,7 +327,7 @@ class CreatePostsPresenter(
      */
     override fun onClickRevertPosts(
         title: String,
-        content: Editable
+        html: String
     ) {
         updatePosts(
             currentAccount.getId(),
@@ -335,7 +335,7 @@ class CreatePostsPresenter(
             isPublish = false,
             isRevert = true,
             title = title,
-            content = content,
+            html = html,
             labels = labelList.toTypedArray()
         )
     }
@@ -354,7 +354,7 @@ class CreatePostsPresenter(
     private fun createPosts(
         isDraft: Boolean,
         title: String,
-        content: Editable,
+        html: String,
         labels: Array<String>?
     ) {
         if (!isDraft && title.isEmpty()) {
@@ -365,7 +365,6 @@ class CreatePostsPresenter(
 
         isExecuting = true
         view.showProgress()
-        val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
         createPost.execute(
             currentAccount.getId(),
             blogId,
@@ -412,7 +411,7 @@ class CreatePostsPresenter(
         isPublish: Boolean = false,
         isRevert: Boolean = false,
         title: String,
-        content: Editable,
+        html: String,
         labels: Array<String>?
     ) {
         if (title.isEmpty()) {
@@ -422,7 +421,7 @@ class CreatePostsPresenter(
         }
         isExecuting = true
         view.showProgress()
-        updatePost.execute(userId, posts!!, title, content, labels,
+        updatePost.execute(userId, posts!!, title, html, labels,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
