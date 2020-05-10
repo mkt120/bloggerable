@@ -30,6 +30,7 @@ import com.mkt120.bloggerable.repository.BlogRepository
 import com.mkt120.bloggerable.repository.CurrentBlogIdRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
+import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
 import com.mkt120.bloggerable.usecase.*
 import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_top.*
@@ -190,11 +191,11 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
     }
 
     override fun showAboutDialog(blogs: Blogs) {
-//        val dialogFragment =
-//            BlogInfoDialogFragment.newInstance(
-//                blogs
-//            )
-//        dialogFragment.show(supportFragmentManager, null)
+        if (dialogFragment != null && dialogFragment!!.dialog != null && dialogFragment!!.dialog!!.isShowing) {
+            return
+        }
+        val dialogFragment = BlogInfoDialogFragment.newInstance(blogs)
+        dialogFragment.show(supportFragmentManager, null)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

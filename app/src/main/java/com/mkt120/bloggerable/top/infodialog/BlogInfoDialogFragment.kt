@@ -18,11 +18,19 @@ import java.util.*
 class BlogInfoDialogFragment : DialogFragment() {
 
     companion object {
-        private const val EXTRA_KEY_BLOG = "EXTRA_KEY_BLOG"
+        private const val EXTRA_KEY_BLOG_TITLE = "EXTRA_KEY_BLOG_TITLE"
+        private const val EXTRA_KEY_BLOG_DESCRIPTION = "EXTRA_KEY_BLOG_DESCRIPTION"
+        private const val EXTRA_KEY_BLOG_PUBLISH_DATE = "EXTRA_KEY_BLOG_PUBLISH_DATE"
+        private const val EXTRA_KEY_BLOG_LAST_UPDATE = "EXTRA_KEY_BLOG_LAST_UPDATE"
+        private const val EXTRA_KEY_BLOG_POST_COUNT = "EXTRA_KEY_BLOG_POST_COUNT"
         fun newInstance(blogs: Blogs): BlogInfoDialogFragment =
             BlogInfoDialogFragment().apply {
                 val arg = Bundle()
-//                arg.putParcelable(EXTRA_KEY_BLOG, blogs)
+                arg.putString(EXTRA_KEY_BLOG_TITLE, blogs.name!!)
+                arg.putString(EXTRA_KEY_BLOG_DESCRIPTION, blogs.description!!)
+                arg.putSerializable(EXTRA_KEY_BLOG_PUBLISH_DATE, blogs.getPublishDate())
+                arg.putSerializable(EXTRA_KEY_BLOG_LAST_UPDATE, blogs.getLastUpdate())
+                arg.putString(EXTRA_KEY_BLOG_POST_COUNT, blogs.posts!!.totalItems!!.toString())
                 arguments = arg
             }
     }
@@ -35,30 +43,22 @@ class BlogInfoDialogFragment : DialogFragment() {
         val padding = context!!.resources.getDimensionPixelSize(R.dimen.dialog_view_group_padding)
         viewGroup.setPadding(0, padding, 0, padding)
 
-        val blog = Blogs() // arguments!!.getParcelable<Blogs>(EXTRA_KEY_BLOG)
-
+        val title = arguments!!.getString(EXTRA_KEY_BLOG_TITLE)
         var titleView = TitleView(
             requireContext(),
             R.string.dialog_about_this_blog_name
         )
         viewGroup.addView(titleView)
-        var contentView = ContentView(
-            requireContext(),
-            blog!!.name!!
-        )
+        var contentView = ContentView(requireContext(), title)
         viewGroup.addView(contentView)
 
-        titleView = TitleView(
-            requireContext(),
-            R.string.dialog_about_this_blog_description
-        )
+        val description = arguments!!.getString(EXTRA_KEY_BLOG_DESCRIPTION)
+        titleView = TitleView(requireContext(), R.string.dialog_about_this_blog_description)
         viewGroup.addView(titleView)
-        contentView = ContentView(
-            requireContext(),
-            blog.description!!
-        )
+        contentView = ContentView(requireContext(), description)
         viewGroup.addView(contentView)
 
+        val publishDate = arguments!!.getSerializable(EXTRA_KEY_BLOG_PUBLISH_DATE) as Date
         titleView = TitleView(
             requireContext(),
             R.string.dialog_about_this_blog_publish_date
@@ -66,7 +66,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         viewGroup.addView(titleView)
         contentView = ContentView(
             requireContext(),
-            SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN).format(blog.getPublishDate())
+            SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN).format(publishDate)
         )
         viewGroup.addView(contentView)
 
@@ -75,9 +75,11 @@ class BlogInfoDialogFragment : DialogFragment() {
             R.string.dialog_about_this_blog_last_update
         )
         viewGroup.addView(titleView)
+
+        val lastUpdate = arguments!!.getSerializable(EXTRA_KEY_BLOG_LAST_UPDATE) as Date
         contentView = ContentView(
             requireContext(),
-            SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN).format(blog.getLastUpdate())
+            SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN).format(lastUpdate)
         )
         viewGroup.addView(contentView)
 
@@ -85,11 +87,10 @@ class BlogInfoDialogFragment : DialogFragment() {
             requireContext(),
             R.string.dialog_about_this_blog_last_post_count
         )
+        val postCount = arguments!!.getString(EXTRA_KEY_BLOG_POST_COUNT)
+
         viewGroup.addView(titleView)
-        contentView = ContentView(
-            requireContext(),
-            blog.post!!.totalItems!!
-        )
+        contentView = ContentView(requireContext(), postCount)
         viewGroup.addView(contentView)
 
         builder.setView(viewGroup)
@@ -109,7 +110,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         }
     }
 
-    private class ContentView(context: Context, content: String) : AppCompatTextView(context) {
+    private class ContentView(context: Context, content: String?) : AppCompatTextView(context) {
         init {
             val side = context.resources.getDimensionPixelSize(R.dimen.dialog_content_padding_side)
             val top = context.resources.getDimensionPixelSize(R.dimen.dialog_content_padding_top)

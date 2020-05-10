@@ -14,7 +14,7 @@ open class Blogs(
     var updated: String? = null,
     var url: String? = null,
     var selfLink: String? = null,
-    var post: Post? = null,
+    var posts: Post? = null,
     var pages: Pages? = null,
     var locale: Locale? = null,
     var lastRequestPosts: Long = 0
