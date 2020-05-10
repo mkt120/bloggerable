@@ -65,7 +65,7 @@ object ApiManager {
             ACCESS_TYPE
         ).enqueue(object : Callback<OauthResponse> {
             override fun onResponse(call: Call<OauthResponse>, response: Response<OauthResponse>) {
-                Log.d(TAG, "onResponse")
+                Log.d(TAG, "onResponse response.isSuccessful=${response.isSuccessful}")
                 if (response.isSuccessful) {
                     listener.onResponse(response.body()!!)
                 } else {
@@ -87,6 +87,7 @@ object ApiManager {
         refreshToken: String,
         listener: OauthListener
     ) {
+        Log.d(TAG, "requestAllBlogs refreshToken")
         apiService.refreshToken(
             CLIENT_ID,
             CLIENT_SECRET,

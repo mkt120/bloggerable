@@ -43,10 +43,12 @@ class LoginPresenter(
         if (requestCode == REQUEST_SIGN_IN) {
             requestAccessToken.execute(data, object : RequestAccessToken.OnCompleteListener {
                 override fun onComplete() {
+                    Log.d(TAG, "requestAccessToken onComplete")
                     requestAllBlogs()
                 }
 
                 override fun onErrorResponse(code: Int, message: String) {
+                    Log.d(TAG, "requestAccessToken onErrorResponse")
                     view.showError(message)
                 }
 
@@ -60,6 +62,7 @@ class LoginPresenter(
     }
 
     fun requestAllBlogs() {
+        Log.i(TAG, "requestAllBlogs")
         val currentAccount = getCurrentAccount.execute()!!
         getAllBlogs.execute(System.currentTimeMillis(), currentAccount, object : ApiManager.BlogListener {
             override fun onResponse(blogList: List<Blogs>?) {

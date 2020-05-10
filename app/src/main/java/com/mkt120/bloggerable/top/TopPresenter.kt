@@ -1,5 +1,6 @@
 package com.mkt120.bloggerable.top
 
+import android.util.Log
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.Account
@@ -22,6 +23,7 @@ class TopPresenter(
     private lateinit var currentBlog: Blogs
 
     companion object {
+        private val TAG = TopPresenter::class.java.simpleName
         private const val CODE_ERROR_ON_FAILED = -99
     }
 
@@ -47,6 +49,7 @@ class TopPresenter(
         val current = blogs.find { it.id == blogId } ?: blogs[0]
         bindCurrentBlog(current)
         val isExpired = current.isExpired(System.currentTimeMillis())
+        Log.d(TAG, "isExpired=$isExpired")
         if (isExpired) {
             requestPosts(currentAccount!!.getId(), current)
             return

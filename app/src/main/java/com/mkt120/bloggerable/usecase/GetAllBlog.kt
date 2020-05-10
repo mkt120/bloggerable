@@ -1,6 +1,7 @@
 package com.mkt120.bloggerable.usecase
 
 import android.os.Handler
+import android.util.Log
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.repository.AccountRepository
@@ -39,6 +40,7 @@ class GetAllBlog(
             requestAllBlogs(now, account, accessToken, listener)
         }
     }
+    private val TAG = GetAllBlog::class.java.simpleName
 
     private fun requestAllBlogs(
         now: Long,
@@ -49,6 +51,7 @@ class GetAllBlog(
         blogsRepository.requestAllBlog(
             accessToken,
             { blogList ->
+                Log.d(TAG, "requestAllBlogs onResponse")
                 blogList?.let {
                     blogsRepository.saveAllBlog(it)
                     accountRepository.updateLastBlogListRequest(account, now)
@@ -56,9 +59,11 @@ class GetAllBlog(
                 listener.onResponse(blogList)
             },
             { code, message ->
+                Log.d(TAG, "requestAllBlogs onError")
                 listener.onErrorResponse(code, message)
             },
             { t ->
+                Log.d(TAG, "requestAllBlogs onFailed")
                 listener.onFailed(t)
             }
         )
