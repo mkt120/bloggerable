@@ -1,8 +1,6 @@
 package com.mkt120.bloggerable.usecase
 
-import android.os.Handler
 import android.util.Log
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.BlogRepository
@@ -13,14 +11,11 @@ class GetAllBlog(
     private val blogsRepository: BlogRepository
 ) {
 
-    fun execute(now: Long, account: Account, listener: ApiManager.BlogListener) {
-        if (!account.isExpiredBlogList(now)) {
-            val blogs = blogsRepository.findAllBlog(account.getId())
-            Handler().postDelayed(Runnable {
-                listener.onResponse(blogs)
-            }, 500)
-            return
-        }
+    companion object {
+        private val TAG = GetAllBlog::class.java.simpleName
+    }
+
+    fun execute(now: Long, account: Account, listener: OnCompleteListener) {
         val accessToken =
             getAccessToken.execute(account.getId(), object : AccountRepository.OnRefreshListener {
                 override fun onRefresh() {
@@ -28,11 +23,11 @@ class GetAllBlog(
                 }
 
                 override fun onErrorResponse(code: Int, message: String) {
-                    listener.onErrorResponse(code, message)
+                    listener.onFailed()
                 }
 
                 override fun onFailed(t: Throwable) {
-                    listener.onFailed(t)
+                    listener.onFailed()
                 }
             })
 
@@ -41,13 +36,12 @@ class GetAllBlog(
         }
     }
 
-    private val TAG = GetAllBlog::class.java.simpleName
 
     private fun requestAllBlogs(
         now: Long,
         account: Account,
         accessToken: String,
-        listener: ApiManager.BlogListener
+        listener: OnCompleteListener
     ) {
         blogsRepository.requestAllBlog(
             accessToken,
@@ -59,16 +53,21 @@ class GetAllBlog(
                         accountRepository.updateLastBlogListRequest(account, now)
                     }
                 }
-                listener.onResponse(blogList)
+                listener.onComplete()
             },
             { code, message ->
-                Log.d(TAG, "requestAllBlogs onError")
-                listener.onErrorResponse(code, message)
+                Log.d(TAG, "requestAllBlogs onError code=$code, message=$message")
+                listener.onFailed()
             },
             { t ->
-                Log.d(TAG, "requestAllBlogs onFailed")
-                listener.onFailed(t)
+                Log.d(TAG, "requestAllBlogs onFailed", t)
+                listener.onFailed()
             }
         )
+    }
+
+    interface OnCompleteListener {
+        fun onComplete()
+        fun onFailed()
     }
 }

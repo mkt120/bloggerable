@@ -7,7 +7,7 @@ interface LoginContract {
 
     interface View {
         fun showLoginButton()
-        fun showBlogListScreen(blogId: String?)
+        fun showBlogListScreen()
         fun showError(type: CreatePostsContract.TYPE)
         fun requestSignIn(intent: Intent, requestCode: Int)
         fun showProgress()

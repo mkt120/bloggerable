@@ -2,6 +2,7 @@ package com.mkt120.bloggerable.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.DialogFragment
@@ -90,10 +91,12 @@ class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickL
         presenter.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun showBlogListScreen(blogId: String?) {
-        val intent = TopActivity.createIntent(this@LoginActivity, blogId)
-        startActivity(intent)
-        finish()
+    override fun showBlogListScreen() {
+        Handler().postDelayed({
+            val intent = TopActivity.createIntent(this@LoginActivity)
+            startActivity(intent)
+            finish()
+        }, 500)
     }
 
     override fun showError(type: CreatePostsContract.TYPE) {

@@ -2,9 +2,7 @@ package com.mkt120.bloggerable.login
 
 import android.content.Intent
 import android.util.Log
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.create.CreatePostsContract
-import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.usecase.AuthorizeGoogleAccount
 import com.mkt120.bloggerable.usecase.GetAllBlog
 import com.mkt120.bloggerable.usecase.GetCurrentAccount
@@ -30,7 +28,12 @@ class LoginPresenter(
             view.showLoginButton()
             return
         }
-        requestAllBlogs()
+        val currentAccount = getCurrentAccount.execute()!!
+        if (currentAccount.isExpiredBlogList(System.currentTimeMillis())) {
+            requestAllBlogs()
+        } else {
+            view.showBlogListScreen()
+        }
     }
 
     override fun onClickSignIn() {
@@ -82,25 +85,19 @@ class LoginPresenter(
         Log.i(TAG, "requestAllBlogs")
         view.showProgress()
         val currentAccount = getCurrentAccount.execute()!!
-        getAllBlogs.execute(System.currentTimeMillis(), currentAccount, object : ApiManager.BlogListener {
-            override fun onResponse(blogList: List<Blogs>?) {
-                view.dismissProgress()
-                if (blogList == null || blogList.isEmpty()) {
-                    view.showBlogListScreen(null)
-                } else {
-                    view.showBlogListScreen(blogList[0].id!!)
+        getAllBlogs.execute(
+            System.currentTimeMillis(),
+            currentAccount,
+            object : GetAllBlog.OnCompleteListener {
+                override fun onComplete() {
+                    view.dismissProgress()
+                    view.showBlogListScreen()
                 }
-            }
 
-            override fun onErrorResponse(code: Int, message: String) {
-                view.dismissProgress()
-                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
-            }
-
-            override fun onFailed(t: Throwable) {
-                view.dismissProgress()
-                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
-            }
-        })
+                override fun onFailed() {
+                    view.dismissProgress()
+                    view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
+                }
+            })
     }
 }

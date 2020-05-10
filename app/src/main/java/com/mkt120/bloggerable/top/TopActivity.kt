@@ -37,12 +37,7 @@ import kotlinx.android.synthetic.main.activity_top.*
 class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDialog.OnClickListener,
     TopContract.TopView {
     companion object {
-        private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
-
-        fun createIntent(context: Context, blogId: String?): Intent =
-            Intent(context, TopActivity::class.java).apply {
-                putExtra(EXTRA_KEY_BLOG_ID, blogId)
-            }
+        fun createIntent(context: Context): Intent = Intent(context, TopActivity::class.java)
     }
 
     private lateinit var adapter: PostsPagerAdapter
@@ -53,10 +48,9 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_top)
 
-        val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
         adapter = PostsPagerAdapter(
             applicationContext,
-            blogId,
+            null,
             supportFragmentManager
         )
 
