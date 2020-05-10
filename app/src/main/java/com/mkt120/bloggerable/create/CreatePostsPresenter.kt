@@ -307,7 +307,7 @@ class CreatePostsPresenter(
 
     private fun addLabel(label: String) {
         if (labelList.contains(label)) {
-            view.showMessage("already inserted.")
+            view.showMessage(R.string.toast_error_same_label_already_inserted)
             return
         }
         if (label.isEmpty()) {
@@ -569,7 +569,7 @@ class CreatePostsPresenter(
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
-                    view.showMessage("投稿を公開しました")
+                    view.showMessage(R.string.toast_publish_posts_success)
                     view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
                 }
 

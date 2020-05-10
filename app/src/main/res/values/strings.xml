@@ -56,8 +56,10 @@
     <string name="confirm_dialog_negative_button">破棄して戻る</string>
 
     <string name="toast_error_create_posts_no_title">タイトルがありません</string>
+    <string name="toast_error_same_label_already_inserted">すでに同じラベルがあります</string>
     <string name="toast_create_posts_success">投稿に成功しました</string>
     <string name="toast_success_update_posts">投稿を更新しました</string>
+    <string name="toast_publish_posts_success">投稿を公開しました</string>
     <string name="toast_create_draft_success">下書きとして投稿しました</string>
     <string name="toast_create_posts_failed">投稿に失敗しました</string>
 

@@ -159,8 +159,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         }
         button_add_labels.setOnClickListener {
             // todo: 改善の余地あり?
-            val isShowing = dialogFragment?.dialog?.isShowing
-            if (isShowing != null && isShowing) {
+            if (dialogFragment != null && dialogFragment!!.dialog != null && dialogFragment!!.dialog!!.isShowing) {
                 return@setOnClickListener
             }
             dialogFragment = AddLabelDialogFragment.newInstance()
@@ -168,12 +167,10 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         }
         val labels = intent.getStringArrayListExtra(EXTRA_KEY_LABELS)
         button_history.setOnClickListener {
-            val isShowing = dialogFragment?.dialog?.isShowing
-            if (isShowing != null && isShowing) {
+            if (dialogFragment != null && dialogFragment!!.dialog != null && dialogFragment!!.dialog!!.isShowing) {
                 return@setOnClickListener
             }
-            dialogFragment =
-                AddLabelHistoryDialogFragment.newInstance(labels!!)
+            dialogFragment = AddLabelHistoryDialogFragment.newInstance(labels!!)
             dialogFragment!!.show(supportFragmentManager, null)
         }
         button_add_font_change.setOnClickListener {
