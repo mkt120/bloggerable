@@ -7,16 +7,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.about.AboutAppActivity
+import com.mkt120.bloggerable.create.ConfirmDialog
 import com.mkt120.bloggerable.create.CreatePostsActivity
+import com.mkt120.bloggerable.create.CreatePostsContract
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
@@ -32,11 +34,12 @@ import com.mkt120.bloggerable.usecase.*
 import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_top.*
 
-class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract.TopView {
+class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDialog.OnClickListener,
+    TopContract.TopView {
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
 
-        fun createIntent(context: Context, blogId: String): Intent =
+        fun createIntent(context: Context, blogId: String?): Intent =
             Intent(context, TopActivity::class.java).apply {
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
             }
@@ -44,6 +47,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
 
     private lateinit var adapter: PostsPagerAdapter
     private lateinit var presenter: TopPresenter
+    private var dialogFragment: DialogFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -230,10 +234,13 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         finish()
     }
 
-    override fun showError(code: Int, message: String?) {
-        message?.let {
-            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+    override fun showError() {
+        if (dialogFragment != null && dialogFragment!!.dialog != null && dialogFragment!!.dialog!!.isShowing) {
+            return
         }
+        dialogFragment =
+            ConfirmDialog.newInstance(CreatePostsContract.TYPE.RECEIVE_OBTAIN_POST_ERROR)
+        dialogFragment!!.show(supportFragmentManager, null)
     }
 
     override fun showProgress() {
@@ -246,5 +253,18 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
 
     fun onClickPostsItem(posts: Posts, type: TopContract.TYPE) {
         presenter.onClickPosts(posts, type)
+    }
+
+    override fun onConfirmPositiveClick(type: CreatePostsContract.TYPE) {
+        presenter.onClickConfirmPositiveClick()
+    }
+
+    override fun onConfirmNegativeClick(type: CreatePostsContract.TYPE) {
+        // 終了
+        finish()
+    }
+
+    override fun onConfirmNeutralClick(type: CreatePostsContract.TYPE) {
+        // 呼ばれない
     }
 }

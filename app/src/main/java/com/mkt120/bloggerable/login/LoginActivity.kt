@@ -4,10 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import com.google.android.gms.common.SignInButton
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.create.ConfirmDialog
+import com.mkt120.bloggerable.create.CreatePostsContract
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
@@ -23,13 +25,14 @@ import kotlinx.android.synthetic.main.activity_login.*
 /**
  * ログイン画面
  */
-class LoginActivity : BaseActivity(), LoginContract.View {
+class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickListener {
 
     companion object {
         private val TAG: String = LoginActivity::class.java.simpleName
     }
 
     private lateinit var presenter: LoginContract.Presenter
+    private var dialogFragment: DialogFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,23 +76,43 @@ class LoginActivity : BaseActivity(), LoginContract.View {
         startActivityForResult(intent, requestCode)
     }
 
+    override fun showProgress() {
+        progress_view.visibility = View.VISIBLE
+    }
+
+    override fun dismissProgress() {
+        progress_view.visibility = View.GONE
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d(TAG, "requestCode=$requestCode, resultCode=$resultCode")
         presenter.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun showBlogListScreen(blogId: String) {
+    override fun showBlogListScreen(blogId: String?) {
         val intent = TopActivity.createIntent(this@LoginActivity, blogId)
         startActivity(intent)
         finish()
     }
 
-    override fun showError(message: String) {
-        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
+    override fun showError(type: CreatePostsContract.TYPE) {
+        if (dialogFragment != null && dialogFragment!!.dialog != null && dialogFragment!!.dialog!!.isShowing) {
+            return
+        }
+        dialogFragment = ConfirmDialog.newInstance(type)
+        dialogFragment!!.show(supportFragmentManager, null)
     }
 
-    override fun showEmptyBlogScreen() {
-        // todo:empty
+    override fun onConfirmPositiveClick(type: CreatePostsContract.TYPE) {
+        presenter.onConfirmPositiveClick(type)
+    }
+
+    override fun onConfirmNegativeClick(type: CreatePostsContract.TYPE) {
+        finish()
+    }
+
+    override fun onConfirmNeutralClick(type: CreatePostsContract.TYPE) {
+        // 呼ばれない
     }
 }

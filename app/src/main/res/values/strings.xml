@@ -62,4 +62,8 @@
 
     <string name="empty_view_post">記事はありません</string>
     <string name="empty_view_draft">下書きはありません</string>
+
+    <string name="error_dialog_text">情報取得に失敗しました</string>
+    <string name="error_dialog_retry">リトライ</string>
+    <string name="error_dialog_finish">終了</string>
 </resources>

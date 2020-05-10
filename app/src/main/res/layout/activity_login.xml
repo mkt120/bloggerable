@@ -42,4 +42,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/app_name_view" />
 
+    <include
+        android:id="@+id/progress_view"
+        layout="@layout/include_progress" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -35,11 +35,13 @@ class RealmManager(private val realm: Realm) {
         return mutableListOf()
     }
 
-    fun findAllPosts(blogsId: String, isPost: Boolean): List<Posts> {
-        val list =
-            realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).sort("published", Sort.DESCENDING).findAll()
-        if (list != null) {
-            return realm.copyFromRealm(list)
+    fun findAllPosts(blogsId: String?, isPost: Boolean): List<Posts> {
+        if (blogsId != null) {
+            val list =
+                realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).sort("published", Sort.DESCENDING).findAll()
+            if (list != null) {
+                return realm.copyFromRealm(list)
+            }
         }
         return listOf()
     }

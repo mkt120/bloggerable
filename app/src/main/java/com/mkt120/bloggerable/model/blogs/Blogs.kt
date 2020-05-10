@@ -17,7 +17,7 @@ open class Blogs(
     var post: Post? = null,
     var pages: Pages? = null,
     var locale: Locale? = null,
-    var lastRequestPosts:Long = 0
+    var lastRequestPosts: Long = 0
 ) : RealmObject() {
 
     fun getPublishDate(): Date {
@@ -33,11 +33,10 @@ open class Blogs(
         return simpleDateFormat.parse(date)
     }
 
-    fun isExpired(now:Long) : Boolean {
-        return now - lastRequestPosts >= 24 * 60 * 60 * 1000
-    }
+    fun isExpired(now: Long): Boolean = now - lastRequestPosts >= 24 * 60 * 60 * 1000
 
-    fun updateLastRequest(update:Long) {
+
+    fun updateLastRequest(update: Long) {
         lastRequestPosts = update
     }
 

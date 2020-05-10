@@ -27,7 +27,7 @@ class PostsListFragment : Fragment(),
         private val TAG = PostsListFragment::class.java.simpleName
         private const val EXTRA_BLOGS_ID = "EXTRA_BLOGS_ID"
         private const val EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE"
-        fun newInstance(blogId: String, type: TopContract.TYPE): PostsListFragment =
+        fun newInstance(blogId: String?, type: TopContract.TYPE): PostsListFragment =
             PostsListFragment().apply {
                 val bundle = Bundle().apply {
                     putString(EXTRA_BLOGS_ID, blogId)
@@ -62,7 +62,7 @@ class PostsListFragment : Fragment(),
                 PostsListPresenter(
                     FindAllPosts(postsRepository),
                     this@PostsListFragment,
-                    blogId!!,
+                    blogId,
                     type
                 )
             postsListPresenter.onActivityCreated()

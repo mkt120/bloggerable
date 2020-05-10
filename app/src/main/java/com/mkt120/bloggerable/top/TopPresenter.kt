@@ -152,6 +152,10 @@ class TopPresenter(
         }
     }
 
+    override fun onClickConfirmPositiveClick() {
+        requestPosts(currentAccount!!.getId(), currentBlog)
+    }
+
     private fun requestPosts(userId: String, blog: Blogs) {
         // 記事一覧取得
         view.showProgress()
@@ -167,7 +171,8 @@ class TopPresenter(
                 }
 
                 override fun onError(message: String) {
-                    view.showError(CODE_ERROR_ON_FAILED, message)
+                    view.dismissProgress()
+                    view.showError()
                 }
             })
         getAllPosts.execute(
@@ -182,7 +187,8 @@ class TopPresenter(
                 }
 
                 override fun onError(message: String) {
-                    view.showError(CODE_ERROR_ON_FAILED, message)
+                    view.dismissProgress()
+                    view.showError()
                 }
             })
     }

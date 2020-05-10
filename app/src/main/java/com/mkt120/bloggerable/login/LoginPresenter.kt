@@ -3,8 +3,12 @@ package com.mkt120.bloggerable.login
 import android.content.Intent
 import android.util.Log
 import com.mkt120.bloggerable.ApiManager
+import com.mkt120.bloggerable.create.CreatePostsContract
 import com.mkt120.bloggerable.model.blogs.Blogs
-import com.mkt120.bloggerable.usecase.*
+import com.mkt120.bloggerable.usecase.AuthorizeGoogleAccount
+import com.mkt120.bloggerable.usecase.GetAllBlog
+import com.mkt120.bloggerable.usecase.GetCurrentAccount
+import com.mkt120.bloggerable.usecase.RequestAccessToken
 
 class LoginPresenter(
     private val view: LoginContract.View,
@@ -31,6 +35,10 @@ class LoginPresenter(
 
     override fun onClickSignIn() {
         Log.i(TAG, "signInRequest")
+        requestSignIn()
+    }
+
+    private fun requestSignIn() {
         val signInIntent = authorizeGoogleAccount.getSignInIntent()
         view.requestSignIn(signInIntent, REQUEST_SIGN_IN)
     }
@@ -41,6 +49,7 @@ class LoginPresenter(
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult")
         if (requestCode == REQUEST_SIGN_IN) {
+            view.showProgress()
             requestAccessToken.execute(data, object : RequestAccessToken.OnCompleteListener {
                 override fun onComplete() {
                     Log.d(TAG, "requestAccessToken onComplete")
@@ -49,38 +58,48 @@ class LoginPresenter(
 
                 override fun onErrorResponse(code: Int, message: String) {
                     Log.d(TAG, "requestAccessToken onErrorResponse")
-                    view.showError(message)
+                    view.dismissProgress()
+                    view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR)
                 }
 
                 override fun onFailed(t: Throwable) {
-                    if (t.message != null) {
-                        view.showError(t.message!!)
-                    }
+                    view.dismissProgress()
+                    view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR)
                 }
             })
         }
     }
 
+    override fun onConfirmPositiveClick(type: CreatePostsContract.TYPE) {
+        if (type == CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR) {
+            requestSignIn()
+        } else if (type == CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR) {
+            requestAllBlogs()
+        }
+    }
+
     fun requestAllBlogs() {
         Log.i(TAG, "requestAllBlogs")
+        view.showProgress()
         val currentAccount = getCurrentAccount.execute()!!
         getAllBlogs.execute(System.currentTimeMillis(), currentAccount, object : ApiManager.BlogListener {
             override fun onResponse(blogList: List<Blogs>?) {
+                view.dismissProgress()
                 if (blogList == null || blogList.isEmpty()) {
-                    view.showEmptyBlogScreen()
+                    view.showBlogListScreen(null)
                 } else {
                     view.showBlogListScreen(blogList[0].id!!)
                 }
             }
 
             override fun onErrorResponse(code: Int, message: String) {
-                view.showError(message)
+                view.dismissProgress()
+                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
             }
 
             override fun onFailed(t: Throwable) {
-                if (t.message != null) {
-                    view.showError(t.message!!)
-                }
+                view.dismissProgress()
+                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
             }
         })
     }

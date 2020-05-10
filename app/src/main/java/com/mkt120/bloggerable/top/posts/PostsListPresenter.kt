@@ -7,7 +7,7 @@ import com.mkt120.bloggerable.usecase.FindAllPosts
 class PostsListPresenter(
     findAllPosts: FindAllPosts,
     private val view: PostsListContract.PostsListView,
-    blogId: String,
+    blogId: String?,
     private val type: TopContract.TYPE
 ) : PostsListContract.PostsListPresenter {
 

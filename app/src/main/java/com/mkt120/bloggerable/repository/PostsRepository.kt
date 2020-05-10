@@ -51,7 +51,7 @@ class PostsRepository(
         realmDataSource.savePosts(posts, isDraft)
     }
 
-    fun findAllPosts(blogId: String, isPost: Boolean): List<Posts> =
+    fun findAllPosts(blogId: String?, isPost: Boolean): List<Posts> =
         realmDataSource.findAllPost(blogId, isPost)
 
     fun findPosts(blogId: String, postsId: String): Posts? =

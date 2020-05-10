@@ -10,31 +10,58 @@ interface CreatePostsContract {
         val messageResId: Int,
         val positiveButtonResId: Int,
         val negativeButtonResId: Int,
-        val neutralButtonResId: Int
+        val neutralButtonResId: Int,
+        val isCancelable: Boolean
     ) {
         EXIST_BACK_UP(
             R.string.confirm_dialog_exist_backup_message,
             R.string.confirm_dialog_exist_backup_positive_button,
             R.string.confirm_dialog_exist_backup_negative_button,
-            0
+            0,
+            true
         ),
         BACK_EDIT_POSTS(
             R.string.confirm_dialog_back_post_message,
             R.string.confirm_dialog_positive_button_update,
             R.string.confirm_dialog_negative_button,
-            R.string.confirm_dialog_neutral_button
+            R.string.confirm_dialog_neutral_button,
+            true
         ),
         BACK_EDIT_DRAFT(
             R.string.confirm_dialog_back_post_message,
             R.string.confirm_dialog_positive_button_update,
             R.string.confirm_dialog_negative_button,
-            R.string.confirm_dialog_neutral_button
+            R.string.confirm_dialog_neutral_button,
+            true
         ),
         DELETE_POST(
             R.string.create_posts_delete_dialog_message,
             android.R.string.yes,
             android.R.string.no,
-            0
+            0,
+            true
+        ),
+
+        RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR(
+            R.string.error_dialog_text,
+            R.string.error_dialog_retry,
+            R.string.error_dialog_finish,
+            0,
+            false
+        ),
+        RECEIVE_OBTAIN_BLOG_ERROR(
+            R.string.error_dialog_text,
+            R.string.error_dialog_retry,
+            R.string.error_dialog_finish,
+            0,
+            false
+        ),
+        RECEIVE_OBTAIN_POST_ERROR(
+            R.string.error_dialog_text,
+            R.string.error_dialog_retry,
+            R.string.error_dialog_finish,
+            0,
+            false
         );
 
         fun isDraft(): Boolean {
@@ -81,6 +108,7 @@ interface CreatePostsContract {
             title: String,
             html: String
         )
+
         fun onClickConfirmNegative(type: TYPE)
         fun onConfirmNeutralButton(
             type: TYPE,

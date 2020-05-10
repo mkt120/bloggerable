@@ -41,6 +41,8 @@ class ConfirmDialog : DialogFragment() {
                 }
             }
         }
+        isCancelable = type.isCancelable
+
         return builder.create()
     }
 

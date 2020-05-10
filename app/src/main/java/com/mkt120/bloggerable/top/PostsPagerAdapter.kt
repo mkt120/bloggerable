@@ -15,7 +15,7 @@ import com.mkt120.bloggerable.top.posts.PostsListFragment
  */
 class PostsPagerAdapter(
     private var context: Context,
-    private var blogsId: String,
+    private var blogsId: String?,
     fragmentManager: FragmentManager
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     companion object {

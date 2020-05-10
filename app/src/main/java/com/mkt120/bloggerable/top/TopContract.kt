@@ -25,7 +25,7 @@ interface TopContract {
         fun onBindDrawer(response: List<Blogs>)
         fun showProgress()
         fun dismissProgress()
-        fun showError(code: Int, message: String?)
+        fun showError()
     }
 
     interface TopPresenter {
@@ -39,6 +39,7 @@ interface TopContract {
         fun onClickRefreshButton()
         fun onMenuItemClick(itemId: Int?): Boolean
         fun onClickPosts(posts: Posts, type: TYPE)
+        fun onClickConfirmPositiveClick()
     }
 
     enum class TYPE(val textResId: Int) {
