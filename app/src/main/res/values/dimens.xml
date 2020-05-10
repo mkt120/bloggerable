@@ -6,6 +6,10 @@
     <dimen name="login_sign_in_app_name_margin">15dp</dimen>
     <dimen name="login_sign_in_button_margin">15dp</dimen>
 
+    <dimen name="top_fab_margin">30dp</dimen>
+    <dimen name="top_empty_view_message_line_spacing_extra">15dp</dimen>
+    <dimen name="top_empty_views_margin">15dp</dimen>
+
     <!-- ブログ一覧 -->
     <dimen name="drawer_menu_width">250dp</dimen>
     <dimen name="drawer_menu_account_area_height">200dp</dimen>
@@ -51,4 +55,19 @@
     <dimen name="dialog_content_padding_side">30dp</dimen>
     <dimen name="dialog_content_padding_top">15dp</dimen>
     <dimen name="dialog_content_padding_bottom">@dimen/dialog_content_padding_top</dimen>
+
+    <dimen name="post_view_holder_margin">10dp</dimen>
+    <dimen name="post_view_holder_padding">10dp</dimen>
+    <dimen name="post_view_holder_content_padding">10dp</dimen>
+    <dimen name="post_view_holder_post_title_text_size">20sp</dimen>
+    <dimen name="post_view_holder_post_title_margin_bottom">5dp</dimen>
+    <dimen name="post_view_holder_post_content_text_size">12sp</dimen>
+    <dimen name="post_view_holder_divider_height">1dp</dimen>
+    <dimen name="post_view_holder_divider_margin_top">5dp</dimen>
+    <dimen name="post_view_holder_divider_margin_bottom">5dp</dimen>
+    <dimen name="post_view_holder_post_comment_count_text_size">12sp</dimen>
+    <dimen name="post_view_holder_post_publish_update_date_text_size">12sp</dimen>
+
+    <dimen name="progress_view_width">50dp</dimen>
+    <dimen name="progress_view_height">50dp</dimen>
 </resources>

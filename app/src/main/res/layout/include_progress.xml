@@ -2,15 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#AAFFFFFF"
+    android:background="@color/progress_background"
     android:focusable="true"
     android:clickable="true"
     android:visibility="gone">
 
     <ProgressBar
         style="@android:style/Widget.Material.ProgressBar"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/progress_view_width"
+        android:layout_height="@dimen/progress_view_height"
         android:layout_gravity="center" />
 
 </FrameLayout>

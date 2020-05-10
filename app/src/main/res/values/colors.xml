@@ -7,4 +7,7 @@
     <color name="label_background_pressed">#AAAAAA</color>
     <color name="label_background">#DDDDDD</color>
 
+    <color name="divider_color">#DDDDDD</color>
+    <color name="progress_background">#AAFFFFFF</color>
+
 </resources>
