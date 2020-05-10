@@ -25,6 +25,10 @@
     <string name="toast_success_delete_posts">投稿を削除しました</string>
     <string name="toast_failed_delete_posts">削除に失敗しました</string>
 
+    <string name="posts_list_empty_blog_text">ブログがありません\nまずはブログを作成しましょう</string>
+    <string name="posts_list_empty_blog_create_button">ブログを作成する</string>
+    <string name="posts_list_empty_blog_refresh_button">更新する</string>
+
     <string name="posts_list_title_posts">投稿</string>
     <string name="posts_list_title_draft">下書き</string>
 
@@ -55,4 +59,7 @@
     <string name="toast_success_update_posts">投稿を更新しました</string>
     <string name="toast_create_draft_success">下書きとして投稿しました</string>
     <string name="toast_create_posts_failed">投稿に失敗しました</string>
+
+    <string name="empty_view_post">記事はありません</string>
+    <string name="empty_view_draft">下書きはありません</string>
 </resources>

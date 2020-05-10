@@ -3,6 +3,7 @@ package com.mkt120.bloggerable.util
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import io.realm.Realm
+import io.realm.Sort
 import io.realm.kotlin.where
 
 class RealmManager(private val realm: Realm) {
@@ -36,7 +37,7 @@ class RealmManager(private val realm: Realm) {
 
     fun findAllPosts(blogsId: String, isPost: Boolean): List<Posts> {
         val list =
-            realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).findAll()
+            realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).sort("published", Sort.DESCENDING).findAll()
         if (list != null) {
             return realm.copyFromRealm(list)
         }

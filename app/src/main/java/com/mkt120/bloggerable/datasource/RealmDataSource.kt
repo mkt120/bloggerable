@@ -18,6 +18,8 @@ class RealmDataSource(private val manager: RealmManager) {
         manager.addAllPosts(posts, isDraft)
     }
 
+    fun findAllPost(blogId: String, isPost: Boolean): List<Posts> = manager.findAllPosts(blogId, isPost)
+
     fun findPosts(blogId: String, postsId: String): Posts? = manager.findPosts(blogId, postsId)
 
     fun deletePosts(blogId: String, postsId: String) {

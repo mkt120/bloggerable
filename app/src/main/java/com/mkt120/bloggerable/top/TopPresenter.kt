@@ -6,7 +6,6 @@ import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.top.posts.PostsListFragment
 import com.mkt120.bloggerable.usecase.*
 
 class TopPresenter(
@@ -25,6 +24,7 @@ class TopPresenter(
     companion object {
         private val TAG = TopPresenter::class.java.simpleName
         private const val CODE_ERROR_ON_FAILED = -99
+        private const val URL_BLOGGER = "https://www.blogger.com/"
     }
 
     override fun initialize() {
@@ -37,9 +37,12 @@ class TopPresenter(
         view.onBindDrawer(blogs)
 
         if (blogs.isEmpty()) {
-            // todo: EmptyView
+            view.showEmptyBlogScreen()
             return
         }
+
+        view.setItemMenu(R.menu.posts_list_menu)
+        view.initDrawerLayout()
 
         var blogId = currentAccount!!.getCurrentBlogId()
         if (blogId.isEmpty()) {
@@ -113,6 +116,14 @@ class TopPresenter(
         }
     }
 
+    override fun onClickCreateBlogButton() {
+        view.openBrowser(URL_BLOGGER)
+    }
+
+    override fun onClickRefreshButton() {
+        view.showLoginScreen()
+    }
+
     override fun onMenuItemClick(itemId: Int?): Boolean {
         itemId?.let {
             return when (it) {
@@ -132,10 +143,9 @@ class TopPresenter(
         return false
     }
 
-    override fun onClickPosts(posts: Posts, listType: Int) {
+    override fun onClickPosts(posts: Posts, type: TopContract.TYPE) {
         val labels = getLabels.execute(posts.blog!!.id!!)
-        if (listType == PostsListFragment.LIST_POSTS) {
-            // publish
+        if (type == TopContract.TYPE.POST) {
             view.showEditScreen(posts, labels, false)
         } else {
             view.showEditScreen(posts, labels, true)

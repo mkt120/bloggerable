@@ -1,27 +1,27 @@
 package com.mkt120.bloggerable.top.posts
 
-import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.top.TopContract
+import com.mkt120.bloggerable.usecase.FindAllPosts
 
 class PostsListPresenter(
-    realmManager: RealmManager,
+    findAllPosts: FindAllPosts,
     private val view: PostsListContract.PostsListView,
     blogId: String,
-    private val listType: Int
+    private val type: TopContract.TYPE
 ) : PostsListContract.PostsListPresenter {
 
-    private var postsList : List<Posts>?
+    private val postsList: List<Posts>?
 
     init {
-        val isPost = listType == PostsListFragment.LIST_POSTS
-        postsList = realmManager.findAllPosts(blogId, isPost)
+        postsList = findAllPosts.execute(blogId, type == TopContract.TYPE.POST)
     }
 
     override fun onClickPosts(posts: Posts) {
-        view.showPostsItem(posts, listType)
+        view.showPostsItem(type, posts)
     }
 
     override fun onActivityCreated() {
-        view.setPostsResponse(postsList!!)
+        view.setPostsResponse(type, postsList!!)
     }
 }

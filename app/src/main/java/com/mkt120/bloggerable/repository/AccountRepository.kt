@@ -73,7 +73,7 @@ class AccountRepository(
         accessToken: String,
         expired: Long,
         refreshToken: String
-    ) :Account {
+    ): Account {
         return preferenceDataSource.saveNewAccount(account, accessToken, expired, refreshToken)
     }
 

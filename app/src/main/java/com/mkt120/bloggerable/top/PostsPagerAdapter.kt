@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.top.posts.PostsListContract
 import com.mkt120.bloggerable.top.posts.PostsListFragment
 
 /**
@@ -30,12 +31,12 @@ class PostsPagerAdapter(
         return if (position == 0) {
             PostsListFragment.newInstance(
                 blogsId,
-                PostsListFragment.LIST_POSTS
+                TopContract.TYPE.POST
             )
         } else {
             PostsListFragment.newInstance(
                 blogsId,
-                PostsListFragment.LIST_DRAFT
+                TopContract.TYPE.DRAFT
             )
         }
     }

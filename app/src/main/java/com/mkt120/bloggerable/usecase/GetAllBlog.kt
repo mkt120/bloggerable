@@ -40,6 +40,7 @@ class GetAllBlog(
             requestAllBlogs(now, account, accessToken, listener)
         }
     }
+
     private val TAG = GetAllBlog::class.java.simpleName
 
     private fun requestAllBlogs(
@@ -54,7 +55,9 @@ class GetAllBlog(
                 Log.d(TAG, "requestAllBlogs onResponse")
                 blogList?.let {
                     blogsRepository.saveAllBlog(it)
-                    accountRepository.updateLastBlogListRequest(account, now)
+                    if (it.isNotEmpty()) {
+                        accountRepository.updateLastBlogListRequest(account, now)
+                    }
                 }
                 listener.onResponse(blogList)
             },

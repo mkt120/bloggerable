@@ -8,8 +8,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.mkt120.bloggerable.BloggerableApplication
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.datasource.BloggerApiDataSource
+import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.TopActivity
+import com.mkt120.bloggerable.top.TopContract
+import com.mkt120.bloggerable.usecase.FindAllPosts
 import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.fragment_posts_list.*
 
@@ -22,13 +27,11 @@ class PostsListFragment : Fragment(),
         private val TAG = PostsListFragment::class.java.simpleName
         private const val EXTRA_BLOGS_ID = "EXTRA_BLOGS_ID"
         private const val EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE"
-        const val LIST_POSTS = 1
-        const val LIST_DRAFT = 2
-        fun newInstance(blogId: String, listType: Int): PostsListFragment =
+        fun newInstance(blogId: String, type: TopContract.TYPE): PostsListFragment =
             PostsListFragment().apply {
                 val bundle = Bundle().apply {
                     putString(EXTRA_BLOGS_ID, blogId)
-                    putInt(EXTRA_LIST_TYPE, listType)
+                    putSerializable(EXTRA_LIST_TYPE, type)
                 }
                 arguments = bundle
             }
@@ -48,21 +51,29 @@ class PostsListFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val blogId = arguments!!.getString(EXTRA_BLOGS_ID)
-        val type = arguments!!.getInt(EXTRA_LIST_TYPE)
+        val type: TopContract.TYPE = arguments!!.getSerializable(EXTRA_LIST_TYPE) as TopContract.TYPE
 
         // FIXME:
         if (requireActivity().application is BloggerableApplication) {
             val realm = (requireActivity().application as BloggerableApplication).getRealm()
+            val postsRepository =
+                PostsRepository(BloggerApiDataSource(), RealmDataSource(RealmManager(realm)))
             postsListPresenter =
-                PostsListPresenter(RealmManager(realm), this@PostsListFragment, blogId!!, type)
+                PostsListPresenter(
+                    FindAllPosts(postsRepository),
+                    this@PostsListFragment,
+                    blogId!!,
+                    type
+                )
             postsListPresenter.onActivityCreated()
         }
     }
 
-    override fun setPostsResponse(response: List<Posts>) {
+    override fun setPostsResponse(type: TopContract.TYPE, response: List<Posts>) {
         // todo:ちょっと微妙
         recycler_view.adapter =
             PostsAdapter(
+                type,
                 response,
                 object :
                     PostsAdapter.PostsClickListener {
@@ -75,7 +86,7 @@ class PostsListFragment : Fragment(),
                 })
     }
 
-    override fun showPostsItem(posts: Posts, type: Int) {
+    override fun showPostsItem(type: TopContract.TYPE, posts: Posts) {
         // todo:ちょっと微妙
         if (activity is TopActivity) {
             (activity as TopActivity).onClickPostsItem(

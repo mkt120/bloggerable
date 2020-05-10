@@ -1,11 +1,13 @@
 package com.mkt120.bloggerable.top.posts
 
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.top.TopContract
 
 interface PostsListContract {
+
     interface PostsListView {
-        fun setPostsResponse(response: List<Posts>)
-        fun showPostsItem(posts: Posts, type: Int)
+        fun setPostsResponse(type: TopContract.TYPE, response: List<Posts>)
+        fun showPostsItem(type: TopContract.TYPE, posts: Posts)
     }
 
     interface PostsListPresenter {

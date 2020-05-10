@@ -10,6 +10,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.about.AboutAppActivity
@@ -45,8 +48,6 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_top)
-        tool_bar.inflateMenu(R.menu.posts_list_menu)
-        tool_bar.setOnMenuItemClickListener(this)
 
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)
         adapter = PostsPagerAdapter(
@@ -60,16 +61,6 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         fab.setOnClickListener {
             presenter.onClickFab()
         }
-
-        val actionBarDrawerToggle = ActionBarDrawerToggle(
-            this,
-            drawer_layout,
-            tool_bar,
-            R.string.app_name,
-            R.string.app_name
-        )
-        drawer_layout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
 
         val realmDataSource = RealmDataSource(RealmManager(getRealm()))
         val preferenceDataSource = PreferenceDataSource()
@@ -100,8 +91,25 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         presenter.initialize()
     }
 
+    override fun setItemMenu(itemMenu: Int) {
+        tool_bar.inflateMenu(R.menu.posts_list_menu)
+        tool_bar.setOnMenuItemClickListener(this)
+    }
+
     override fun setTitle(title: String) {
         tool_bar.title = title
+    }
+
+    override fun initDrawerLayout() {
+        val actionBarDrawerToggle = ActionBarDrawerToggle(
+            this,
+            drawer_layout,
+            tool_bar,
+            R.string.app_name,
+            R.string.app_name
+        )
+        drawer_layout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
     }
 
     override fun notifyDataSetChanged() {
@@ -178,8 +186,9 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
     }
 
     override fun openBrowser(url: String) {
-        val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        startActivity(i)
+        val builder = CustomTabsIntent.Builder()
+            .setToolbarColor(ContextCompat.getColor(this@TopActivity, R.color.colorPrimary))
+        builder.build().launchUrl(this@TopActivity, Uri.parse(url))
     }
 
     override fun showAboutDialog(blogs: Blogs) {
@@ -202,6 +211,19 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         return presenter.onMenuItemClick(item?.itemId)
     }
 
+    override fun showEmptyBlogScreen() {
+        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        fab.visibility = View.GONE
+        tabs.visibility = View.GONE
+        empty_blog_view.visibility = View.VISIBLE
+        create_blog_button.setOnClickListener {
+            presenter.onClickCreateBlogButton()
+        }
+        refresh_button.setOnClickListener {
+            presenter.onClickRefreshButton()
+        }
+    }
+
     override fun showLoginScreen() {
         val intent = Intent(applicationContext, LoginActivity::class.java)
         startActivity(intent)
@@ -222,7 +244,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         progress_view.visibility = View.GONE
     }
 
-    fun onClickPostsItem(posts: Posts, listType: Int) {
-        presenter.onClickPosts(posts, listType)
+    fun onClickPostsItem(posts: Posts, type: TopContract.TYPE) {
+        presenter.onClickPosts(posts, type)
     }
 }
