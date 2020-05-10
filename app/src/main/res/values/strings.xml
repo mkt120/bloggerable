@@ -16,10 +16,13 @@
     <string name="drawer_menu_blog_list">ブログ一覧</string>
     <string name="drawer_menu_about_this_app">このアプリについて</string>
 
+    <string name="menu_publish">公開する</string>
     <string name="menu_delete_posts">削除する</string>
     <string name="menu_open_in_browser">ブラウザで開く</string>
-    <string name="menu_publish">公開する</string>
     <string name="menu_revert_posts">下書きに戻す</string>
+    <string name="menu_create_posts_send_post">投稿する</string>
+    <string name="menu_upload_as_draft">下書きとして投稿</string>
+    <string name="menu_update_draft">下書きを更新する</string>
     <string name="menu_about_this_blog">ブログ情報</string>
 
     <string name="toast_success_delete_posts">投稿を削除しました</string>
@@ -52,8 +55,6 @@
     <string name="confirm_dialog_neutral_button">一時保存して戻る</string>
     <string name="confirm_dialog_negative_button">破棄して戻る</string>
 
-    <string name="menu_create_posts_send_post">投稿する</string>
-    <string name="menu_update_draft">下書きとして投稿</string>
     <string name="toast_error_create_posts_no_title">タイトルがありません</string>
     <string name="toast_create_posts_success">投稿に成功しました</string>
     <string name="toast_success_update_posts">投稿を更新しました</string>
