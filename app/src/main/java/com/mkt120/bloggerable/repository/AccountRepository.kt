@@ -19,6 +19,10 @@ class AccountRepository(
         preferenceDataSource.saveCurrentAccount(account)
     }
 
+    fun updateLastBlogListRequest(account: Account, now: Long) {
+        preferenceDataSource.saveAccount(account, now)
+    }
+
     fun getCurrentAccount(): Account {
         val account = preferenceDataSource.getCurrentAccount()
         return account ?: preferenceDataSource.getAccounts()[0]

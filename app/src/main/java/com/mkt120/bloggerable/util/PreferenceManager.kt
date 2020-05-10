@@ -46,13 +46,23 @@ object PreferenceManager {
     }
 
     fun saveAccount(
-        newAccount: Account,
+        account: Account,
+        lastBlogListRequest:Long
+        ) {
+        val accounts = getAccounts()
+        val found = accounts.find { item -> item.getId() == account.getId() }
+        found?.updateLastBlogListRequest(lastBlogListRequest)
+        prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
+    }
+
+    fun saveAccount(
+        account: Account,
         accessToken: String,
         tokenExpiredDateMillis: Long,
         refreshToken: String
     ) {
         val accounts = getAccounts()
-        val found = accounts.find { item -> item.getId() == newAccount.getId() }
+        val found = accounts.find { item -> item.getId() == account.getId() }
         found?.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
         prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
     }

@@ -10,7 +10,7 @@ class RealmDataSource(private val manager: RealmManager) {
         manager.saveBlog(blogs)
     }
 
-    fun addAllBlogs(blogsList: List<Blogs>) {
+    fun saveAllBlogs(blogsList: List<Blogs>) {
         manager.saveAllBlogs(blogsList)
     }
 

@@ -14,6 +14,10 @@ class PreferenceDataSource {
         PreferenceManager.setCurrentAccount(account)
     }
 
+    fun saveAccount(account: Account, lastBlogListRequest: Long) {
+        PreferenceManager.saveAccount(account, lastBlogListRequest)
+    }
+
     fun saveNewAccount(
         account: GoogleSignInAccount,
         accessToken: String,

@@ -164,7 +164,7 @@ object ApiManager {
                 ) {
                     if (response.isSuccessful) {
                         val list = response.body()
-                        listener.onResponse(list)
+                        listener.onResponse(list?.items)
                     } else {
                         listener.onErrorResponse(response.code(), response.message())
                     }
@@ -360,7 +360,7 @@ object ApiManager {
     }
 
     interface PostsListener {
-        fun onResponse(post: PostResponse?)
+        fun onResponse(posts: List<Posts>?)
         fun onErrorResponse(code: Int, message: String)
         fun onFailed(t: Throwable)
     }

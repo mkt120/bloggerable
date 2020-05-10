@@ -9,10 +9,9 @@ import com.mkt120.bloggerable.usecase.*
 class LoginPresenter(
     private val view: LoginContract.View,
     private val requestAccessToken: RequestAccessToken,
-    private val saveAllBlogs: SaveAllBlogs,
     private val getCurrentAccount: GetCurrentAccount,
     private val authorizeGoogleAccount: AuthorizeGoogleAccount,
-    private val requestAllBlogs: RequestAllBlogs
+    private val getAllBlogs: GetAllBlog
 ) : LoginContract.Presenter {
 
     companion object {
@@ -62,9 +61,8 @@ class LoginPresenter(
 
     fun requestAllBlogs() {
         val currentAccount = getCurrentAccount.execute()!!
-        requestAllBlogs.execute(currentAccount, object : ApiManager.BlogListener {
+        getAllBlogs.execute(System.currentTimeMillis(), currentAccount, object : ApiManager.BlogListener {
             override fun onResponse(blogList: List<Blogs>?) {
-                saveAllBlogs.execute(blogList)
                 if (blogList == null || blogList.isEmpty()) {
                     view.showEmptyBlogScreen()
                 } else {

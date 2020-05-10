@@ -1,8 +1,6 @@
 package com.mkt120.bloggerable.top
 
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.api.PostResponse
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.blogs.Blogs
@@ -15,13 +13,12 @@ class TopPresenter(
     private val getCurrentAccount: GetCurrentAccount,
     private val saveLastSelectBlogId: SaveCurrentBlogId,
     private val findAllBlogs: FindAllBlog,
-    private val getAllPosts: RequestAllPosts,
-    private val saveAllPosts: SaveAllPosts,
+    private val getAllPosts: GetAllPosts,
     private val getLabels: GetLabels
 ) :
     TopContract.TopPresenter {
 
-    private var currentAccount : Account? = getCurrentAccount.execute()
+    private var currentAccount: Account? = getCurrentAccount.execute()
     private lateinit var currentBlog: Blogs
 
     companion object {
@@ -145,44 +142,35 @@ class TopPresenter(
     private fun requestPosts(userId: String, blog: Blogs) {
         // 記事一覧取得
         view.showProgress()
-        getAllPosts.execute(System.currentTimeMillis(), userId, false, blog, object : ApiManager.PostsListener {
-            override fun onResponse(reponse: PostResponse?) {
-                reponse?.let {
-                    if (it.items != null) {
-                        saveAllPosts.execute(it.items!!.toList(), false)
-                    }
+        getAllPosts.execute(
+            System.currentTimeMillis(),
+            userId,
+            false,
+            blog,
+            object : GetAllPosts.PostsListener {
+                override fun onComplete() {
+                    view.dismissProgress()
                     view.notifyDataSetChanged()
                 }
-                view.dismissProgress()
-            }
 
-            override fun onErrorResponse(code: Int, message: String) {
-                view.showError(code, message)
-            }
-
-            override fun onFailed(t: Throwable) {
-                view.showError(CODE_ERROR_ON_FAILED, t.message)
-            }
-
-        })
-        getAllPosts.execute(System.currentTimeMillis(), userId, true, blog, object : ApiManager.PostsListener {
-            override fun onResponse(reponse: PostResponse?) {
-                reponse?.let {
-                    if (it.items != null) {
-                        saveAllPosts.execute(it.items!!.toList(), true)
-                    }
+                override fun onError(message: String) {
+                    view.showError(CODE_ERROR_ON_FAILED, message)
+                }
+            })
+        getAllPosts.execute(
+            System.currentTimeMillis(),
+            userId,
+            true,
+            blog,
+            object : GetAllPosts.PostsListener {
+                override fun onComplete() {
+                    view.dismissProgress()
                     view.notifyDataSetChanged()
                 }
-                view.dismissProgress()
-            }
 
-            override fun onErrorResponse(code: Int, message: String) {
-                view.showError(code, message)
-            }
-
-            override fun onFailed(t: Throwable) {
-                view.showError(CODE_ERROR_ON_FAILED, t.message)
-            }
-        })
+                override fun onError(message: String) {
+                    view.showError(CODE_ERROR_ON_FAILED, message)
+                }
+            })
     }
 }

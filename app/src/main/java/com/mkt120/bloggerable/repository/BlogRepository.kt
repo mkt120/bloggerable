@@ -13,11 +13,33 @@ class BlogRepository(
     fun findAllBlog(userId: String): List<Blogs> = realmDataSource.findAllBlogs(userId)
 
     fun saveAllBlog(blogList: List<Blogs>) {
-        realmDataSource.addAllBlogs(blogList)
+        realmDataSource.saveAllBlogs(blogList)
     }
 
-    fun requestAllBlog(accessToken: String, listener: ApiManager.BlogListener) {
-        bloggerApiDataSource.getBlogs(accessToken, listener)
+    fun requestAllBlog(
+        accessToken: String,
+        onResponse: (blogList: List<Blogs>?) -> Unit,
+        onErrorResponse: (code: Int, message: String) -> Unit,
+        onFailed: (t: Throwable) -> Unit
+    ) {
+        bloggerApiDataSource.getBlogs(accessToken, object :ApiManager.BlogListener {
+            override fun onResponse(blogList: List<Blogs>?) {
+                onResponse(blogList)
+            }
+
+            override fun onErrorResponse(code: Int, message: String) {
+                onErrorResponse(code, message)
+            }
+
+            override fun onFailed(t: Throwable) {
+                onFailed(t)
+            }
+        })
+    }
+
+    fun updateLastPostListRequest(blog: Blogs, now: Long) {
+        blog.updateLastRequest(now)
+        realmDataSource.saveBlogs(blog)
     }
 
     fun findAllLabels(blogId: String): ArrayList<String> = realmDataSource.findAllLabels(blogId)

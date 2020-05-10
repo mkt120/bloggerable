@@ -52,17 +52,15 @@ class LoginActivity : BaseActivity(), LoginContract.View {
         val realmDataSource = RealmDataSource(RealmManager(getRealm()))
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
         val getAccessToken = GetAccessToken(accountRepository)
-        val saveAllBlogs = SaveAllBlogs(blogsRepository)
         val getCurrentAccount =
             GetCurrentAccount(accountRepository)
-        val requestAllBlogs = RequestAllBlogs(getAccessToken, blogsRepository)
+        val getAllBlogs = GetAllBlog(getAccessToken, accountRepository, blogsRepository)
         presenter = LoginPresenter(
             this@LoginActivity,
             requestAccessToken,
-            saveAllBlogs,
             getCurrentAccount,
             authorizeGoogleAccount,
-            requestAllBlogs
+            getAllBlogs
         )
         presenter.initialize()
     }

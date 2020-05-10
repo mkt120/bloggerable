@@ -65,4 +65,10 @@ data class Account(
             accessToken
         }
     }
+
+    fun isExpiredBlogList(now: Long): Boolean = now - lastBlogListRequest > 24 * 60 * 60 * 1000L
+
+    fun updateLastBlogListRequest(now: Long) {
+        lastBlogListRequest = now
+    }
 }

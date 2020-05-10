@@ -1,21 +1,23 @@
 package com.mkt120.bloggerable.usecase
 
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.api.PostResponse
 import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
+import com.mkt120.bloggerable.repository.BlogRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 
-class RequestAllPosts(
+class GetAllPosts(
     private val getAccessToken: GetAccessToken,
-    private val postsRepository: PostsRepository
+    private val postsRepository: PostsRepository,
+    private val blogRepository: BlogRepository
 ) {
     fun execute(
         now: Long,
         userId: String,
         isDraft: Boolean,
         blog: Blogs,
-        listener: ApiManager.PostsListener
+        listener: PostsListener
     ) {
         val accessToken =
             getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
@@ -24,11 +26,11 @@ class RequestAllPosts(
                 }
 
                 override fun onErrorResponse(code: Int, message: String) {
-                    listener.onErrorResponse(code, message)
+                    listener.onError(message)
                 }
 
                 override fun onFailed(t: Throwable) {
-                    listener.onFailed(t)
+                    listener.onError(t.message!!)
                 }
             })
         accessToken?.let {
@@ -44,20 +46,23 @@ class RequestAllPosts(
         now: Long,
         accessToken: String,
         blog: Blogs,
-        listener: ApiManager.PostsListener
+        listener: PostsListener
     ) {
         postsRepository.requestLivePosts(accessToken, blog.id!!, object : ApiManager.PostsListener {
-            override fun onResponse(post: PostResponse?) {
-                blog.updateLastRequest(now)
-                listener.onResponse(post)
+            override fun onResponse(posts: List<Posts>?) {
+                posts?.let {
+                    postsRepository.savePosts(it, false)
+                    blogRepository.updateLastPostListRequest(blog, now)
+                }
+                listener.onComplete()
             }
 
             override fun onErrorResponse(code: Int, message: String) {
-                listener.onErrorResponse(code, message)
+                listener.onError(message)
             }
 
             override fun onFailed(t: Throwable) {
-                listener.onFailed(t)
+                listener.onError(t.message!!)
             }
         })
     }
@@ -66,24 +71,32 @@ class RequestAllPosts(
         now: Long,
         accessToken: String,
         blog: Blogs,
-        listener: ApiManager.PostsListener
+        listener: PostsListener
     ) {
         postsRepository.requestDraftPosts(
             accessToken,
             blog.id!!,
             object : ApiManager.PostsListener {
-                override fun onResponse(post: PostResponse?) {
-                    blog.updateLastRequest(now)
-                    listener.onResponse(post)
+                override fun onResponse(posts: List<Posts>?) {
+                    posts?.let {
+                        postsRepository.savePosts(it, true)
+                    }
+                    blogRepository.updateLastPostListRequest(blog, now)
+                    listener.onComplete()
                 }
 
                 override fun onErrorResponse(code: Int, message: String) {
-                    listener.onErrorResponse(code, message)
+                    listener.onError(message)
                 }
 
                 override fun onFailed(t: Throwable) {
-                    listener.onFailed(t)
+                    listener.onError(t.message!!)
                 }
             })
+    }
+
+    interface PostsListener {
+        fun onComplete()
+        fun onError(message: String)
     }
 }

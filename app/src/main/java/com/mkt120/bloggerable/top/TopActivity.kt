@@ -82,12 +82,11 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         val saveLastSelectBlogId = SaveCurrentBlogId(currentBlogIdRepository)
 
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
-        val saveAllPosts = SaveAllPosts(postsRepository)
         val findAllBlogs = FindAllBlog(blogsRepository)
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val getCurrentAccount = GetCurrentAccount(accountRepository)
         val getAccessToken = GetAccessToken(accountRepository)
-        val getAllPosts = RequestAllPosts(getAccessToken, postsRepository)
+        val getAllPosts = GetAllPosts(getAccessToken, postsRepository, blogsRepository)
         val getLabels = GetLabels(blogsRepository)
 
         presenter = TopPresenter(
@@ -96,7 +95,6 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
             saveLastSelectBlogId,
             findAllBlogs,
             getAllPosts,
-            saveAllPosts,
             getLabels
         )
         presenter.initialize()
