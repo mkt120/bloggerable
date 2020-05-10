@@ -5,16 +5,17 @@
     <item
         android:id="@+id/delete_posts"
         android:icon="@drawable/ic_delete_black_24dp"
-        app:showAsAction="always"
+        app:showAsAction="collapseActionView"
         android:title="@string/menu_delete_posts" />
 
     <item
         android:id="@+id/update_draft"
         android:icon="@drawable/ic_file_upload_black_24dp"
-        app:showAsAction="always"
+        app:showAsAction="collapseActionView"
         android:title="@string/menu_update_draft"/>
 
     <item
         android:id="@+id/publish_draft"
+        app:showAsAction="collapseActionView"
         android:title="@string/menu_publish" />
 </menu>
