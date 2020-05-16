@@ -17,8 +17,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.util.RealmManager
+import com.mkt120.bloggerable.datasource.BloggerApiDataSource
+import com.mkt120.bloggerable.datasource.PreferenceDataSource
+import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.repository.AccessTokenRepository
+import com.mkt120.bloggerable.repository.PostsRepository
+import com.mkt120.bloggerable.usecase.*
+import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlin.math.max
 import kotlin.math.min
@@ -82,8 +88,34 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
         val postsId = intent.getStringExtra(EXTRA_KEY_POSTS_ID)
         val requestCode = intent.getIntExtra(EXTRA_KEY_REQUEST_CODE, 0)
-        presenter = CreatePostsPresenter(RealmManager(getRealm()), this@CreatePostsActivity, blogId, postsId, requestCode)
-        presenter.onCreate()
+
+
+        val bloggerApiDataSource = BloggerApiDataSource()
+        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
+        val findPosts = FindPosts(postsRepository)
+        val preferenceDataSource = PreferenceDataSource()
+        val accessTokenRepository =
+            AccessTokenRepository(bloggerApiDataSource, preferenceDataSource)
+        val getAccessToken = GetAccessToken(accessTokenRepository)
+        val createPosts = CreatePosts(getAccessToken, postsRepository)
+        val updatePosts = UpdatePosts(getAccessToken, bloggerApiDataSource)
+        val revertPosts = RevertPosts(getAccessToken, postsRepository)
+        val publishPost = PublishPosts(getAccessToken, postsRepository)
+        val deletePosts = DeletePosts(getAccessToken, postsRepository)
+        presenter = CreatePostsPresenter(
+            this@CreatePostsActivity,
+            blogId,
+            postsId,
+            findPosts,
+            createPosts,
+            updatePosts,
+            revertPosts,
+            publishPost,
+            deletePosts,
+            requestCode
+        )
+        presenter.initialize()
 
         // タイトル
         when (requestCode) {

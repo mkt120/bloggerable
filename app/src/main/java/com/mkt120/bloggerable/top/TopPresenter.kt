@@ -7,37 +7,33 @@ import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.posts.PostsListFragment
+import com.mkt120.bloggerable.usecase.*
 import com.mkt120.bloggerable.util.PreferenceManager
-import com.mkt120.bloggerable.util.RealmManager
 
-class TopPresenter(private val realmManager: RealmManager, private val view: TopContract.TopView) :
+class TopPresenter(
+    private val view: TopContract.TopView,
+    private val getLastSelectBlogId: GetLastSelectBlogId,
+    private val saveLastSelectBlogId: SaveLastSelectBlogId,
+    private val findAllBlogs: FindAllBlogs,
+    private val getAllPosts: RequestAllPosts,
+    private val saveAllPosts: SaveAllPosts
+) :
     TopContract.TopPresenter {
 
     private lateinit var currentBlog: Blogs
 
-    override fun onCreate() {
-        val blogs = realmManager.findAllBlogs()
-        if (blogs != null) {
-            // todo: blogsが空
-            val blogId = PreferenceManager.lastSelectBlogId
-            if (blogId.isEmpty()) {
-                currentBlog = blogs[0]
-                PreferenceManager.lastSelectBlogId = currentBlog.id ?: ""
-            } else {
-                for (blog in blogs) {
-                    if (blogId == blog.id) {
-                        currentBlog = blog
-                        break
-                    }
-                }
-            }
-            view.setTitle(currentBlog.name!!)
-            view.onBindDrawer(blogs)
-            val posts = realmManager.findAllPosts(currentBlog.id!!, true)
-            if (posts == null) {
-                requestPosts(currentBlog)
-            }
+    override fun initialize() {
+        val blogs = findAllBlogs.execute()
+        if (blogs.isEmpty()) {
+            // todo:空
+            return
         }
+
+        val blogId = getLastSelectBlogId.execute()
+        currentBlog = blogs.find { it.id == blogId } ?: blogs[0]
+        view.setTitle(currentBlog.name!!)
+        view.onBindDrawer(blogs)
+        requestPosts(currentBlog)
     }
 
     override fun onClickFab() {
@@ -47,17 +43,12 @@ class TopPresenter(private val realmManager: RealmManager, private val view: Top
 
     override fun onClickBlog(blogs: Blogs) {
         currentBlog = blogs
-        PreferenceManager.lastSelectBlogId = currentBlog.id!!
+        saveLastSelectBlogId.execute(currentBlog.id!!)
         if (view.isDrawerOpen()) {
             view.closeDrawer()
         }
         view.setTitle(currentBlog.name!!)
-        val posts = realmManager.findAllPosts(currentBlog.id!!, true)
-        if (posts == null) {
-            requestPosts(currentBlog)
-        } else {
-            view.updateCurrentBlog(currentBlog.id!!)
-        }
+        requestPosts(currentBlog)
     }
 
     override fun onClickDrawerItem(itemsResId: Int) {
@@ -114,35 +105,31 @@ class TopPresenter(private val realmManager: RealmManager, private val view: Top
 
     private fun requestPosts(blogs: Blogs) {
         view.showProgress()
-        val blogId = blogs.id
-        ApiManager.getPosts(
-            blogId!!,
-            object : ApiManager.PostsListener {
-                override fun onResponse(posts: PostsResponse?) {
-                    posts?.let {
-                        if (it.items != null) {
-                            realmManager.addAllPosts(it.items!!.toList(), true)
-                            PreferenceManager.labelList = posts.createLabelList()
-                        }
-                        view.notifyDataSetChanged()
+        val blogId = blogs.id!!
+        getAllPosts.execute(false, blogId, object : ApiManager.PostsListener {
+            override fun onResponse(posts: PostsResponse?) {
+                posts?.let {
+                    if (it.items != null) {
+                        saveAllPosts.execute(it.items!!.toList(), false)
+                        PreferenceManager.labelList = posts.createLabelList()
                     }
-                    // todo: 待ち合わせ
-                    view.dismissProgress()
+                    view.notifyDataSetChanged()
                 }
-            })
-        ApiManager.getDraftPosts(
-            blogId,
-            object : ApiManager.PostsListener {
-                override fun onResponse(posts: PostsResponse?) {
-                    posts?.let {
-                        if (it.items != null) {
-                            realmManager.addAllPosts(it.items!!.toList(), false)
-                        }
-                        view.notifyDataSetChanged()
+                // todo: 待ち合わせ
+                view.dismissProgress()
+            }
+        })
+        getAllPosts.execute(true, blogId, object : ApiManager.PostsListener {
+            override fun onResponse(posts: PostsResponse?) {
+                posts?.let {
+                    if (it.items != null) {
+                        saveAllPosts.execute(it.items!!.toList(), true)
                     }
-                    // todo: 待ち合わせ
-                    view.dismissProgress()
+                    view.notifyDataSetChanged()
                 }
-            })
+                // todo: 待ち合わせ
+                view.dismissProgress()
+            }
+        })
     }
 }

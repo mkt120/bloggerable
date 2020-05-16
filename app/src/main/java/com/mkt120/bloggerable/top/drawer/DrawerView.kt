@@ -8,21 +8,28 @@ import android.view.View.OnClickListener
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.transition.TransitionManager
-import com.mkt120.bloggerable.util.PreferenceManager
 import com.mkt120.bloggerable.R
+import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
+import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.repository.GoogleAccountRepository
+import com.mkt120.bloggerable.usecase.GetGoogleAccount
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.include_drawer_view.view.*
 
 /**
  * ドロワーメニュー
  */
-class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, attr, 0) {
+class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, attr, 0),
+    DrawerContract.View {
+
     companion object {
         private val TAG = DrawerView::class.java.simpleName
     }
 
     constructor(context: Context) : this(context, null)
+
+    private var presenter: DrawerContract.Presenter
 
     init {
         View.inflate(context, R.layout.include_drawer_view, this)
@@ -35,8 +42,22 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
             place_holder.setContentId(view!!.id)
         }
         image_view_1.setOnClickListener(clickListener)
-        Picasso.get().load(PreferenceManager.photoUrl).into(image_view_1)
-        display_name_view.text = PreferenceManager.displayName
+
+        val preferenceDataSource = PreferenceDataSource()
+        val googleOauthApiDataSource = GoogleOauthApiDataSource(getContext())
+        val googleAccountRepository =
+            GoogleAccountRepository(preferenceDataSource, googleOauthApiDataSource)
+        val getGoogleAccount = GetGoogleAccount(googleAccountRepository)
+        presenter = DrawerPresenter(this@DrawerView, getGoogleAccount)
+        presenter.initialize()
+    }
+
+    override fun setName(name: String) {
+        display_name_view.text = name
+    }
+
+    override fun setImage(url: String) {
+        Picasso.get().load(url).into(image_view_1)
     }
 
     fun onBindData(

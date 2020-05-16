@@ -7,30 +7,67 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.util.RealmManager
 import com.mkt120.bloggerable.model.posts.Posts
-import io.realm.RealmList
+import com.mkt120.bloggerable.usecase.*
 import kotlin.math.max
 import kotlin.math.min
 
 class CreatePostsPresenter(
-    private val realmManager: RealmManager,
     private val view: CreatePostsContract.View,
     private val blogId: String,
     private val postsId: String? = null,
+    private val findPosts: FindPosts,
+    private val createPost: CreatePosts,
+    private val updatePost: UpdatePosts,
+    private val revertPosts: RevertPosts,
+    private val publishPosts: PublishPosts,
+    private val deletePosts: DeletePosts,
     private val requestCode: Int
 ) :
     CreatePostsContract.Presenter {
 
     init {
         postsId?.let {
-            posts = realmManager.findPosts(blogId, postsId)
+            posts = findPosts.execute(blogId, postsId)
         }
     }
 
     private val labelList = mutableListOf<String>()
     private var isExecuting = false
-    private var posts:Posts? = null
+    private var posts: Posts? = null
+
+    override fun initialize() {
+        posts?.let {
+            view.setBlogTitle(it.title)
+            view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_COMPACT))
+            it.labels?.let { labels ->
+                for (label in labels) {
+                    addLabel(label)
+                }
+            }
+        }
+    }
+
+    override fun onClickAddLabel(label: String) {
+        addLabel(label)
+    }
+
+    private fun addLabel(label: String) {
+        if (labelList.contains(label)) {
+            view.showToast("already inserted.")
+            return
+        }
+        if (label.isEmpty()) {
+            // 空のラベルは入れられない
+            return
+        }
+        labelList.add(label)
+        view.addLabel(label)
+    }
+
+    override fun onClickLabel(label: String) {
+        labelList.remove(label)
+    }
 
     /**
      * Italicを追加・削除する
@@ -207,39 +244,6 @@ class CreatePostsPresenter(
 
     }
 
-    override fun onCreate() {
-        posts?.let {
-            view.setBlogTitle(it.title)
-            view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_COMPACT))
-            it.labels?.let { labels ->
-                for (label in labels) {
-                    addLabel(label)
-                }
-            }
-        }
-    }
-
-    override fun onClickAddLabel(label: String) {
-        addLabel(label)
-    }
-
-    private fun addLabel(label: String) {
-        if (labelList.contains(label)) {
-            view.showToast("already inserted.")
-            return
-        }
-        if (label.isEmpty()) {
-            // 空のラベルは入れられない
-            return
-        }
-        labelList.add(label)
-        view.addLabel(label)
-    }
-
-    override fun onClickLabel(label: String) {
-        labelList.remove(label)
-    }
-
     override fun onBackPressed(title: String, content: String): Boolean {
         if (isExecuting) {
             return true
@@ -261,6 +265,9 @@ class CreatePostsPresenter(
         return false
     }
 
+    /**
+     * 記事として投稿する
+     */
     override fun onClickUploadAsPosts(
         title: String,
         content: Editable
@@ -279,6 +286,19 @@ class CreatePostsPresenter(
         }
     }
 
+    /**
+     * 下書きとして投稿する
+     */
+    override fun onClickUploadAsDraft(
+        title: String,
+        content: Editable
+    ) {
+        createPosts(true, title, content, labelList.toTypedArray())
+    }
+
+    /**
+     * 記事を更新する
+     */
     override fun onClickUpdatePosts(
         title: String,
         content: Editable
@@ -293,13 +313,9 @@ class CreatePostsPresenter(
         )
     }
 
-    override fun onClickUploadAsDraft(
-        title: String,
-        content: Editable
-    ) {
-        createPosts(true, title, content, labelList.toTypedArray())
-    }
-
+    /**
+     * 下書きに戻す
+     */
     override fun onClickRevertPosts(
         title: String,
         content: Editable
@@ -312,6 +328,14 @@ class CreatePostsPresenter(
             content = content,
             labels = labelList.toTypedArray()
         )
+    }
+
+    /**
+     * 記事の削除する
+     */
+    override fun onClickDeletePosts() {
+        val isDraft = requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT
+        deletePosts(isDraft)
     }
 
     /**
@@ -332,7 +356,7 @@ class CreatePostsPresenter(
         isExecuting = true
         view.showProgress()
         val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
-        ApiManager.createPosts(
+        createPost.execute(
             blogId,
             title,
             html,
@@ -380,15 +404,7 @@ class CreatePostsPresenter(
         }
         isExecuting = true
         view.showProgress()
-        val html = Html.toHtml(content, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL)
-        posts?.apply {
-            this.title = title
-            this.content = html
-            this.labels = RealmList<String>()
-            this.labels!!.addAll(labels!!)
-        }
-        ApiManager.updatePosts(
-            posts!!,
+        updatePost.execute(posts!!, title, content, labels,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     isExecuting = false
@@ -413,10 +429,13 @@ class CreatePostsPresenter(
             })
     }
 
+    /**
+     * 下書きに戻す
+     */
     private fun revertPosts(blogId: String, postsId: String) {
         isExecuting = true
         view.showProgress()
-        ApiManager.revertPosts(
+        revertPosts.execute(
             blogId,
             postsId,
             object : ApiManager.CompleteListener {
@@ -431,11 +450,12 @@ class CreatePostsPresenter(
             })
     }
 
+    /**
+     * 下書きを公開する
+     */
     private fun publishPosts(posts: Posts) {
         view.showProgress()
-        ApiManager.publishPosts(
-            posts.blog!!.id!!,
-            posts.id!!,
+        publishPosts.execute(blogId, posts.id!!,
             object : ApiManager.CompleteListener {
                 override fun onComplete() {
                     view.showToast("投稿を公開しました")
@@ -448,18 +468,13 @@ class CreatePostsPresenter(
             })
     }
 
-    override fun onClickDeletePosts() {
-        val isDraft = requestCode == CreatePostsActivity.REQUEST_EDIT_DRAFT
-        deletePosts(isDraft)
-    }
-
     /**
      * 投稿を削除する
      */
     private fun deletePosts(isDraft: Boolean) {
         view.showProgress()
         isExecuting = true
-        ApiManager.deletePosts(
+        deletePosts.execute(
             blogId,
             posts!!.id!!,
             object : ApiManager.CompleteListener {

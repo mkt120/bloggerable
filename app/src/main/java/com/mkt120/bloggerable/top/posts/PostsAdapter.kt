@@ -2,7 +2,6 @@ package com.mkt120.bloggerable.top.posts
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.mkt120.bloggerable.api.PostsResponse
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.top.posts.item.PostsItemViewHolder
 

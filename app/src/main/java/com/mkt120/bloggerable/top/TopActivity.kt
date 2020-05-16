@@ -10,15 +10,21 @@ import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import com.mkt120.bloggerable.BaseActivity
+import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.about.AboutAppActivity
 import com.mkt120.bloggerable.create.CreatePostsActivity
-import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.util.RealmManager
-import com.mkt120.bloggerable.api.BlogsResponse
-import com.mkt120.bloggerable.api.PostsResponse
+import com.mkt120.bloggerable.datasource.BloggerApiDataSource
+import com.mkt120.bloggerable.datasource.PreferenceDataSource
+import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.repository.AccessTokenRepository
+import com.mkt120.bloggerable.repository.BlogsRepository
+import com.mkt120.bloggerable.repository.LastSelectBlogIdRepository
+import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
+import com.mkt120.bloggerable.usecase.*
+import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_top.*
 
 class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract.TopView {
@@ -26,10 +32,9 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
     companion object {
         private const val EXTRA_KEY_BLOG_ID = "EXTRA_KEY_BLOG_ID"
 
-        fun createIntent(context: Context, blogsResponse: BlogsResponse): Intent =
+        fun createIntent(context: Context, blogId: String): Intent =
             Intent(context, TopActivity::class.java).apply {
-                val blog = blogsResponse.items
-                putExtra(EXTRA_KEY_BLOG_ID, blog!![0].id)
+                putExtra(EXTRA_KEY_BLOG_ID, blogId)
             }
     }
 
@@ -65,8 +70,37 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, TopContract
         drawer_layout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
 
-        presenter = TopPresenter(RealmManager(getRealm()), this@TopActivity)
-        presenter.onCreate()
+        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val preferenceDataSource = PreferenceDataSource()
+        val lastSelectBlogIdRepository = LastSelectBlogIdRepository(preferenceDataSource)
+
+        val bloggerApiDataSource = BloggerApiDataSource()
+        val blogsRepository =
+            BlogsRepository(
+                bloggerApiDataSource,
+                realmDataSource
+            )
+
+        val getLastSelectBlogId = GetLastSelectBlogId(lastSelectBlogIdRepository)
+        val saveLastSelectBlogId = SaveLastSelectBlogId(lastSelectBlogIdRepository)
+
+        val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
+        val saveAllPosts = SaveAllPosts(postsRepository)
+        val findAllBlogs = FindAllBlogs(blogsRepository)
+        val accessTokenRepository =
+            AccessTokenRepository(bloggerApiDataSource, preferenceDataSource)
+        val getAccessToken = GetAccessToken(accessTokenRepository)
+        val getAllPosts = RequestAllPosts(getAccessToken, postsRepository)
+
+        presenter = TopPresenter(
+            this@TopActivity,
+            getLastSelectBlogId,
+            saveLastSelectBlogId,
+            findAllBlogs,
+            getAllPosts,
+            saveAllPosts
+        )
+        presenter.initialize()
     }
 
     override fun setTitle(title: String) {

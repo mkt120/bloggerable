@@ -42,7 +42,7 @@ open class Posts(
     }
 
     companion object {
-        public fun createPosts(
+        fun createPosts(
             title: String,
             content: String,
             labels: Array<String>?

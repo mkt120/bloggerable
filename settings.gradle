@@ -1,2 +1,1 @@
-include ':app'
-rootProject.name='bloggerable'
+include ':app'; rootProject.name='bloggerable'

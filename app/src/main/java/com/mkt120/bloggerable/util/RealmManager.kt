@@ -13,30 +13,33 @@ class RealmManager(private val realm: Realm) {
         }
     }
 
-    fun addAllPosts(posts: List<Posts>, isPost: Boolean) {
-        posts.forEach { post ->  post.isPost = isPost }
+    fun addAllPosts(posts: List<Posts>, isDraft: Boolean) {
+        posts.forEach { post -> post.isPost = !isDraft }
         realm.executeTransaction {
             realm.insertOrUpdate(posts)
         }
     }
 
-    fun findAllBlogs(): MutableList<Blogs>? {
+    fun findAllBlogs(): MutableList<Blogs> {
         val blogsList = realm.where<Blogs>().findAll()
         if (blogsList != null) {
             return realm.copyFromRealm(blogsList)
         }
-        return null
+        return mutableListOf()
     }
-    fun findAllPosts(blogsId: String, isPost: Boolean): List<Posts>? {
-        val list = realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).findAll()
+
+    fun findAllPosts(blogsId: String, isPost: Boolean): List<Posts> {
+        val list =
+            realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).findAll()
         if (list != null) {
             return realm.copyFromRealm(list)
         }
-        return null
+        return listOf()
     }
 
     fun findPosts(blogsId: String, postsId: String): Posts? {
-        val posts = realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("id", postsId).findFirst()
+        val posts =
+            realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("id", postsId).findFirst()
         if (posts != null) {
             return realm.copyFromRealm(posts)
         }

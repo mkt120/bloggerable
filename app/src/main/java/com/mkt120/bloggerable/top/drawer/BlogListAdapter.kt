@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.api.BlogsResponse
 import com.mkt120.bloggerable.model.blogs.Blogs
 
 class BlogListAdapter(

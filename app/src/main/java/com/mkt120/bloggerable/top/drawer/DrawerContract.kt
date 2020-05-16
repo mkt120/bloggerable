@@ -4,6 +4,14 @@ import com.mkt120.bloggerable.model.blogs.Blogs
 
 interface DrawerContract {
 
+    interface View {
+        fun setName(name:String)
+        fun setImage(url:String)
+    }
+    interface Presenter {
+        fun initialize()
+    }
+
     interface BlogsItemView {
         fun setBlogName(name: String)
     }

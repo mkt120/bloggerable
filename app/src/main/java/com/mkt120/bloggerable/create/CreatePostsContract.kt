@@ -32,7 +32,7 @@ interface CreatePostsContract {
     }
 
     interface Presenter {
-        fun onCreate()
+        fun initialize()
         fun onBackPressed(title: String, content: String): Boolean
 
         fun onClickConfirmPositive(

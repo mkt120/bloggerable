@@ -2,115 +2,70 @@ package com.mkt120.bloggerable.login
 
 import android.content.Intent
 import android.util.Log
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
 import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.util.PreferenceManager
-import com.mkt120.bloggerable.util.RealmManager
-import com.mkt120.bloggerable.api.BlogsResponse
+import com.mkt120.bloggerable.model.blogs.Blogs
+import com.mkt120.bloggerable.usecase.AuthorizeGoogleAccount
+import com.mkt120.bloggerable.usecase.RequestAccessToken
+import com.mkt120.bloggerable.usecase.RequestAllBlogs
+import com.mkt120.bloggerable.usecase.SaveAllBlogs
 
 class LoginPresenter(
     private val view: LoginContract.View,
-    private val realmManager: RealmManager,
-    private val wrapper: LoginStaticWrapper
+    private val requestAccessToken: RequestAccessToken,
+    private val saveAllBlogs: SaveAllBlogs,
+    private val authorizeGoogleAccount: AuthorizeGoogleAccount,
+    private val requestAllBlogs: RequestAllBlogs
 ) : LoginContract.Presenter {
 
     companion object {
         private val TAG: String = LoginPresenter::class.java.simpleName
+        private const val REQUEST_SIGN_IN: Int = 100
     }
 
     override fun initialize() {
         Log.i(TAG, "initialize")
-        if (!wrapper.isExpiredDateMillis()) {
-            // 有効期限内トークン
-            requestBlogList()
+        val accessToken = authorizeGoogleAccount.getAccessToken()
+        if (accessToken.isEmpty()) {
+            view.showLoginButton()
             return
         }
-        // 有効期限切れでもリフレッシュトークンがあれば
-        val refreshToken = wrapper.refreshToken()
-        Log.i(TAG, "refreshToken=$refreshToken")
-        if (refreshToken.isNotEmpty()) {
-            // リフレッシュトークンがあるのでリフレッシュ
-            refreshToken()
-            return
-        }
-        view.showLoginButton()
+        requestAllBlogs()
     }
 
     override fun onClickSignIn() {
-        Log.i(TAG, "onClickSignIn")
-        // try to sign in
-        signInRequest()
-    }
-
-    private fun signInRequest() {
         Log.i(TAG, "signInRequest")
-        val signInIntent = wrapper.getClient()
-        view.requestSignIn(signInIntent, LoginActivity.REQUEST_SIGN_IN)
+        val signInIntent = authorizeGoogleAccount.getSignInIntent()
+        view.requestSignIn(signInIntent, REQUEST_SIGN_IN)
     }
 
+    /**
+     * サインイン処理完了後
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult")
-        if (requestCode == LoginActivity.REQUEST_SIGN_IN) {
-            val task = wrapper.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
-        }
-    }
+        if (requestCode == REQUEST_SIGN_IN) {
+            authorizeGoogleAccount.saveAccountInfo(data)
+            requestAccessToken.execute(data, object : RequestAccessToken.OnCompleteListener {
+                override fun onComplete() {
+                    requestAllBlogs()
+                }
 
-    private fun refreshToken() {
-        Log.i(TAG, "refreshToken")
-        val refreshToken = PreferenceManager.refreshToken
-        ApiManager.refreshToken(
-            "",
-            refreshToken,
-            object : ApiManager.Listener {
-                override fun onResponse() {
-                    requestBlogList()
+                override fun onErrorResponse(code: Int, message: String) {
+                    view.showError()
+                }
+
+                override fun onFailed(t: Throwable?) {
+                    view.showError()
                 }
             })
-    }
-
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-        Log.i(TAG, "handleSignInResult")
-        try {
-            val account: GoogleSignInAccount? =
-                completedTask.getResult(ApiException::class.java)
-            // Signed in successfully, show authenticated UI.
-            if (account != null) {
-                Log.d(TAG, "account.id=${account.id}")
-                Log.d(TAG, "account.displayName=${account.displayName}")
-                Log.d(TAG, "account=${account.grantedScopes}")
-                Log.d(TAG, "account.serverAuthCode=${account.serverAuthCode}")
-                Log.d(TAG, "account.url=${account.photoUrl}")
-                PreferenceManager.photoUrl = account.photoUrl.toString()
-                PreferenceManager.displayName = account.displayName.toString()
-                requestAccessToken(account)
-            }
-        } catch (e: ApiException) {
-            Log.w(TAG, "signInResult:failed code=${e.statusCode}", e)
         }
     }
-
-    private fun requestAccessToken(account: GoogleSignInAccount) {
-        Log.i(TAG, "requestAccessToken")
-        ApiManager.requestAccessToken(
-            account.serverAuthCode!!,
-            "",
-            object : ApiManager.Listener {
-                override fun onResponse() {
-                    requestBlogList()
-                }
-            })
-    }
-
-    private fun requestBlogList() {
-        Log.i(TAG, "requestBlogList")
-        ApiManager.getBlogs(object :
-            ApiManager.BlogListener {
-            override fun onResponse(blogsResponse: BlogsResponse?) {
-                realmManager.addAllBlogs(blogsResponse!!.items!!)
-                view.showBlogListScreen(blogsResponse)
+    fun requestAllBlogs() {
+        requestAllBlogs.execute(object :ApiManager.BlogListener {
+            override fun onResponse(blogList: List<Blogs>?) {
+                //todo: empty
+                saveAllBlogs.execute(blogList)
+                view.showBlogListScreen(blogList!![0].id!!)
             }
         })
     }

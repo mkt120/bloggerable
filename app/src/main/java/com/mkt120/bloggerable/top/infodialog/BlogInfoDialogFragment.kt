@@ -100,7 +100,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         return builder.create()
     }
 
-    class TitleView(context: Context, titleResId: Int) : AppCompatTextView(context) {
+    private class TitleView(context: Context, titleResId: Int) : AppCompatTextView(context) {
         init {
             val side = context.resources.getDimensionPixelSize(R.dimen.dialog_title_padding_side)
             setPadding(side, 0, side, 0)
@@ -109,7 +109,7 @@ class BlogInfoDialogFragment : DialogFragment() {
         }
     }
 
-    class ContentView(context: Context, content: String) : AppCompatTextView(context) {
+    private class ContentView(context: Context, content: String) : AppCompatTextView(context) {
         init {
             val side = context.resources.getDimensionPixelSize(R.dimen.dialog_content_padding_side)
             val top = context.resources.getDimensionPixelSize(R.dimen.dialog_content_padding_top)

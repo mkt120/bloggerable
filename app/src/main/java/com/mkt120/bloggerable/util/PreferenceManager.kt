@@ -31,10 +31,6 @@ object PreferenceManager {
         set(expiredMillis) = prefs.edit().putLong(KEY_ACCESS_EXPIRES_MILLIS, expiredMillis).apply()
         get() = prefs.getLong(KEY_ACCESS_EXPIRES_MILLIS, 0L)
 
-    fun isExpiredDateMillis() :Boolean {
-        return tokenExpiredDateMillis <= System.currentTimeMillis()
-    }
-
     var refreshToken: String
         set(refreshToken) = prefs.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply()
         get() = prefs.getString(KEY_REFRESH_TOKEN, "")!!

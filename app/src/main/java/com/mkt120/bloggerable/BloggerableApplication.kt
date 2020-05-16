@@ -21,7 +21,7 @@ class BloggerableApplication : Application() {
         realm = Realm.getDefaultInstance()
     }
 
-    public fun getRealm() :Realm {
+    fun getRealm() :Realm {
         return realm
     }
 }

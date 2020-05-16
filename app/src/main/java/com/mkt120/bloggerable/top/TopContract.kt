@@ -23,7 +23,7 @@ interface TopContract {
     }
 
     interface TopPresenter {
-        fun onCreate()
+        fun initialize()
         fun onClickFab()
         fun onClickBlog(blogs: Blogs)
         fun onClickDrawerItem(itemsResId: Int)

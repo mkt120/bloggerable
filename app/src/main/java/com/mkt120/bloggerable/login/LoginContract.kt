@@ -1,15 +1,16 @@
 package com.mkt120.bloggerable.login
 
 import android.content.Intent
-import com.mkt120.bloggerable.api.BlogsResponse
 
 interface LoginContract {
 
     interface View {
         fun showLoginButton()
-        fun showBlogListScreen(blogsResponse: BlogsResponse?)
+        fun showBlogListScreen(blogId: String)
+        fun showError()
         fun requestSignIn(intent: Intent, requestCode: Int)
     }
+
     interface Presenter {
         fun initialize()
         fun onClickSignIn()

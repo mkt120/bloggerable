@@ -22,8 +22,8 @@ class PostsListFragment : Fragment(),
         private val TAG = PostsListFragment::class.java.simpleName
         private const val EXTRA_BLOGS_ID = "EXTRA_BLOGS_ID"
         private const val EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE"
-        public const val LIST_POSTS = 1
-        public const val LIST_DRAFT = 2
+        const val LIST_POSTS = 1
+        const val LIST_DRAFT = 2
         fun newInstance(blogId: String, listType: Int): PostsListFragment =
             PostsListFragment().apply {
                 val bundle = Bundle().apply {
