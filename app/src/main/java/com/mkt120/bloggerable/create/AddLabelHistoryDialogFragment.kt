@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import com.mkt120.bloggerable.util.PreferenceManager
 import com.mkt120.bloggerable.R
 
 class AddLabelHistoryDialogFragment : DialogFragment() {

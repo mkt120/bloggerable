@@ -7,7 +7,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 import com.mkt120.bloggerable.R
-import com.mkt120.bloggerable.top.posts.PostsListContract
 import com.mkt120.bloggerable.top.posts.PostsListFragment
 
 /**
