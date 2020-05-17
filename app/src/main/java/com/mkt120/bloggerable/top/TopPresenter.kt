@@ -23,7 +23,6 @@ class TopPresenter(
 
     companion object {
         private val TAG = TopPresenter::class.java.simpleName
-        private const val CODE_ERROR_ON_FAILED = -99
         private const val URL_BLOGGER = "https://www.blogger.com/"
     }
 
@@ -159,37 +158,12 @@ class TopPresenter(
     private fun requestPosts(userId: String, blog: Blogs) {
         // 記事一覧取得
         view.showProgress()
-        getAllPosts.execute(
-            System.currentTimeMillis(),
-            userId,
-            false,
-            blog,
-            object : GetAllPosts.PostsListener {
-                override fun onComplete() {
-                    view.dismissProgress()
-                    view.notifyDataSetChanged()
-                }
-
-                override fun onError(message: String) {
-                    view.dismissProgress()
-                    view.showError()
-                }
-            })
-        getAllPosts.execute(
-            System.currentTimeMillis(),
-            userId,
-            true,
-            blog,
-            object : GetAllPosts.PostsListener {
-                override fun onComplete() {
-                    view.dismissProgress()
-                    view.notifyDataSetChanged()
-                }
-
-                override fun onError(message: String) {
-                    view.dismissProgress()
-                    view.showError()
-                }
-            })
+        getAllPosts.execute(System.currentTimeMillis(), userId, blog, {
+            view.dismissProgress()
+            view.notifyDataSetChanged()
+        }, {
+            view.dismissProgress()
+            view.showError()
+        })
     }
 }

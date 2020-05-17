@@ -1,8 +1,7 @@
 package com.mkt120.bloggerable.usecase
 
-import com.mkt120.bloggerable.ApiManager
-import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.PostsRepository
+import io.reactivex.Completable
 
 class CreatePosts(
     private val getAccessToken: GetAccessToken,
@@ -15,23 +14,13 @@ class CreatePosts(
         html: String,
         labels: Array<String>?,
         draft: Boolean,
-        completeListener: ApiManager.CompleteListener
+        onComplete: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        val accessToken =
-            getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
-                override fun onRefresh() {
-                    execute(userId, blogId, title, html, labels, draft, completeListener)
-                }
-                override fun onErrorResponse(code: Int, message: String) {
-                    completeListener.onErrorResponse(code, message)
-                }
-                override fun onFailed(t: Throwable) {
-                    completeListener.onFailed(t)
-                }
-            })
-        accessToken?.let {
-            createPost(accessToken, blogId, title, html, labels, draft, completeListener)
-        }
+
+        getAccessToken.execute(userId).flatMapCompletable { accessToken ->
+            createPost(accessToken, blogId, title, html, labels, draft)
+        }.subscribe(onComplete, onError)
     }
 
     private fun createPost(
@@ -40,17 +29,15 @@ class CreatePosts(
         title: String,
         html: String,
         labels: Array<String>?,
-        draft: Boolean,
-        completeListener: ApiManager.CompleteListener
-    ) {
-        postsRepository.createPosts(
+        draft: Boolean
+    ): Completable {
+        return postsRepository.createPosts(
             accessToken,
             blogId,
             title,
             html,
             labels,
-            draft,
-            completeListener
+            draft
         )
     }
 }

@@ -53,22 +53,12 @@ class LoginPresenter(
         Log.i(TAG, "onActivityResult")
         if (requestCode == REQUEST_SIGN_IN) {
             view.showProgress()
-            requestAccessToken.execute(data, object : RequestAccessToken.OnCompleteListener {
-                override fun onComplete() {
-                    Log.d(TAG, "requestAccessToken onComplete")
-                    requestAllBlogs()
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    Log.d(TAG, "requestAccessToken onErrorResponse")
-                    view.dismissProgress()
-                    view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    view.dismissProgress()
-                    view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR)
-                }
+            requestAccessToken.execute(data, {
+                Log.d(TAG, "requestAccessToken onComplete")
+                requestAllBlogs()
+            }, {
+                view.dismissProgress()
+                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR)
             })
         }
     }
@@ -87,17 +77,12 @@ class LoginPresenter(
         val currentAccount = getCurrentAccount.execute()!!
         getAllBlogs.execute(
             System.currentTimeMillis(),
-            currentAccount,
-            object : GetAllBlog.OnCompleteListener {
-                override fun onComplete() {
-                    view.dismissProgress()
-                    view.showBlogListScreen()
-                }
-
-                override fun onFailed() {
-                    view.dismissProgress()
-                    view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
-                }
+            currentAccount, {
+                view.dismissProgress()
+                view.showBlogListScreen()
+            }, {
+                view.dismissProgress()
+                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
             })
     }
 }

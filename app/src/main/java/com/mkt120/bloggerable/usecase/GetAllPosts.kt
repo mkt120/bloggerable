@@ -1,11 +1,12 @@
 package com.mkt120.bloggerable.usecase
 
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.BlogRepository
 import com.mkt120.bloggerable.repository.PostsRepository
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class GetAllPosts(
     private val getAccessToken: GetAccessToken,
@@ -15,88 +16,27 @@ class GetAllPosts(
     fun execute(
         now: Long,
         userId: String,
-        isDraft: Boolean,
         blog: Blogs,
-        listener: PostsListener
+        onComplete: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        val accessToken =
-            getAccessToken.execute(userId, object : AccountRepository.OnRefreshListener {
-                override fun onRefresh() {
-                    execute(now, userId, isDraft, blog, listener)
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    listener.onError(message)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    listener.onError(t.message!!)
-                }
-            })
-        accessToken?.let {
-            if (isDraft) {
-                getDraftPosts(now, accessToken, blog, listener)
-            } else {
-                getLivePosts(now, accessToken, blog, listener)
-            }
-        }
-    }
-
-    private fun getLivePosts(
-        now: Long,
-        accessToken: String,
-        blog: Blogs,
-        listener: PostsListener
-    ) {
-        postsRepository.requestLivePosts(accessToken, blog.id!!, object : ApiManager.PostsListener {
-            override fun onResponse(posts: List<Posts>?) {
-                posts?.let {
-                    postsRepository.savePosts(it, false)
+        getAccessToken.execute(userId).toObservable()
+            .flatMap { accessToken -> requestAllPosts(blog, accessToken) }.subscribe({ pair ->
+                val items = pair.first
+                items?.let {
+                    postsRepository.savePosts(it, pair.second)
                     blogRepository.updateLastPostListRequest(blog, now)
                 }
-                listener.onComplete()
-            }
-
-            override fun onErrorResponse(code: Int, message: String) {
-                listener.onError(message)
-            }
-
-            override fun onFailed(t: Throwable) {
-                listener.onError(t.message!!)
-            }
-        })
+            }, onError, onComplete)
     }
 
-    private fun getDraftPosts(
-        now: Long,
-        accessToken: String,
+    private fun requestAllPosts(
         blog: Blogs,
-        listener: PostsListener
-    ) {
-        postsRepository.requestDraftPosts(
-            accessToken,
-            blog.id!!,
-            object : ApiManager.PostsListener {
-                override fun onResponse(posts: List<Posts>?) {
-                    posts?.let {
-                        postsRepository.savePosts(it, true)
-                    }
-                    blogRepository.updateLastPostListRequest(blog, now)
-                    listener.onComplete()
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    listener.onError(message)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    listener.onError(t.message!!)
-                }
-            })
-    }
-
-    interface PostsListener {
-        fun onComplete()
-        fun onError(message: String)
+        accessToken: String
+    ): Observable<Pair<List<Posts>?, Boolean>> {
+        val live = postsRepository.requestLivePosts(accessToken, blog.id!!)
+        val draft = postsRepository.requestDraftPosts(accessToken, blog.id!!)
+        return Observable.merge(live.toObservable(), draft.toObservable())
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
     }
 }

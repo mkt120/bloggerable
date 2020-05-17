@@ -1,10 +1,11 @@
 package com.mkt120.bloggerable.repository
 
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
+import io.reactivex.Completable
+import io.reactivex.Single
 
 class PostsRepository(
     private val bloggerApiDataSource: BloggerApiDataSource,
@@ -13,18 +14,16 @@ class PostsRepository(
 
     fun requestLivePosts(
         accessToken: String,
-        blogId: String,
-        postsListener: ApiManager.PostsListener
-    ) {
-        bloggerApiDataSource.requestPostsList(accessToken, blogId, postsListener)
+        blogId: String
+    ): Single<Pair<List<Posts>?, Boolean>> {
+        return bloggerApiDataSource.requestPostsList(accessToken, blogId)
     }
 
     fun requestDraftPosts(
         accessToken: String,
-        blogId: String,
-        postsListener: ApiManager.PostsListener
-    ) {
-        bloggerApiDataSource.requestDraftPostsList(accessToken, blogId, postsListener)
+        blogId: String
+    ): Single<Pair<List<Posts>?, Boolean>> {
+        return bloggerApiDataSource.requestDraftPostsList(accessToken, blogId)
     }
 
     fun createPosts(
@@ -33,17 +32,15 @@ class PostsRepository(
         title: String,
         html: String,
         labels: Array<String>?,
-        draft: Boolean,
-        completeListener: ApiManager.CompleteListener
-    ) {
-        bloggerApiDataSource.createPosts(
+        draft: Boolean
+    ): Completable {
+        return bloggerApiDataSource.createPosts(
             accessToken,
             blogId,
             title,
             html,
             labels,
-            draft,
-            completeListener
+            draft
         )
     }
 
@@ -60,28 +57,25 @@ class PostsRepository(
     fun revertPosts(
         accessToken: String,
         blogId: String,
-        postsId: String,
-        listener: ApiManager.CompleteListener
-    ) {
-        bloggerApiDataSource.revertPosts(accessToken, blogId, postsId, listener)
+        postsId: String
+    ) :Completable {
+        return bloggerApiDataSource.revertPosts(accessToken, blogId, postsId)
     }
 
     fun publishPosts(
         accessToken: String,
         blogsId: String,
-        postsId: String,
-        listener: ApiManager.CompleteListener
-    ) {
-        bloggerApiDataSource.publishPosts(accessToken, blogsId, postsId, listener)
+        postsId: String
+    ) :Completable {
+        return bloggerApiDataSource.publishPosts(accessToken, blogsId, postsId)
     }
 
     fun deletePosts(
         accessToken: String,
         blogId: String,
-        postsId: String,
-        listener: ApiManager.CompleteListener
-    ) {
-        bloggerApiDataSource.deletePosts(accessToken, blogId, postsId, listener)
+        postsId: String
+    ) :Completable {
+        return bloggerApiDataSource.deletePosts(accessToken, blogId, postsId)
     }
 
     fun deletePosts(

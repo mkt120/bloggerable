@@ -4,6 +4,8 @@ import android.util.Log
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.BlogRepository
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class GetAllBlog(
     private val getAccessToken: GetAccessToken,
@@ -15,37 +17,16 @@ class GetAllBlog(
         private val TAG = GetAllBlog::class.java.simpleName
     }
 
-    fun execute(now: Long, account: Account, listener: OnCompleteListener) {
-        val accessToken =
-            getAccessToken.execute(account.getId(), object : AccountRepository.OnRefreshListener {
-                override fun onRefresh() {
-                    execute(now, account, listener)
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    listener.onFailed()
-                }
-
-                override fun onFailed(t: Throwable) {
-                    listener.onFailed()
-                }
-            })
-
-        accessToken?.let {
-            requestAllBlogs(now, account, accessToken, listener)
-        }
-    }
-
-
-    private fun requestAllBlogs(
+    fun execute(
         now: Long,
         account: Account,
-        accessToken: String,
-        listener: OnCompleteListener
+        onComplete: () -> Unit,
+        onFailed: (Throwable) -> Unit
     ) {
-        blogsRepository.requestAllBlog(
-            accessToken,
-            { blogList ->
+        getAccessToken.execute(account.getId()).flatMap { accessToken ->
+            blogsRepository.requestAllBlog(accessToken)
+        }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ blogList ->
                 Log.d(TAG, "requestAllBlogs onResponse")
                 blogList?.let {
                     blogsRepository.saveAllBlog(it)
@@ -53,21 +34,7 @@ class GetAllBlog(
                         accountRepository.updateLastBlogListRequest(account, now)
                     }
                 }
-                listener.onComplete()
-            },
-            { code, message ->
-                Log.d(TAG, "requestAllBlogs onError code=$code, message=$message")
-                listener.onFailed()
-            },
-            { t ->
-                Log.d(TAG, "requestAllBlogs onFailed", t)
-                listener.onFailed()
-            }
-        )
-    }
-
-    interface OnCompleteListener {
-        fun onComplete()
-        fun onFailed()
+                onComplete()
+            }, onFailed)
     }
 }

@@ -1,9 +1,9 @@
 package com.mkt120.bloggerable.repository
 
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
+import io.reactivex.Single
 
 class BlogRepository(
     private val bloggerApiDataSource: BloggerApiDataSource,
@@ -17,24 +17,9 @@ class BlogRepository(
     }
 
     fun requestAllBlog(
-        accessToken: String,
-        onResponse: (blogList: List<Blogs>?) -> Unit,
-        onErrorResponse: (code: Int, message: String) -> Unit,
-        onFailed: (t: Throwable) -> Unit
-    ) {
-        bloggerApiDataSource.getBlogs(accessToken, object :ApiManager.BlogListener {
-            override fun onResponse(blogList: List<Blogs>?) {
-                onResponse(blogList)
-            }
-
-            override fun onErrorResponse(code: Int, message: String) {
-                onErrorResponse(code, message)
-            }
-
-            override fun onFailed(t: Throwable) {
-                onFailed(t)
-            }
-        })
+        accessToken: String
+    ): Single<List<Blogs>?> {
+        return bloggerApiDataSource.getBlogs(accessToken).map { response -> response.items }
     }
 
     fun updateLastPostListRequest(blog: Blogs, now: Long) {

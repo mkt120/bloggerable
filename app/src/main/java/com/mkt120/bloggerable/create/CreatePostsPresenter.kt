@@ -6,7 +6,6 @@ import android.text.Html
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.Log
-import com.mkt120.bloggerable.ApiManager
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.posts.Posts
@@ -443,7 +442,6 @@ class CreatePostsPresenter(
             view.showMessage(R.string.toast_error_create_posts_no_title)
             return
         }
-
         isExecuting = true
         view.showProgress()
         createPost.execute(
@@ -453,33 +451,24 @@ class CreatePostsPresenter(
             html,
             labels,
             isDraft,
-            object : ApiManager.CompleteListener {
-                override fun onComplete() {
-                    isExecuting = false
-                    val messageResId: Int = if (isDraft) {
-                        R.string.toast_create_draft_success
-                    } else {
-                        R.string.toast_create_posts_success
-                    }
-                    view.showMessage(messageResId)
-                    val result = if (isDraft) {
-                        CreatePostsActivity.RESULT_DRAFT_UPDATE
-                    } else {
-                        CreatePostsActivity.RESULT_POSTS_UPDATE
-                    }
-                    view.onComplete(result)
+            {
+                isExecuting = false
+                val messageResId: Int = if (isDraft) {
+                    R.string.toast_create_draft_success
+                } else {
+                    R.string.toast_create_posts_success
                 }
+                view.showMessage(messageResId)
+                val result = if (isDraft) {
+                    CreatePostsActivity.RESULT_DRAFT_UPDATE
+                } else {
+                    CreatePostsActivity.RESULT_POSTS_UPDATE
+                }
+                view.onComplete(result)
 
-                override fun onErrorResponse(code: Int, message: String) {
-                    //todo:
-                    isExecuting = false
-                    view.showMessage(R.string.toast_create_posts_failed)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_create_posts_failed)
-                }
+            }, {
+                isExecuting = false
+                view.showMessage(R.string.toast_create_posts_failed)
             })
     }
 
@@ -502,35 +491,25 @@ class CreatePostsPresenter(
         }
         isExecuting = true
         view.showProgress()
-        updatePost.execute(userId, posts!!, title, html, labels,
-            object : ApiManager.CompleteListener {
-                override fun onComplete() {
-                    isExecuting = false
-                    when {
-                        isPublish -> publishPosts(userId, posts!!)
-                        isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
-                        else -> {
-                            view.showMessage(R.string.toast_success_update_posts)
-                            val result = if (isDraft) {
-                                CreatePostsActivity.RESULT_DRAFT_UPDATE
-                            } else {
-                                CreatePostsActivity.RESULT_POSTS_UPDATE
-                            }
-                            view.onComplete(result)
-                        }
+        updatePost.execute(userId, posts!!, title, html, labels, {
+            isExecuting = false
+            when {
+                isPublish -> publishPosts(userId, posts!!)
+                isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
+                else -> {
+                    view.showMessage(R.string.toast_success_update_posts)
+                    val result = if (isDraft) {
+                        CreatePostsActivity.RESULT_DRAFT_UPDATE
+                    } else {
+                        CreatePostsActivity.RESULT_POSTS_UPDATE
                     }
+                    view.onComplete(result)
                 }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_create_posts_failed)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_create_posts_failed)
-                }
-            })
+            }
+        }, {
+            isExecuting = false
+            view.showMessage(R.string.toast_create_posts_failed)
+        })
     }
 
     /**
@@ -543,20 +522,14 @@ class CreatePostsPresenter(
             userId,
             blogId,
             postsId,
-            object : ApiManager.CompleteListener {
-                override fun onComplete() {
-                    isExecuting = false
-                    view.showMessage("投稿を下書きに戻しました")
-                    view.onComplete(CreatePostsActivity.RESULT_DRAFT_UPDATE)
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    isExecuting = false
-                }
-
-                override fun onFailed(t: Throwable) {
-                    isExecuting = false
-                }
+            {
+                isExecuting = false
+                view.showMessage("投稿を下書きに戻しました")
+                view.onComplete(CreatePostsActivity.RESULT_DRAFT_UPDATE)
+            }, {
+                isExecuting = false
+                //todo:エラー
+                view.showMessage("エラー")
             })
     }
 
@@ -565,24 +538,14 @@ class CreatePostsPresenter(
      */
     private fun publishPosts(userId: String, posts: Posts) {
         view.showProgress()
-        publishPosts.execute(userId, blogId, posts.id!!,
-            object : ApiManager.CompleteListener {
-                override fun onComplete() {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_publish_posts_success)
-                    view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_create_posts_failed)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_create_posts_failed)
-                }
-            })
+        publishPosts.execute(userId, blogId, posts.id!!, {
+            isExecuting = false
+            view.showMessage(R.string.toast_publish_posts_success)
+            view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
+        }, {
+            isExecuting = false
+            view.showMessage(R.string.toast_create_posts_failed)
+        })
     }
 
     /**
@@ -591,33 +554,19 @@ class CreatePostsPresenter(
     private fun deletePosts(userId: String, isDraft: Boolean) {
         view.showProgress()
         isExecuting = true
-        deletePosts.execute(
-            userId,
-            blogId,
-            posts!!.id!!,
-            object : ApiManager.CompleteListener {
-                override fun onComplete() {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_success_delete_posts)
-                    val result = if (isDraft) {
-                        CreatePostsActivity.RESULT_DRAFT_UPDATE
-                    } else {
-                        CreatePostsActivity.RESULT_POSTS_UPDATE
-                    }
-                    view.onComplete(result)
-                }
-
-                override fun onErrorResponse(code: Int, message: String) {
-                    isExecuting = false
-                    //todo:
-                    view.showMessage(R.string.toast_failed_delete_posts)
-                }
-
-                override fun onFailed(t: Throwable) {
-                    isExecuting = false
-                    view.showMessage(R.string.toast_failed_delete_posts)
-                }
-            })
+        deletePosts.execute(userId, blogId, posts!!.id!!, {
+            isExecuting = false
+            view.showMessage(R.string.toast_success_delete_posts)
+            val result = if (isDraft) {
+                CreatePostsActivity.RESULT_DRAFT_UPDATE
+            } else {
+                CreatePostsActivity.RESULT_POSTS_UPDATE
+            }
+            view.onComplete(result)
+        }, {
+            isExecuting = false
+            view.showMessage(R.string.toast_failed_delete_posts)
+        })
     }
 
     // endregion

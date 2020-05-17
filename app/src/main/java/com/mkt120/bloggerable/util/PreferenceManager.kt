@@ -42,7 +42,7 @@ object PreferenceManager {
     fun getAccounts(): ArrayList<Account> {
         val json = prefs.getString(KEY_ACCOUNTS, null) ?: return arrayListOf()
         val typeToken = object : TypeToken<ArrayList<Account>>() {}
-        return Gson().fromJson<ArrayList<Account>>(json, typeToken.type)
+        return Gson().fromJson(json, typeToken.type)
     }
 
     fun saveAccount(

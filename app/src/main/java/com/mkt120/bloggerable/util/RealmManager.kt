@@ -61,7 +61,7 @@ class RealmManager(private val realm: Realm) {
         for (post in posts) {
             labels.addAll(post.labels!!)
         }
-        return ArrayList<String>(labels.toHashSet())
+        return ArrayList(labels.toHashSet())
     }
 
     fun deletePosts(blogsId: String, postsId: String) {
