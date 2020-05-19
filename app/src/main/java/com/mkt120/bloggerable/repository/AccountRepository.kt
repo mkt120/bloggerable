@@ -36,7 +36,7 @@ class AccountRepository(
         return Single.create { emitter ->
             val account = getAccount(id)
             val token = account?.getAccessToken(now)
-            if (token == null) {
+            if (token == null || token.isEmpty()) {
                 emitter.onError(Exception("access token is expired."))
             } else {
                 emitter.onSuccess(token)
@@ -56,13 +56,13 @@ class AccountRepository(
      */
     fun requestRefresh(userId: String, refreshToken: String): Single<String> {
         return Single.create { emitter ->
-            bloggerApiDataSource.refreshAccessToken(refreshToken).subscribe { response ->
+            bloggerApiDataSource.refreshAccessToken(refreshToken).subscribe({ response ->
                 // アクセストークン
                 val accessToken = response.access_token!!
                 val expiresIn = System.currentTimeMillis() + response.expires_in!! * 1000L
                 preferenceDataSource.saveAccessToken(userId, accessToken, refreshToken, expiresIn)
                 emitter.onSuccess(accessToken)
-            }
+            }, { t -> emitter.onError(t) })
         }
     }
 
