@@ -523,10 +523,7 @@ class CreatePostsPresenter(
     private fun revertPosts(userId: String, blogId: String, postsId: String) {
         isExecuting = true
         view.showProgress()
-        revertPosts.execute(
-            userId,
-            blogId,
-            postsId,
+        revertPosts.execute(System.currentTimeMillis(), userId, blogId, postsId).subscribe(
             {
                 isExecuting = false
                 view.showMessage("投稿を下書きに戻しました")
