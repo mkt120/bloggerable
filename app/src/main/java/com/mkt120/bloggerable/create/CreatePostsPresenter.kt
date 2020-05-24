@@ -540,7 +540,7 @@ class CreatePostsPresenter(
      */
     private fun publishPosts(userId: String, posts: Posts) {
         view.showProgress()
-        publishPosts.execute(userId, blogId, posts.id!!, {
+        publishPosts.execute(System.currentTimeMillis(), userId, blogId, posts.id!!).subscribe({
             isExecuting = false
             view.showMessage(R.string.toast_publish_posts_success)
             view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
