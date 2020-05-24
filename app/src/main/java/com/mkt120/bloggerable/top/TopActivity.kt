@@ -27,7 +27,6 @@ import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.BlogRepository
-import com.mkt120.bloggerable.repository.CurrentBlogIdRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
 import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
@@ -63,17 +62,14 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
 
         val realmDataSource = RealmDataSource(RealmManager(getRealm()))
         val preferenceDataSource = PreferenceDataSource()
-        val currentBlogIdRepository = CurrentBlogIdRepository(preferenceDataSource)
 
         val bloggerApiDataSource = BloggerApiDataSource()
-        val blogsRepository =
-            BlogRepository(bloggerApiDataSource, realmDataSource)
-
-        val saveLastSelectBlogId = SaveCurrentBlogId(currentBlogIdRepository)
+        val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
 
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findAllBlogs = FindAllBlog(blogsRepository)
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val saveCurrentAccount = SaveCurrentAccount(accountRepository)
         val getCurrentAccount = GetCurrentAccount(accountRepository)
         val getAccessToken = GetAccessToken(accountRepository)
         val getAllPosts = GetAllPosts(getAccessToken, postsRepository, blogsRepository)
@@ -82,7 +78,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         presenter = TopPresenter(
             this@TopActivity,
             getCurrentAccount,
-            saveLastSelectBlogId,
+            saveCurrentAccount,
             findAllBlogs,
             getAllPosts,
             getLabels
