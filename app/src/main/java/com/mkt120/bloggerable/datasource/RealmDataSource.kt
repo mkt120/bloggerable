@@ -71,12 +71,12 @@ class RealmDataSource(private val realm: Realm) : DataSource.IRealmDataSource {
         }
     }
 
-    override fun findAllLabels(blogId: String): ArrayList<String> {
+    override fun findAllLabels(blogId: String): List<String> {
         val posts = realm.where<Posts>().equalTo("blog.id", blogId).findAll()
         val labels = mutableListOf<String>()
         for (post in posts) {
             labels.addAll(post.labels!!)
         }
-        return ArrayList(labels.toHashSet())
+        return labels.toHashSet().toList()
     }
 }

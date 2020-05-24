@@ -149,7 +149,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         return drawer_layout.isDrawerOpen(drawer_view)
     }
 
-    override fun showCreateScreen(blogId: String, labels: ArrayList<String>) {
+    override fun showCreateScreen(blogId: String, labels: List<String>) {
         val intent = CreatePostsActivity.createIntent(
             this@TopActivity,
             blogId,
@@ -161,7 +161,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         )
     }
 
-    override fun showEditScreen(posts: Posts, labels: ArrayList<String>, isDraft: Boolean) {
+    override fun showEditScreen(posts: Posts, labels: List<String>, isDraft: Boolean) {
         val i = CreatePostsActivity.createPostsIntent(
             this@TopActivity,
             posts,

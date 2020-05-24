@@ -31,6 +31,6 @@ class BlogRepository(
         realmDataSource.saveBlogs(blog)
     }
 
-    override fun findAllLabels(blogId: String): ArrayList<String> =
+    override fun findAllLabels(blogId: String): List<String> =
         realmDataSource.findAllLabels(blogId)
 }

@@ -9,10 +9,10 @@ import com.mkt120.bloggerable.R
 class AddLabelHistoryDialogFragment : DialogFragment() {
     companion object {
         private const val EXTRA_KEY_LABELS = "EXTRA_KEY_LABELS"
-        fun newInstance(labels:ArrayList<String>): AddLabelHistoryDialogFragment =
+        fun newInstance(labels:List<String>): AddLabelHistoryDialogFragment =
             AddLabelHistoryDialogFragment().apply {
                 val bundle = Bundle()
-                bundle.putStringArrayList(EXTRA_KEY_LABELS, labels)
+                bundle.putStringArrayList(EXTRA_KEY_LABELS, ArrayList(labels))
                 arguments = bundle
             }
     }

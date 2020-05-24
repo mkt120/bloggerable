@@ -87,7 +87,7 @@ interface Repository {
         ): Single<List<Blogs>?>
 
         fun updateLastPostListRequest(blog: Blogs, now: Long)
-        fun findAllLabels(blogId: String): ArrayList<String>
+        fun findAllLabels(blogId: String): List<String>
     }
 
     interface IGoogleAccountRepository {
