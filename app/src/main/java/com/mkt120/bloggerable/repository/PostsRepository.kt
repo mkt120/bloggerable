@@ -84,7 +84,5 @@ class PostsRepository(
     override fun deletePosts(
         blogId: String,
         postsId: String
-    ) {
-        realmDataSource.deletePosts(blogId, postsId)
-    }
+    ): Completable = realmDataSource.deletePosts(blogId, postsId)
 }

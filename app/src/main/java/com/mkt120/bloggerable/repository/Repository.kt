@@ -76,7 +76,7 @@ interface Repository {
         fun deletePosts(
             blogId: String,
             postsId: String
-        )
+        ): Completable
     }
 
     interface IBlogRepository {

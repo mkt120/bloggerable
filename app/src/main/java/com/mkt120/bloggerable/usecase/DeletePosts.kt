@@ -1,6 +1,7 @@
 package com.mkt120.bloggerable.usecase
 
 import com.mkt120.bloggerable.repository.Repository
+import io.reactivex.Completable
 
 class DeletePosts(
     private val getAccessToken: UseCase.IGetAccessToken,
@@ -10,18 +11,15 @@ class DeletePosts(
         userId: String,
         blogId: String,
         postsId: String,
-        onComplete: () -> Unit,
-        onFailed: (Throwable) -> Unit
-    ) {
-        getAccessToken.execute(userId, System.currentTimeMillis()).flatMapCompletable { accessToken ->
-            postsRepository.deletePosts(
-                accessToken,
-                blogId,
-                postsId
-            )
-        }.subscribe({
-            postsRepository.deletePosts(blogId, postsId)
-            onComplete()
-        }, onFailed)
+        now: Long
+    ): Completable {
+        return getAccessToken.execute(userId, now)
+            .flatMapCompletable { accessToken ->
+                postsRepository.deletePosts(
+                    accessToken,
+                    blogId,
+                    postsId
+                )
+            }.andThen(postsRepository.deletePosts(blogId, postsId))
     }
 }

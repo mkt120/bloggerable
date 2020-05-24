@@ -3,6 +3,7 @@ package com.mkt120.bloggerable.datasource
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.util.RealmManager
+import io.reactivex.Completable
 
 class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmDataSource {
 
@@ -18,13 +19,17 @@ class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmData
         manager.addAllPosts(posts, isDraft)
     }
 
-    override fun findAllPost(blogId: String?, isPost: Boolean): List<Posts> = manager.findAllPosts(blogId, isPost)
+    override fun findAllPost(blogId: String?, isPost: Boolean): List<Posts> =
+        manager.findAllPosts(blogId, isPost)
 
-    override fun findPosts(blogId: String, postsId: String): Posts? = manager.findPosts(blogId, postsId)
+    override fun findPosts(blogId: String, postsId: String): Posts? =
+        manager.findPosts(blogId, postsId)
 
-    override fun deletePosts(blogId: String, postsId: String) {
-        manager.deletePosts(blogId, postsId)
-    }
+    override fun deletePosts(blogId: String, postsId: String): Completable =
+        Completable.create { emitter ->
+            manager.deletePosts(blogId, postsId)
+            emitter.onComplete()
+        }
 
     override fun findAllBlogs(id: String): List<Blogs> = manager.findAllBlogs(id)
 
