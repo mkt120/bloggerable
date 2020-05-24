@@ -495,25 +495,26 @@ class CreatePostsPresenter(
         }
         isExecuting = true
         view.showProgress()
-        updatePost.execute(userId, posts!!, title, html, labels, {
-            isExecuting = false
-            when {
-                isPublish -> publishPosts(userId, posts!!)
-                isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
-                else -> {
-                    view.showMessage(R.string.toast_success_update_posts)
-                    val result = if (isDraft) {
-                        CreatePostsActivity.RESULT_DRAFT_UPDATE
-                    } else {
-                        CreatePostsActivity.RESULT_POSTS_UPDATE
+        updatePost.execute(System.currentTimeMillis(), userId, posts!!, title, html, labels)
+            .subscribe({
+                isExecuting = false
+                when {
+                    isPublish -> publishPosts(userId, posts!!)
+                    isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
+                    else -> {
+                        view.showMessage(R.string.toast_success_update_posts)
+                        val result = if (isDraft) {
+                            CreatePostsActivity.RESULT_DRAFT_UPDATE
+                        } else {
+                            CreatePostsActivity.RESULT_POSTS_UPDATE
+                        }
+                        view.onComplete(result)
                     }
-                    view.onComplete(result)
                 }
-            }
-        }, {
-            isExecuting = false
-            view.showMessage(R.string.toast_create_posts_failed)
-        })
+            }, {
+                isExecuting = false
+                view.showMessage(R.string.toast_create_posts_failed)
+            })
     }
 
     /**
