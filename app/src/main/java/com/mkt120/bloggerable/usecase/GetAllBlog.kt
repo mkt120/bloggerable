@@ -2,14 +2,14 @@ package com.mkt120.bloggerable.usecase
 
 import android.util.Log
 import com.mkt120.bloggerable.model.Account
-import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.BlogRepository
+import com.mkt120.bloggerable.repository.Repository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class GetAllBlog(
     private val getAccessToken: GetAccessToken,
-    private val accountRepository: AccountRepository,
+    private val accountRepository: Repository.IAccountRepository,
     private val blogsRepository: BlogRepository
 ) {
 

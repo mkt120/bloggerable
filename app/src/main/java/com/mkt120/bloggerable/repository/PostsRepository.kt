@@ -2,7 +2,6 @@ package com.mkt120.bloggerable.repository
 
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
-import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -10,23 +9,23 @@ import io.reactivex.Single
 class PostsRepository(
     private val bloggerApiDataSource: BloggerApiDataSource,
     private val realmDataSource: RealmDataSource
-) {
+) : Repository.IPostsRepository {
 
-    fun requestLivePosts(
+    override fun requestLivePosts(
         accessToken: String,
         blogId: String
     ): Single<Pair<List<Posts>?, Boolean>> {
         return bloggerApiDataSource.requestPostsList(accessToken, blogId)
     }
 
-    fun requestDraftPosts(
+    override fun requestDraftPosts(
         accessToken: String,
         blogId: String
     ): Single<Pair<List<Posts>?, Boolean>> {
         return bloggerApiDataSource.requestDraftPostsList(accessToken, blogId)
     }
 
-    fun createPosts(
+    override fun createPosts(
         accessToken: String,
         blogId: String,
         title: String,
@@ -44,49 +43,48 @@ class PostsRepository(
         )
     }
 
-    fun savePosts(posts: List<Posts>, isDraft: Boolean) {
+    override fun savePosts(posts: List<Posts>, isDraft: Boolean) {
         realmDataSource.savePosts(posts, isDraft)
     }
 
-    fun findAllPosts(blogId: String?, isPost: Boolean): List<Posts> =
+    override fun findAllPosts(blogId: String?, isPost: Boolean): List<Posts> =
         realmDataSource.findAllPost(blogId, isPost)
 
-    fun findPosts(blogId: String, postsId: String): Posts? =
+    override fun findPosts(blogId: String, postsId: String): Posts? =
         realmDataSource.findPosts(blogId, postsId)
 
-    fun revertPosts(
+    override fun revertPosts(
         accessToken: String,
         blogId: String,
         postsId: String
-    ) :Completable {
+    ): Completable {
         return bloggerApiDataSource.revertPosts(accessToken, blogId, postsId)
     }
 
-    fun publishPosts(
+    override fun updatePosts(accessToken: String, posts: Posts): Completable {
+        return bloggerApiDataSource.updatePosts(accessToken, posts)
+    }
+
+    override fun publishPosts(
         accessToken: String,
         blogsId: String,
         postsId: String
-    ) :Completable {
+    ): Completable {
         return bloggerApiDataSource.publishPosts(accessToken, blogsId, postsId)
     }
 
-    fun deletePosts(
+    override fun deletePosts(
         accessToken: String,
         blogId: String,
         postsId: String
-    ) :Completable {
+    ): Completable {
         return bloggerApiDataSource.deletePosts(accessToken, blogId, postsId)
     }
 
-    fun deletePosts(
+    override fun deletePosts(
         blogId: String,
         postsId: String
     ) {
         realmDataSource.deletePosts(blogId, postsId)
-    }
-
-    fun updateLastRequest(blog: Blogs, update: Long) {
-        blog.lastRequestPosts = update
-        realmDataSource.saveBlogs(blog)
     }
 }

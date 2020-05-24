@@ -1,11 +1,11 @@
 package com.mkt120.bloggerable.usecase
 
 import android.content.Intent
-import com.mkt120.bloggerable.repository.GoogleAccountRepository
+import com.mkt120.bloggerable.repository.Repository
 
-class AuthorizeGoogleAccount(private val googleAccountRepository: GoogleAccountRepository) {
+class AuthorizeGoogleAccount(private val googleAccountRepository: Repository.IGoogleAccountRepository) {
     fun alreadyAuthorized(): Boolean {
-        val account =googleAccountRepository.getAccounts()
+        val account = googleAccountRepository.getAccounts()
         return account.isNotEmpty()
     }
 

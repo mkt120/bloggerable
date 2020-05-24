@@ -1,10 +1,10 @@
 package com.mkt120.bloggerable.usecase
 
-import com.mkt120.bloggerable.repository.PostsRepository
+import com.mkt120.bloggerable.repository.Repository
 
 class PublishPosts(
     private val getAccessToken: GetAccessToken,
-    private val postsRepository: PostsRepository
+    private val postsRepository: Repository.IPostsRepository
 ) {
     fun execute(
         userId: String,

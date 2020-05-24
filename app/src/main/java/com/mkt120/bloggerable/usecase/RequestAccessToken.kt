@@ -5,9 +5,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
-import com.mkt120.bloggerable.repository.AccountRepository
+import com.mkt120.bloggerable.repository.Repository
 
-class RequestAccessToken(private val accountRepository: AccountRepository) {
+class RequestAccessToken(private val accountRepository: Repository.IAccountRepository) {
 
     fun execute(intent: Intent?, onComplete: () -> Unit, onFailed: (Throwable) -> Unit) {
         val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)

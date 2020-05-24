@@ -8,13 +8,13 @@ import com.mkt120.bloggerable.model.Account
 class GoogleAccountRepository(
     private val preferenceDataSource: PreferenceDataSource,
     private val googleOauthApiDataSource: GoogleOauthApiDataSource
-) {
+) : Repository.IGoogleAccountRepository {
 
-    fun getSignInIntent(): Intent {
+    override fun getSignInIntent(): Intent {
         return googleOauthApiDataSource.getSignInIntent()
     }
 
-    fun getAccounts():ArrayList<Account> {
+    override fun getAccounts(): ArrayList<Account> {
         //todo:
         return preferenceDataSource.getAccounts()
     }
