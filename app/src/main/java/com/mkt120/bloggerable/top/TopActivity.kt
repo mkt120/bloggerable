@@ -31,7 +31,6 @@ import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
 import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
 import com.mkt120.bloggerable.usecase.*
-import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_top.*
 
 class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDialog.OnClickListener,
@@ -60,7 +59,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
             presenter.onClickFab()
         }
 
-        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val realmDataSource = RealmDataSource(getRealm())
         val preferenceDataSource = PreferenceDataSource()
 
         val bloggerApiDataSource = BloggerApiDataSource()

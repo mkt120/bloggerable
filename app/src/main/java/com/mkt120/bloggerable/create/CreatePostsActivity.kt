@@ -25,7 +25,6 @@ import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.usecase.*
-import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlin.math.max
 import kotlin.math.min
@@ -186,7 +185,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val deleteBackupFile = DeleteBackupFile(cacheDir)
 
         val bloggerApiDataSource = BloggerApiDataSource()
-        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val realmDataSource = RealmDataSource(getRealm())
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findPosts = FindPosts(postsRepository)
         val preferenceDataSource = PreferenceDataSource()

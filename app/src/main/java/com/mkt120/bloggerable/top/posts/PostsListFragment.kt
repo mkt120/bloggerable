@@ -15,7 +15,6 @@ import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.TopActivity
 import com.mkt120.bloggerable.top.TopContract
 import com.mkt120.bloggerable.usecase.FindAllPosts
-import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.fragment_posts_list.*
 
 /**
@@ -51,13 +50,14 @@ class PostsListFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val blogId = arguments!!.getString(EXTRA_BLOGS_ID)
-        val type: TopContract.TYPE = arguments!!.getSerializable(EXTRA_LIST_TYPE) as TopContract.TYPE
+        val type: TopContract.TYPE =
+            arguments!!.getSerializable(EXTRA_LIST_TYPE) as TopContract.TYPE
 
         // FIXME:
         if (requireActivity().application is BloggerableApplication) {
             val realm = (requireActivity().application as BloggerableApplication).getRealm()
             val postsRepository =
-                PostsRepository(BloggerApiDataSource(), RealmDataSource(RealmManager(realm)))
+                PostsRepository(BloggerApiDataSource(), RealmDataSource(realm))
             postsListPresenter =
                 PostsListPresenter(
                     FindAllPosts(postsRepository),

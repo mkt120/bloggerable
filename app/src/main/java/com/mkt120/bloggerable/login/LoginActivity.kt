@@ -20,7 +20,6 @@ import com.mkt120.bloggerable.repository.BlogRepository
 import com.mkt120.bloggerable.repository.GoogleAccountRepository
 import com.mkt120.bloggerable.top.TopActivity
 import com.mkt120.bloggerable.usecase.*
-import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -53,7 +52,7 @@ class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickL
         val googleAccountRepository =
             GoogleAccountRepository(preferenceDataSource, googleOauthApiDataSource)
         val authorizeGoogleAccount = AuthorizeGoogleAccount(googleAccountRepository)
-        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val realmDataSource = RealmDataSource(getRealm())
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
         val getAccessToken = GetAccessToken(accountRepository)
         val getCurrentAccount =
