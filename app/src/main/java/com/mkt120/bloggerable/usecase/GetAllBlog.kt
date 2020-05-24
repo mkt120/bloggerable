@@ -1,16 +1,13 @@
 package com.mkt120.bloggerable.usecase
 
-import android.util.Log
 import com.mkt120.bloggerable.model.Account
-import com.mkt120.bloggerable.repository.BlogRepository
 import com.mkt120.bloggerable.repository.Repository
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Completable
 
 class GetAllBlog(
     private val getAccessToken: UseCase.IGetAccessToken,
     private val accountRepository: Repository.IAccountRepository,
-    private val blogsRepository: BlogRepository
+    private val blogsRepository: Repository.IBlogRepository
 ) {
 
     companion object {
@@ -19,22 +16,21 @@ class GetAllBlog(
 
     fun execute(
         now: Long,
-        account: Account,
-        onComplete: () -> Unit,
-        onFailed: (Throwable) -> Unit
-    ) {
-        getAccessToken.execute(account.getId(), System.currentTimeMillis()).flatMap { accessToken ->
-            blogsRepository.requestAllBlog(accessToken)
-        }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ blogList ->
-                Log.d(TAG, "requestAllBlogs onResponse")
-                blogList?.let {
-                    blogsRepository.saveAllBlog(it)
-                    if (it.isNotEmpty()) {
+        account: Account
+    ): Completable {
+        // アクセストークン取得 → リクエスト → 保存
+        return getAccessToken.execute(account.getId(), now)
+            .flatMap { accessToken ->
+                blogsRepository.requestAllBlog(accessToken)
+            }
+            .flatMapCompletable { blogsList ->
+                Completable.create { emitter ->
+                    blogsRepository.saveAllBlog(blogsList)
+                    if (blogsList.isNotEmpty()) {
                         accountRepository.updateLastBlogListRequest(account, now)
                     }
+                    emitter.onComplete()
                 }
-                onComplete()
-            }, onFailed)
+            }
     }
 }

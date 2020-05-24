@@ -77,12 +77,13 @@ class LoginPresenter(
         val currentAccount = getCurrentAccount.execute()!!
         getAllBlogs.execute(
             System.currentTimeMillis(),
-            currentAccount, {
-                view.dismissProgress()
-                view.showBlogListScreen()
-            }, {
-                view.dismissProgress()
-                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
-            })
+            currentAccount
+        ).subscribe({
+            view.dismissProgress()
+            view.showBlogListScreen()
+        }, {
+            view.dismissProgress()
+            view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
+        })
     }
 }
