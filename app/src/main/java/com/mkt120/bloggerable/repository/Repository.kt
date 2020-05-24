@@ -49,7 +49,7 @@ interface Repository {
 
         fun savePosts(posts: List<Posts>, isDraft: Boolean)
         fun findAllPosts(blogId: String?, isPost: Boolean): Single<List<Posts>>
-        fun findPosts(blogId: String, postsId: String): Posts?
+        fun findPosts(blogId: String, postsId: String): Single<Posts>
         fun revertPosts(
             accessToken: String,
             blogId: String,

@@ -23,7 +23,7 @@ class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmData
     override fun findAllPost(blogId: String?, isPost: Boolean): Single<List<Posts>> =
         manager.findAllPosts(blogId, isPost)
 
-    override fun findPosts(blogId: String, postsId: String): Posts? =
+    override fun findPosts(blogId: String, postsId: String): Single<Posts> =
         manager.findPosts(blogId, postsId)
 
     override fun deletePosts(blogId: String, postsId: String): Completable =

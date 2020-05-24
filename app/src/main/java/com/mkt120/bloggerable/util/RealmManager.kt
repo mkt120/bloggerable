@@ -52,14 +52,16 @@ class RealmManager(private val realm: Realm) {
         }
 
 
-    fun findPosts(blogsId: String, postsId: String): Posts? {
-        val posts =
-            realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("id", postsId).findFirst()
-        if (posts != null) {
-            return realm.copyFromRealm(posts)
+    fun findPosts(blogsId: String, postsId: String): Single<Posts> =
+        Single.create { emitter ->
+            val posts =
+                realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("id", postsId).findFirst()
+            if (posts != null) {
+                emitter.onSuccess(realm.copyFromRealm(posts))
+            } else {
+                emitter.onError(Exception())
+            }
         }
-        return null
-    }
 
     fun findAllLabels(blogsId: String): ArrayList<String> {
         val posts = realm.where<Posts>().equalTo("blog.id", blogsId).findAll()

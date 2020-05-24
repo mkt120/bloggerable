@@ -93,7 +93,7 @@ interface DataSource {
         fun saveAllBlogs(blogsList: List<Blogs>)
         fun savePosts(posts: List<Posts>, isDraft: Boolean)
         fun findAllPost(blogId: String?, isPost: Boolean): Single<List<Posts>>
-        fun findPosts(blogId: String, postsId: String): Posts?
+        fun findPosts(blogId: String, postsId: String): Single<Posts>
         fun deletePosts(blogId: String, postsId: String): Completable
         fun findAllBlogs(id: String): Single<MutableList<Blogs>>
         fun findAllLabels(blogId: String): ArrayList<String>

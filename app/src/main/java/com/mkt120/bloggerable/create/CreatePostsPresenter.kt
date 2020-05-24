@@ -39,7 +39,10 @@ class CreatePostsPresenter(
 
     init {
         postsId?.let {
-            posts = findPosts.execute(blogId, postsId)
+            try {
+                posts = findPosts.execute(blogId, postsId).blockingGet()
+            } catch (e: Exception) {
+            }
         }
         backupPost = readBackupFile.execute(blogId, postsId)
     }
