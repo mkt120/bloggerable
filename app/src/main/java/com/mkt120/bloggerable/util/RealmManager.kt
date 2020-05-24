@@ -2,6 +2,7 @@ package com.mkt120.bloggerable.util
 
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
+import io.reactivex.Single
 import io.realm.Realm
 import io.realm.Sort
 import io.realm.kotlin.where
@@ -27,18 +28,21 @@ class RealmManager(private val realm: Realm) {
         }
     }
 
-    fun findAllBlogs(userId: String): MutableList<Blogs> {
-        val blogsList = realm.where<Blogs>().findAll()
-        if (blogsList != null) {
-            return realm.copyFromRealm(blogsList)
+    fun findAllBlogs(userId: String): Single<MutableList<Blogs>> =
+        Single.create { emitter ->
+            val blogsList = realm.where<Blogs>().findAll()
+            if (blogsList != null) {
+                emitter.onSuccess(realm.copyFromRealm(blogsList))
+            } else {
+                emitter.onSuccess(mutableListOf())
+            }
         }
-        return mutableListOf()
-    }
 
     fun findAllPosts(blogsId: String?, isPost: Boolean): List<Posts> {
         if (blogsId != null) {
             val list =
-                realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost).sort("published", Sort.DESCENDING).findAll()
+                realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost)
+                    .sort("published", Sort.DESCENDING).findAll()
             if (list != null) {
                 return realm.copyFromRealm(list)
             }

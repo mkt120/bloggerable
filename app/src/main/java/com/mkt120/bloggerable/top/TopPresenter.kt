@@ -32,7 +32,7 @@ class TopPresenter(
             return
         }
 
-        val blogs = findAllBlogs.execute(currentAccount!!.getId())
+        val blogs = findAllBlogs.execute(currentAccount!!.getId()).blockingGet()
         view.onBindDrawer(blogs)
 
         if (blogs.isEmpty()) {

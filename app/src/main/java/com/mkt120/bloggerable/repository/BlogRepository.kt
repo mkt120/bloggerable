@@ -10,7 +10,8 @@ class BlogRepository(
     private val realmDataSource: RealmDataSource
 ) : Repository.IBlogRepository {
 
-    override fun findAllBlog(userId: String): List<Blogs> = realmDataSource.findAllBlogs(userId)
+    override fun findAllBlog(userId: String): Single<MutableList<Blogs>> =
+        realmDataSource.findAllBlogs(userId)
 
     override fun saveAllBlog(blogList: List<Blogs>) {
         realmDataSource.saveAllBlogs(blogList)

@@ -95,7 +95,7 @@ interface DataSource {
         fun findAllPost(blogId: String?, isPost: Boolean): List<Posts>
         fun findPosts(blogId: String, postsId: String): Posts?
         fun deletePosts(blogId: String, postsId: String): Completable
-        fun findAllBlogs(id: String): List<Blogs>
+        fun findAllBlogs(id: String): Single<MutableList<Blogs>>
         fun findAllLabels(blogId: String): ArrayList<String>
 
     }

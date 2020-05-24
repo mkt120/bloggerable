@@ -4,6 +4,7 @@ import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.util.RealmManager
 import io.reactivex.Completable
+import io.reactivex.Single
 
 class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmDataSource {
 
@@ -31,7 +32,7 @@ class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmData
             emitter.onComplete()
         }
 
-    override fun findAllBlogs(id: String): List<Blogs> = manager.findAllBlogs(id)
+    override fun findAllBlogs(id: String): Single<MutableList<Blogs>> = manager.findAllBlogs(id)
 
     override fun findAllLabels(blogId: String): ArrayList<String> = manager.findAllLabels(blogId)
 }

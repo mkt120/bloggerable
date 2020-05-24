@@ -80,7 +80,7 @@ interface Repository {
     }
 
     interface IBlogRepository {
-        fun findAllBlog(userId: String): List<Blogs>
+        fun findAllBlog(userId: String): Single<MutableList<Blogs>>
         fun saveAllBlog(blogList: List<Blogs>)
         fun requestAllBlog(
             accessToken: String
