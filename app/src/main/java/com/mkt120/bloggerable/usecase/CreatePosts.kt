@@ -4,7 +4,7 @@ import com.mkt120.bloggerable.repository.Repository
 import io.reactivex.Completable
 
 class CreatePosts(
-    private val getAccessToken: GetAccessToken,
+    private val getAccessToken: UseCase.IGetAccessToken,
     private val postsRepository: Repository.IPostsRepository
 ) {
     fun execute(
@@ -18,7 +18,7 @@ class CreatePosts(
         onError: (Throwable) -> Unit
     ) {
 
-        getAccessToken.execute(userId).flatMapCompletable { accessToken ->
+        getAccessToken.execute(userId, System.currentTimeMillis()).flatMapCompletable { accessToken ->
             createPost(accessToken, blogId, title, html, labels, draft)
         }.subscribe(onComplete, onError)
     }

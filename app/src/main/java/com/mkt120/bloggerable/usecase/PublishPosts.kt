@@ -3,7 +3,7 @@ package com.mkt120.bloggerable.usecase
 import com.mkt120.bloggerable.repository.Repository
 
 class PublishPosts(
-    private val getAccessToken: GetAccessToken,
+    private val getAccessToken: UseCase.IGetAccessToken,
     private val postsRepository: Repository.IPostsRepository
 ) {
     fun execute(
@@ -13,7 +13,7 @@ class PublishPosts(
         onComplete: () -> Unit,
         onFailed: (Throwable) -> Unit
     ) {
-        getAccessToken.execute(userId).flatMapCompletable { accessToken ->
+        getAccessToken.execute(userId, System.currentTimeMillis()).flatMapCompletable { accessToken ->
             postsRepository.publishPosts(accessToken, blogsId, postsId)
         }.subscribe(onComplete, onFailed)
     }

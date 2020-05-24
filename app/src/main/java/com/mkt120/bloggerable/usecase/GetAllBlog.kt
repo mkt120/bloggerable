@@ -8,7 +8,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class GetAllBlog(
-    private val getAccessToken: GetAccessToken,
+    private val getAccessToken: UseCase.IGetAccessToken,
     private val accountRepository: Repository.IAccountRepository,
     private val blogsRepository: BlogRepository
 ) {
@@ -23,7 +23,7 @@ class GetAllBlog(
         onComplete: () -> Unit,
         onFailed: (Throwable) -> Unit
     ) {
-        getAccessToken.execute(account.getId()).flatMap { accessToken ->
+        getAccessToken.execute(account.getId(), System.currentTimeMillis()).flatMap { accessToken ->
             blogsRepository.requestAllBlog(accessToken)
         }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe({ blogList ->
