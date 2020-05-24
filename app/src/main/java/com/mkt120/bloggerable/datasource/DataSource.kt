@@ -12,10 +12,7 @@ import io.reactivex.Single
 
 interface DataSource {
     interface IBloggerApiDataSource {
-        fun requestAccessToken(
-            serverAuthCode: String
-        ): Single<OauthResponse>
-
+        fun requestAccessToken(authorizationCode: String): Single<OauthResponse>
         fun refreshAccessToken(refreshToken: String): Single<OauthResponse>
         fun requestPostsList(
             accessToken: String,
@@ -27,15 +24,12 @@ interface DataSource {
             blogId: String
         ): Single<Pair<List<Posts>?, Boolean>>
 
-        fun updatePosts(
-            accessToken: String,
-            posts: Posts
-        ): Completable
+        fun updatePosts(accessToken: String, old: Posts): Completable
 
         fun deletePosts(
             accessToken: String,
             blogId: String,
-            id: String
+            postId: String
         ): Completable
 
         fun publishPosts(
@@ -47,7 +41,7 @@ interface DataSource {
         fun revertPosts(
             accessToken: String,
             blogId: String,
-            postsId: String
+            postId: String
         ): Completable
 
         fun createPosts(
@@ -56,7 +50,7 @@ interface DataSource {
             title: String,
             html: String,
             labels: Array<String>?,
-            draft: Boolean
+            isDraft: Boolean
         ): Completable
 
         fun getBlogs(accessToken: String): Single<BlogsResponse>
