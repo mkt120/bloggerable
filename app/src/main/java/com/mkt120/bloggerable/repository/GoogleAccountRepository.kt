@@ -1,13 +1,12 @@
 package com.mkt120.bloggerable.repository
 
 import android.content.Intent
-import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
-import com.mkt120.bloggerable.datasource.PreferenceDataSource
+import com.mkt120.bloggerable.datasource.DataSource
 import com.mkt120.bloggerable.model.Account
 
 class GoogleAccountRepository(
-    private val preferenceDataSource: PreferenceDataSource,
-    private val googleOauthApiDataSource: GoogleOauthApiDataSource
+    private val preferenceDataSource: DataSource.IPreferenceDataSource,
+    private val googleOauthApiDataSource: DataSource.IGoogleOauthApiDataSource
 ) : Repository.IGoogleAccountRepository {
 
     override fun getSignInIntent(): Intent {
