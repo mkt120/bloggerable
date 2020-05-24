@@ -1,20 +1,19 @@
 package com.mkt120.bloggerable.usecase
 
-import com.mkt120.bloggerable.repository.PostsRepository
+import com.mkt120.bloggerable.repository.Repository
+import io.reactivex.Completable
 
 class RevertPosts(
-    private val getAccessToken: GetAccessToken,
-    private val postsRepository: PostsRepository
+    private val getAccessToken: UseCase.IGetAccessToken,
+    private val postsRepository: Repository.IPostsRepository
 ) {
     fun execute(
+        now:Long,
         userId: String,
         blogId: String,
-        postsId: String,
-        onComplete: () -> Unit,
-        onFailed: (Throwable) -> Unit
-    ) {
-        getAccessToken.execute(userId).flatMapCompletable { accessToken ->
+        postsId: String
+    ): Completable = getAccessToken.execute(userId, now)
+        .flatMapCompletable { accessToken ->
             postsRepository.revertPosts(accessToken, blogId, postsId)
-        }.subscribe(onComplete, onFailed)
-    }
+        }
 }

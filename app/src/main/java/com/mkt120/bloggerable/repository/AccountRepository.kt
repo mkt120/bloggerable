@@ -10,29 +10,29 @@ import io.reactivex.Single
 class AccountRepository(
     private val bloggerApiDataSource: BloggerApiDataSource,
     private val preferenceDataSource: PreferenceDataSource
-) {
-    fun getAllAccounts(): ArrayList<Account> = preferenceDataSource.getAccounts()
+) : Repository.IAccountRepository {
+    override fun getAllAccounts(): ArrayList<Account> = preferenceDataSource.getAccounts()
 
     private fun getAccount(id: String): Account? = preferenceDataSource.getAccount(id)
 
-    fun setCurrentAccount(account: Account) {
+    override fun setCurrentAccount(account: Account) {
         preferenceDataSource.saveCurrentAccount(account)
     }
 
-    fun updateLastBlogListRequest(account: Account, now: Long) {
+    override fun updateLastBlogListRequest(account: Account, now: Long) {
         preferenceDataSource.saveAccount(account, now)
     }
 
-    fun getCurrentAccount(): Account {
+    override fun getCurrentAccount(): Account {
         val account = preferenceDataSource.getCurrentAccount()
         return account ?: preferenceDataSource.getAccounts()[0]
     }
 
-    fun getRefreshToken(id: String): String? {
+    override fun getRefreshToken(id: String): String? {
         return getAccount(id)?.getRefreshToken()
     }
 
-    fun getAccessToken(id: String, now: Long): Single<String> {
+    override fun getAccessToken(id: String, now: Long): Single<String> {
         return Single.create { emitter ->
             val account = getAccount(id)
             val token = account?.getAccessToken(now)
@@ -47,14 +47,14 @@ class AccountRepository(
     /**
      * アクセストークンを取得
      */
-    fun requestAccessToken(serverAuthCode: String): Single<OauthResponse> {
+    override fun requestAccessToken(serverAuthCode: String): Single<OauthResponse> {
         return bloggerApiDataSource.requestAccessToken(serverAuthCode)
     }
 
     /**
      * リフレッシュトークン
      */
-    fun requestRefresh(userId: String, refreshToken: String): Single<String> {
+    override fun requestRefresh(userId: String, refreshToken: String): Single<String> {
         return Single.create { emitter ->
             bloggerApiDataSource.refreshAccessToken(refreshToken).subscribe({ response ->
                 // アクセストークン
@@ -66,7 +66,7 @@ class AccountRepository(
         }
     }
 
-    fun saveNewAccount(
+    override fun saveNewAccount(
         account: GoogleSignInAccount,
         accessToken: String,
         expired: Long,

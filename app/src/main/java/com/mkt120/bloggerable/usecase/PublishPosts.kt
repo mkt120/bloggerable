@@ -1,20 +1,18 @@
 package com.mkt120.bloggerable.usecase
 
-import com.mkt120.bloggerable.repository.PostsRepository
+import com.mkt120.bloggerable.repository.Repository
+import io.reactivex.Completable
 
 class PublishPosts(
-    private val getAccessToken: GetAccessToken,
-    private val postsRepository: PostsRepository
+    private val getAccessToken: UseCase.IGetAccessToken,
+    private val postsRepository: Repository.IPostsRepository
 ) {
     fun execute(
+        now: Long,
         userId: String,
         blogsId: String,
-        postsId: String,
-        onComplete: () -> Unit,
-        onFailed: (Throwable) -> Unit
-    ) {
-        getAccessToken.execute(userId).flatMapCompletable { accessToken ->
-            postsRepository.publishPosts(accessToken, blogsId, postsId)
-        }.subscribe(onComplete, onFailed)
+        postsId: String
+    ): Completable = getAccessToken.execute(userId, now).flatMapCompletable { accessToken ->
+        postsRepository.publishPosts(accessToken, blogsId, postsId)
     }
 }

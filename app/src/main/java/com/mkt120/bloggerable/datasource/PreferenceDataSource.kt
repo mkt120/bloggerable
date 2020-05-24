@@ -4,21 +4,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.util.PreferenceManager
 
-class PreferenceDataSource {
+class PreferenceDataSource : DataSource.IPreferenceDataSource {
 
-    fun getCurrentBlogId(): String = PreferenceManager.currentBlogId
+    override fun getCurrentAccount(): Account? = PreferenceManager.getCurrentAccount()
 
-    fun getCurrentAccount(): Account? = PreferenceManager.getCurrentAccount()
-
-    fun saveCurrentAccount(account: Account) {
+    override fun saveCurrentAccount(account: Account) {
         PreferenceManager.setCurrentAccount(account)
     }
 
-    fun saveAccount(account: Account, lastBlogListRequest: Long) {
+    override fun saveAccount(account: Account, lastBlogListRequest: Long) {
         PreferenceManager.saveAccount(account, lastBlogListRequest)
     }
 
-    fun saveNewAccount(
+    override fun saveNewAccount(
         account: GoogleSignInAccount,
         accessToken: String,
         tokenExpiredDateMillis: Long,
@@ -32,7 +30,7 @@ class PreferenceDataSource {
         )
     }
 
-    fun saveAccessToken(
+    override fun saveAccessToken(
         id: String,
         accessToken: String,
         refreshToken: String,
@@ -46,7 +44,7 @@ class PreferenceDataSource {
         }
     }
 
-    fun getAccounts(): ArrayList<Account> = PreferenceManager.getAccounts()
+    override fun getAccounts(): ArrayList<Account> = PreferenceManager.getAccounts()
 
-    fun getAccount(id: String): Account? = PreferenceManager.getAccount(id)
+    override fun getAccount(id: String): Account? = PreferenceManager.getAccount(id)
 }

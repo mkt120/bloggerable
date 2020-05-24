@@ -194,7 +194,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val getCurrentUser = GetCurrentAccount(accountRepository)
         val getAccessToken = GetAccessToken(accountRepository)
         val createPosts = CreatePosts(getAccessToken, postsRepository)
-        val updatePosts = UpdatePosts(getAccessToken, bloggerApiDataSource)
+        val updatePosts = UpdatePosts(getAccessToken, postsRepository)
         val revertPosts = RevertPosts(getAccessToken, postsRepository)
         val publishPost = PublishPosts(getAccessToken, postsRepository)
         val deletePosts = DeletePosts(getAccessToken, postsRepository)

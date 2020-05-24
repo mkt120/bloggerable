@@ -11,17 +11,14 @@ class PostsListPresenter(
     private val type: TopContract.TYPE
 ) : PostsListContract.PostsListPresenter {
 
-    private val postsList: List<Posts>?
-
-    init {
-        postsList = findAllPosts.execute(blogId, type == TopContract.TYPE.POST)
-    }
+    private val postsList: List<Posts> =
+        findAllPosts.execute(blogId, type == TopContract.TYPE.POST).blockingGet()
 
     override fun onClickPosts(posts: Posts) {
         view.showPostsItem(type, posts)
     }
 
     override fun onActivityCreated() {
-        view.setPostsResponse(type, postsList!!)
+        view.setPostsResponse(type, postsList)
     }
 }

@@ -39,7 +39,10 @@ class CreatePostsPresenter(
 
     init {
         postsId?.let {
-            posts = findPosts.execute(blogId, postsId)
+            try {
+                posts = findPosts.execute(blogId, postsId).blockingGet()
+            } catch (e: Exception) {
+            }
         }
         backupPost = readBackupFile.execute(blogId, postsId)
     }
@@ -451,25 +454,26 @@ class CreatePostsPresenter(
             html,
             labels,
             isDraft,
-            {
-                isExecuting = false
-                val messageResId: Int = if (isDraft) {
-                    R.string.toast_create_draft_success
-                } else {
-                    R.string.toast_create_posts_success
-                }
-                view.showMessage(messageResId)
-                val result = if (isDraft) {
-                    CreatePostsActivity.RESULT_DRAFT_UPDATE
-                } else {
-                    CreatePostsActivity.RESULT_POSTS_UPDATE
-                }
-                view.onComplete(result)
+            System.currentTimeMillis()
+        ).subscribe({
+            isExecuting = false
+            val messageResId: Int = if (isDraft) {
+                R.string.toast_create_draft_success
+            } else {
+                R.string.toast_create_posts_success
+            }
+            view.showMessage(messageResId)
+            val result = if (isDraft) {
+                CreatePostsActivity.RESULT_DRAFT_UPDATE
+            } else {
+                CreatePostsActivity.RESULT_POSTS_UPDATE
+            }
+            view.onComplete(result)
+        }, {
+            isExecuting = false
+            view.showMessage(R.string.toast_create_posts_failed)
+        })
 
-            }, {
-                isExecuting = false
-                view.showMessage(R.string.toast_create_posts_failed)
-            })
     }
 
     /**
@@ -491,25 +495,26 @@ class CreatePostsPresenter(
         }
         isExecuting = true
         view.showProgress()
-        updatePost.execute(userId, posts!!, title, html, labels, {
-            isExecuting = false
-            when {
-                isPublish -> publishPosts(userId, posts!!)
-                isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
-                else -> {
-                    view.showMessage(R.string.toast_success_update_posts)
-                    val result = if (isDraft) {
-                        CreatePostsActivity.RESULT_DRAFT_UPDATE
-                    } else {
-                        CreatePostsActivity.RESULT_POSTS_UPDATE
+        updatePost.execute(System.currentTimeMillis(), userId, posts!!, title, html, labels)
+            .subscribe({
+                isExecuting = false
+                when {
+                    isPublish -> publishPosts(userId, posts!!)
+                    isRevert -> revertPosts(userId, posts!!.blog!!.id!!, posts!!.id!!)
+                    else -> {
+                        view.showMessage(R.string.toast_success_update_posts)
+                        val result = if (isDraft) {
+                            CreatePostsActivity.RESULT_DRAFT_UPDATE
+                        } else {
+                            CreatePostsActivity.RESULT_POSTS_UPDATE
+                        }
+                        view.onComplete(result)
                     }
-                    view.onComplete(result)
                 }
-            }
-        }, {
-            isExecuting = false
-            view.showMessage(R.string.toast_create_posts_failed)
-        })
+            }, {
+                isExecuting = false
+                view.showMessage(R.string.toast_create_posts_failed)
+            })
     }
 
     /**
@@ -518,10 +523,7 @@ class CreatePostsPresenter(
     private fun revertPosts(userId: String, blogId: String, postsId: String) {
         isExecuting = true
         view.showProgress()
-        revertPosts.execute(
-            userId,
-            blogId,
-            postsId,
+        revertPosts.execute(System.currentTimeMillis(), userId, blogId, postsId).subscribe(
             {
                 isExecuting = false
                 view.showMessage("投稿を下書きに戻しました")
@@ -538,7 +540,7 @@ class CreatePostsPresenter(
      */
     private fun publishPosts(userId: String, posts: Posts) {
         view.showProgress()
-        publishPosts.execute(userId, blogId, posts.id!!, {
+        publishPosts.execute(System.currentTimeMillis(), userId, blogId, posts.id!!).subscribe({
             isExecuting = false
             view.showMessage(R.string.toast_publish_posts_success)
             view.onComplete(CreatePostsActivity.RESULT_POSTS_UPDATE)
@@ -554,7 +556,7 @@ class CreatePostsPresenter(
     private fun deletePosts(userId: String, isDraft: Boolean) {
         view.showProgress()
         isExecuting = true
-        deletePosts.execute(userId, blogId, posts!!.id!!, {
+        deletePosts.execute(userId, blogId, posts!!.id!!, System.currentTimeMillis()).subscribe({
             isExecuting = false
             view.showMessage(R.string.toast_success_delete_posts)
             val result = if (isDraft) {

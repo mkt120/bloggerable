@@ -11,7 +11,7 @@ import com.mkt120.bloggerable.usecase.*
 class TopPresenter(
     private val view: TopContract.TopView,
     private val getCurrentAccount: GetCurrentAccount,
-    private val saveLastSelectBlogId: SaveCurrentBlogId,
+    private val saveCurrentAccount: SaveCurrentAccount,
     private val findAllBlogs: FindAllBlog,
     private val getAllPosts: GetAllPosts,
     private val getLabels: GetLabels
@@ -32,7 +32,7 @@ class TopPresenter(
             return
         }
 
-        val blogs = findAllBlogs.execute(currentAccount!!.getId())
+        val blogs = findAllBlogs.execute(currentAccount!!.getId()).blockingGet()
         view.onBindDrawer(blogs)
 
         if (blogs.isEmpty()) {
@@ -76,14 +76,13 @@ class TopPresenter(
             requestPosts(currentAccount!!.getId(), blogs)
             return
         }
-
     }
 
     private fun bindCurrentBlog(blog: Blogs) {
         // 現在のブログを設定
         currentBlog = blog
         currentAccount!!.setCurrentBlogId(blog.id!!)
-        saveLastSelectBlogId.execute(currentAccount!!)
+        saveCurrentAccount.execute(currentAccount!!)
 
         view.setTitle(currentBlog.name!!)
         view.updateCurrentBlog(currentBlog.id!!)
@@ -158,7 +157,7 @@ class TopPresenter(
     private fun requestPosts(userId: String, blog: Blogs) {
         // 記事一覧取得
         view.showProgress()
-        getAllPosts.execute(System.currentTimeMillis(), userId, blog, {
+        getAllPosts.execute(System.currentTimeMillis(), userId, blog).subscribe({
             view.dismissProgress()
             view.notifyDataSetChanged()
         }, {
