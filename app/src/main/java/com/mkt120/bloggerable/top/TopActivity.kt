@@ -60,7 +60,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         }
 
         val realmDataSource = RealmDataSource(getRealm())
-        val preferenceDataSource = PreferenceDataSource()
+        val preferenceDataSource = PreferenceDataSource(applicationContext)
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)

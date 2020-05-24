@@ -188,7 +188,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val realmDataSource = RealmDataSource(getRealm())
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findPosts = FindPosts(postsRepository)
-        val preferenceDataSource = PreferenceDataSource()
+        val preferenceDataSource = PreferenceDataSource(applicationContext)
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val getCurrentUser = GetCurrentAccount(accountRepository)
         val getAccessToken = GetAccessToken(accountRepository)

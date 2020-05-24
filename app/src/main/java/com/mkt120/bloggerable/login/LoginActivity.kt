@@ -44,7 +44,7 @@ class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickL
         }
 
         val bloggerApiDataSource = BloggerApiDataSource()
-        val preferenceDataSource = PreferenceDataSource()
+        val preferenceDataSource = PreferenceDataSource(applicationContext)
         val accountRepository =
             AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val requestAccessToken = RequestAccessToken(accountRepository)

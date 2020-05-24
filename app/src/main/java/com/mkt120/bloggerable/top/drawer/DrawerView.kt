@@ -45,7 +45,7 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
         image_view_1.setOnClickListener(clickListener)
 
         val bloggerApiDataSource = BloggerApiDataSource()
-        val preferenceDataSource = PreferenceDataSource()
+        val preferenceDataSource = PreferenceDataSource(getContext())
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val getAllAccount = GetAllAccount(accountRepository)
         val getGoogleAccount = GetCurrentAccount(accountRepository)
