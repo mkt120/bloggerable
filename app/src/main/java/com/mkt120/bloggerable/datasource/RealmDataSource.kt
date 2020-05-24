@@ -4,29 +4,29 @@ import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.util.RealmManager
 
-class RealmDataSource(private val manager: RealmManager) {
+class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmDataSource {
 
-    fun saveBlogs(blogs: Blogs) {
+    override fun saveBlogs(blogs: Blogs) {
         manager.saveBlog(blogs)
     }
 
-    fun saveAllBlogs(blogsList: List<Blogs>) {
+    override fun saveAllBlogs(blogsList: List<Blogs>) {
         manager.saveAllBlogs(blogsList)
     }
 
-    fun savePosts(posts: List<Posts>, isDraft: Boolean) {
+    override fun savePosts(posts: List<Posts>, isDraft: Boolean) {
         manager.addAllPosts(posts, isDraft)
     }
 
-    fun findAllPost(blogId: String?, isPost: Boolean): List<Posts> = manager.findAllPosts(blogId, isPost)
+    override fun findAllPost(blogId: String?, isPost: Boolean): List<Posts> = manager.findAllPosts(blogId, isPost)
 
-    fun findPosts(blogId: String, postsId: String): Posts? = manager.findPosts(blogId, postsId)
+    override fun findPosts(blogId: String, postsId: String): Posts? = manager.findPosts(blogId, postsId)
 
-    fun deletePosts(blogId: String, postsId: String) {
+    override fun deletePosts(blogId: String, postsId: String) {
         manager.deletePosts(blogId, postsId)
     }
 
-    fun findAllBlogs(id: String): List<Blogs> = manager.findAllBlogs(id)
+    override fun findAllBlogs(id: String): List<Blogs> = manager.findAllBlogs(id)
 
-    fun findAllLabels(blogId: String): ArrayList<String> = manager.findAllLabels(blogId)
+    override fun findAllLabels(blogId: String): ArrayList<String> = manager.findAllLabels(blogId)
 }
