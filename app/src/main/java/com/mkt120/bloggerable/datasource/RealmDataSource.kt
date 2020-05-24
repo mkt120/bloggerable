@@ -20,7 +20,7 @@ class RealmDataSource(private val manager: RealmManager) : DataSource.IRealmData
         manager.addAllPosts(posts, isDraft)
     }
 
-    override fun findAllPost(blogId: String?, isPost: Boolean): List<Posts> =
+    override fun findAllPost(blogId: String?, isPost: Boolean): Single<List<Posts>> =
         manager.findAllPosts(blogId, isPost)
 
     override fun findPosts(blogId: String, postsId: String): Posts? =

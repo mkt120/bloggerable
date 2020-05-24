@@ -38,17 +38,19 @@ class RealmManager(private val realm: Realm) {
             }
         }
 
-    fun findAllPosts(blogsId: String?, isPost: Boolean): List<Posts> {
-        if (blogsId != null) {
-            val list =
-                realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost)
-                    .sort("published", Sort.DESCENDING).findAll()
-            if (list != null) {
-                return realm.copyFromRealm(list)
+    fun findAllPosts(blogsId: String?, isPost: Boolean): Single<List<Posts>> =
+        Single.create { emitter ->
+            if (blogsId != null) {
+                val list =
+                    realm.where<Posts>().equalTo("blog.id", blogsId).equalTo("isPost", isPost)
+                        .sort("published", Sort.DESCENDING).findAll()
+                if (list != null) {
+                    emitter.onSuccess(realm.copyFromRealm(list))
+                }
             }
+            emitter.onSuccess(listOf())
         }
-        return listOf()
-    }
+
 
     fun findPosts(blogsId: String, postsId: String): Posts? {
         val posts =

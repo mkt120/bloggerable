@@ -48,7 +48,7 @@ interface Repository {
         ): Completable
 
         fun savePosts(posts: List<Posts>, isDraft: Boolean)
-        fun findAllPosts(blogId: String?, isPost: Boolean): List<Posts>
+        fun findAllPosts(blogId: String?, isPost: Boolean): Single<List<Posts>>
         fun findPosts(blogId: String, postsId: String): Posts?
         fun revertPosts(
             accessToken: String,

@@ -47,7 +47,7 @@ class PostsRepository(
         realmDataSource.savePosts(posts, isDraft)
     }
 
-    override fun findAllPosts(blogId: String?, isPost: Boolean): List<Posts> =
+    override fun findAllPosts(blogId: String?, isPost: Boolean): Single<List<Posts>> =
         realmDataSource.findAllPost(blogId, isPost)
 
     override fun findPosts(blogId: String, postsId: String): Posts? =
