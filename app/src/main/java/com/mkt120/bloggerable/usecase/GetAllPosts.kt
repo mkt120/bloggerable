@@ -2,41 +2,40 @@ package com.mkt120.bloggerable.usecase
 
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.repository.BlogRepository
-import com.mkt120.bloggerable.repository.PostsRepository
+import com.mkt120.bloggerable.repository.Repository
+import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 class GetAllPosts(
     private val getAccessToken: UseCase.IGetAccessToken,
-    private val postsRepository: PostsRepository,
-    private val blogRepository: BlogRepository
+    private val postsRepository: Repository.IPostsRepository,
+    private val blogRepository: Repository.IBlogRepository
 ) {
     fun execute(
         now: Long,
         userId: String,
-        blog: Blogs,
-        onComplete: () -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-        getAccessToken.execute(userId, System.currentTimeMillis()).toObservable()
-            .flatMap { accessToken -> requestAllPosts(blog, accessToken) }.subscribe({ pair ->
+        blog: Blogs
+    ): Completable = getAccessToken.execute(userId, now)
+        .flatMapObservable { accessToken -> requestAllPosts(blog.id!!, accessToken) }
+        .flatMapCompletable { pair ->
+            Completable.create { emitter ->
                 val items = pair.first
                 items?.let {
                     postsRepository.savePosts(it, pair.second)
-                    blogRepository.updateLastPostListRequest(blog, now)
+                    if (it.isNotEmpty()) {
+                        blogRepository.updateLastPostListRequest(blog, now)
+                    }
                 }
-            }, onError, onComplete)
-    }
+                emitter.onComplete()
+            }
+        }
 
     private fun requestAllPosts(
-        blog: Blogs,
+        blogId: String,
         accessToken: String
     ): Observable<Pair<List<Posts>?, Boolean>> {
-        val live = postsRepository.requestLivePosts(accessToken, blog.id!!)
-        val draft = postsRepository.requestDraftPosts(accessToken, blog.id!!)
+        val live = postsRepository.requestLivePosts(accessToken, blogId)
+        val draft = postsRepository.requestDraftPosts(accessToken, blogId)
         return Observable.merge(live.toObservable(), draft.toObservable())
-            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
     }
 }

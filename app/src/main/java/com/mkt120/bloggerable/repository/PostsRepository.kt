@@ -5,6 +5,8 @@ import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class PostsRepository(
     private val bloggerApiDataSource: BloggerApiDataSource,
@@ -14,16 +16,17 @@ class PostsRepository(
     override fun requestLivePosts(
         accessToken: String,
         blogId: String
-    ): Single<Pair<List<Posts>?, Boolean>> {
-        return bloggerApiDataSource.requestPostsList(accessToken, blogId)
-    }
+    ): Single<Pair<List<Posts>?, Boolean>> =
+        bloggerApiDataSource.requestPostsList(accessToken, blogId)
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+
 
     override fun requestDraftPosts(
         accessToken: String,
         blogId: String
-    ): Single<Pair<List<Posts>?, Boolean>> {
-        return bloggerApiDataSource.requestDraftPostsList(accessToken, blogId)
-    }
+    ): Single<Pair<List<Posts>?, Boolean>> =
+        bloggerApiDataSource.requestDraftPostsList(accessToken, blogId)
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
     override fun createPosts(
         accessToken: String,
