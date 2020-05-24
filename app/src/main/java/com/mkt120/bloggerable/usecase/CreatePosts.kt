@@ -14,13 +14,9 @@ class CreatePosts(
         html: String,
         labels: Array<String>?,
         draft: Boolean,
-        onComplete: () -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-
-        getAccessToken.execute(userId, System.currentTimeMillis()).flatMapCompletable { accessToken ->
-            createPost(accessToken, blogId, title, html, labels, draft)
-        }.subscribe(onComplete, onError)
+        now: Long
+    ): Completable = getAccessToken.execute(userId, now).flatMapCompletable { accessToken ->
+        createPost(accessToken, blogId, title, html, labels, draft)
     }
 
     private fun createPost(

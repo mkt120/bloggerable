@@ -451,25 +451,26 @@ class CreatePostsPresenter(
             html,
             labels,
             isDraft,
-            {
-                isExecuting = false
-                val messageResId: Int = if (isDraft) {
-                    R.string.toast_create_draft_success
-                } else {
-                    R.string.toast_create_posts_success
-                }
-                view.showMessage(messageResId)
-                val result = if (isDraft) {
-                    CreatePostsActivity.RESULT_DRAFT_UPDATE
-                } else {
-                    CreatePostsActivity.RESULT_POSTS_UPDATE
-                }
-                view.onComplete(result)
+            System.currentTimeMillis()
+        ).subscribe({
+            isExecuting = false
+            val messageResId: Int = if (isDraft) {
+                R.string.toast_create_draft_success
+            } else {
+                R.string.toast_create_posts_success
+            }
+            view.showMessage(messageResId)
+            val result = if (isDraft) {
+                CreatePostsActivity.RESULT_DRAFT_UPDATE
+            } else {
+                CreatePostsActivity.RESULT_POSTS_UPDATE
+            }
+            view.onComplete(result)
+        }, {
+            isExecuting = false
+            view.showMessage(R.string.toast_create_posts_failed)
+        })
 
-            }, {
-                isExecuting = false
-                view.showMessage(R.string.toast_create_posts_failed)
-            })
     }
 
     /**
