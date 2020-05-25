@@ -31,7 +31,7 @@ class GetAccessTokenTest {
             } doReturn (STUB_REFRESH_TOKEN)
             // リフレッシュ要求
             on {
-                requestRefresh(STUB_USER_ID, STUB_REFRESH_TOKEN)
+                requestRefresh(STUB_USER_ID, STUB_REFRESH_TOKEN, STUB_NOW)
             } doReturn (Single.create {})
         }
         val getAccessToken = GetAccessToken(mockRepository)
@@ -56,7 +56,7 @@ class GetAccessTokenTest {
             } doReturn (STUB_REFRESH_TOKEN)
             // リフレッシュ要求
             on {
-                requestRefresh(STUB_USER_ID, STUB_REFRESH_TOKEN)
+                requestRefresh(STUB_USER_ID, STUB_REFRESH_TOKEN, STUB_NOW)
             } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
         }
         val getAccessToken = GetAccessToken(mockRepository)

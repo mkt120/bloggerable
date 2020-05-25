@@ -8,12 +8,12 @@ class GetAccessToken(private val accountRepository: Repository.IAccountRepositor
 
     override fun execute(userId: String, now:Long): Single<String> {
         return accountRepository.getAccessToken(userId, now)
-            .onErrorResumeNext(requestRefresh(userId))
+            .onErrorResumeNext(requestRefresh(userId, now))
     }
 
-    private fun requestRefresh(userId: String): Single<String> {
+    private fun requestRefresh(userId: String, now: Long): Single<String> {
         val refreshToken = accountRepository.getRefreshToken(userId)
-        return accountRepository.requestRefresh(userId, refreshToken!!)
+        return accountRepository.requestRefresh(userId, refreshToken!!, now)
     }
 
 }

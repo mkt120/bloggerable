@@ -18,7 +18,7 @@ interface Repository {
         fun getRefreshToken(id: String): String?
         fun getAccessToken(id: String, now: Long): Single<String>
         fun requestAccessToken(serverAuthCode: String): Single<OauthResponse>
-        fun requestRefresh(userId: String, refreshToken: String): Single<String>
+        fun requestRefresh(userId: String, refreshToken: String, now: Long): Single<String>
         fun saveNewAccount(
             account: GoogleSignInAccount,
             accessToken: String,
