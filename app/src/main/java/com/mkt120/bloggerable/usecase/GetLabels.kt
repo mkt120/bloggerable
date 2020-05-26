@@ -4,6 +4,6 @@ import com.mkt120.bloggerable.repository.BlogRepository
 
 class GetLabels(
     private val blogsRepository: BlogRepository
-) {
-    fun execute(blogId: String): List<String> = blogsRepository.findAllLabels(blogId)
+) : UseCase.IGetLabels {
+    override fun execute(blogId: String): List<String> = blogsRepository.findAllLabels(blogId)
 }

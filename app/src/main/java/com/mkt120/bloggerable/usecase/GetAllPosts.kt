@@ -10,8 +10,9 @@ class GetAllPosts(
     private val getAccessToken: UseCase.IGetAccessToken,
     private val postsRepository: Repository.IPostsRepository,
     private val blogRepository: Repository.IBlogRepository
-) {
-    fun execute(
+) : UseCase.IGetAllPosts {
+
+    override fun execute(
         now: Long,
         userId: String,
         blog: Blogs

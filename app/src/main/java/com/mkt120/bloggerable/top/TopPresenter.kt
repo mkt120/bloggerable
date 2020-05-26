@@ -10,11 +10,11 @@ import com.mkt120.bloggerable.usecase.*
 
 class TopPresenter(
     private val view: TopContract.TopView,
-    private val getCurrentAccount: GetCurrentAccount,
-    private val saveCurrentAccount: SaveCurrentAccount,
-    private val findAllBlogs: FindAllBlog,
-    private val getAllPosts: GetAllPosts,
-    private val getLabels: GetLabels
+    private val getCurrentAccount: UseCase.IGetCurrentAccount,
+    private val saveCurrentAccount: UseCase.ISaveCurrentAccount,
+    private val findAllBlogs: UseCase.IFindAllBlog,
+    private val getAllPosts: UseCase.IGetAllPosts,
+    private val getLabels: UseCase.IGetLabels
 ) :
     TopContract.TopPresenter {
 
