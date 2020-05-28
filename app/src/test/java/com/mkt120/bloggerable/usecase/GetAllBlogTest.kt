@@ -36,7 +36,7 @@ class GetAllBlogTest {
 
     private val mockGetAccessToken = mock<UseCase.IGetAccessToken> {
         on {
-            execute(STUB_USER_ID, STUB_NOW)
+            execute(STUB_USER_ID)
         } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
     }
     private val mockAccountRepository = mock<Repository.IAccountRepository> {
@@ -58,9 +58,15 @@ class GetAllBlogTest {
                 requestAllBlog(STUB_ACCESS_TOKEN)
             } doReturn (Single.create { emitter -> emitter.onSuccess(stubRet) })
         }
+        val timeRepository = mock<Repository.ITimeRepository> {
+            on {
+                getCurrentTime()
+            } doReturn (STUB_NOW)
+        }
 
-        val getAllBlog = GetAllBlog(mockGetAccessToken, mockAccountRepository, mockRepository)
-        getAllBlog.execute(STUB_NOW, stubAccount).test().assertNoErrors().assertComplete()
+        val getAllBlog =
+            GetAllBlog(mockGetAccessToken, mockAccountRepository, mockRepository, timeRepository)
+        getAllBlog.execute(stubAccount).test().assertNoErrors().assertComplete()
         verify(mockRepository).saveAllBlog(check { it ->
             assert(it.isEmpty())
         })
@@ -76,9 +82,15 @@ class GetAllBlogTest {
                 requestAllBlog(STUB_ACCESS_TOKEN)
             } doReturn (Single.create { emitter -> emitter.onSuccess(stubRet) })
         }
+        val timeRepository = mock<Repository.ITimeRepository> {
+            on {
+                getCurrentTime()
+            } doReturn (STUB_NOW)
+        }
 
-        val getAllBlog = GetAllBlog(mockGetAccessToken, mockAccountRepository, mockRepository)
-        getAllBlog.execute(STUB_NOW, stubAccount).test().assertNoErrors().assertComplete()
+        val getAllBlog =
+            GetAllBlog(mockGetAccessToken, mockAccountRepository, mockRepository, timeRepository)
+        getAllBlog.execute(stubAccount).test().assertNoErrors().assertComplete()
         verify(mockRepository).saveAllBlog(check { it ->
             assert(it.size == 1)
         })

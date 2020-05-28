@@ -157,7 +157,7 @@ class TopPresenter(
     private fun requestPosts(userId: String, blog: Blogs) {
         // 記事一覧取得
         view.showProgress()
-        getAllPosts.execute(System.currentTimeMillis(), userId, blog).subscribe({
+        getAllPosts.execute(userId, blog).subscribe({
             view.dismissProgress()
             view.notifyDataSetChanged()
         }, {

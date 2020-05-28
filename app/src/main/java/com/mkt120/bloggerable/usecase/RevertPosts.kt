@@ -12,7 +12,7 @@ class RevertPosts(
         userId: String,
         blogId: String,
         postsId: String
-    ): Completable = getAccessToken.execute(userId, now)
+    ): Completable = getAccessToken.execute(userId)
         .flatMapCompletable { accessToken ->
             postsRepository.revertPosts(accessToken, blogId, postsId)
         }

@@ -9,14 +9,14 @@ import io.reactivex.Observable
 class GetAllPosts(
     private val getAccessToken: UseCase.IGetAccessToken,
     private val postsRepository: Repository.IPostsRepository,
-    private val blogRepository: Repository.IBlogRepository
+    private val blogRepository: Repository.IBlogRepository,
+    private val timeRepository: Repository.ITimeRepository
 ) : UseCase.IGetAllPosts {
 
     override fun execute(
-        now: Long,
         userId: String,
         blog: Blogs
-    ): Completable = getAccessToken.execute(userId, now)
+    ): Completable = getAccessToken.execute(userId)
         .flatMapObservable { accessToken -> requestAllPosts(blog.id!!, accessToken) }
         .flatMapCompletable { pair ->
             Completable.create { emitter ->
@@ -24,6 +24,7 @@ class GetAllPosts(
                 items?.let {
                     postsRepository.savePosts(it, pair.second)
                     if (it.isNotEmpty()) {
+                        val now = timeRepository.getCurrentTime()
                         blogRepository.updateLastPostListRequest(blog, now)
                     }
                 }

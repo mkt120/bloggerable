@@ -20,7 +20,7 @@ class CreatePostsTest {
 
     private val mockGetAccessToken = mock<UseCase.IGetAccessToken> {
         on {
-            execute(STUB_USER_ID, STUB_NOW)
+            execute(STUB_USER_ID)
         } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
     }
 
@@ -39,7 +39,7 @@ class CreatePostsTest {
             } doReturn (Completable.create { emitter -> emitter.onComplete() })
         }
         val createPosts = CreatePosts(mockGetAccessToken, mockRepository)
-        createPosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_TITLE, STUB_HTML, null, true, STUB_NOW)
+        createPosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_TITLE, STUB_HTML, null, true)
             .test().assertComplete()
     }
 
@@ -58,7 +58,7 @@ class CreatePostsTest {
             } doReturn (Completable.create { emitter -> emitter.onError(Exception()) })
         }
         val createPosts = CreatePosts(mockGetAccessToken, mockRepository)
-        createPosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_TITLE, STUB_HTML, null, true, STUB_NOW)
+        createPosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_TITLE, STUB_HTML, null, true)
             .test().assertError(Exception::class.java)
     }
 

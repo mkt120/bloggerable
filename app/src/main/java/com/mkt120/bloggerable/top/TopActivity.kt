@@ -27,6 +27,7 @@ import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.BlogRepository
+import com.mkt120.bloggerable.repository.TimeRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
 import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
@@ -64,14 +65,15 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
+        val timeRepository = TimeRepository()
 
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findAllBlogs = FindAllBlog(blogsRepository)
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val saveCurrentAccount = SaveCurrentAccount(accountRepository)
         val getCurrentAccount = GetCurrentAccount(accountRepository)
-        val getAccessToken = GetAccessToken(accountRepository)
-        val getAllPosts = GetAllPosts(getAccessToken, postsRepository, blogsRepository)
+        val getAccessToken = GetAccessToken(accountRepository, timeRepository)
+        val getAllPosts = GetAllPosts(getAccessToken, postsRepository, blogsRepository, timeRepository)
         val getLabels = GetLabels(blogsRepository)
 
         presenter = TopPresenter(

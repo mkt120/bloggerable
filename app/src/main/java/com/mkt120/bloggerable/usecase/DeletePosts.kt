@@ -10,10 +10,9 @@ class DeletePosts(
     fun execute(
         userId: String,
         blogId: String,
-        postsId: String,
-        now: Long
+        postsId: String
     ): Completable {
-        return getAccessToken.execute(userId, now)
+        return getAccessToken.execute(userId)
             .flatMapCompletable { accessToken ->
                 postsRepository.deletePosts(
                     accessToken,

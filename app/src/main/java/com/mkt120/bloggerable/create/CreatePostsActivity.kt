@@ -24,6 +24,7 @@ import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.PostsRepository
+import com.mkt120.bloggerable.repository.TimeRepository
 import com.mkt120.bloggerable.usecase.*
 import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlin.math.max
@@ -191,7 +192,8 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val preferenceDataSource = PreferenceDataSource(applicationContext)
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val getCurrentUser = GetCurrentAccount(accountRepository)
-        val getAccessToken = GetAccessToken(accountRepository)
+        val timeRepository = TimeRepository()
+        val getAccessToken = GetAccessToken(accountRepository, timeRepository)
         val createPosts = CreatePosts(getAccessToken, postsRepository)
         val updatePosts = UpdatePosts(getAccessToken, postsRepository)
         val revertPosts = RevertPosts(getAccessToken, postsRepository)

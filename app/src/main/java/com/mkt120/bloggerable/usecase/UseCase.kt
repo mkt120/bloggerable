@@ -11,7 +11,7 @@ interface UseCase {
     }
 
     interface IGetAccessToken {
-        fun execute(userId: String, now: Long): Single<String>
+        fun execute(userId: String): Single<String>
     }
 
     interface ISaveCurrentAccount {
@@ -24,7 +24,6 @@ interface UseCase {
 
     interface IGetAllPosts {
         fun execute(
-            now: Long,
             userId: String,
             blog: Blogs
         ): Completable

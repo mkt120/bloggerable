@@ -2,6 +2,7 @@ package com.mkt120.bloggerable.usecase
 
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.presenter.TopPresenterTest
 import com.mkt120.bloggerable.repository.Repository
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -21,7 +22,7 @@ class GetAllPostsTest {
 
     private val mockGetAccessToken = mock<UseCase.IGetAccessToken> {
         on {
-            execute(STUB_USER_ID, STUB_NOW)
+            execute(STUB_USER_ID)
         } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
     }
     private val mockBlogsRepository = mock<Repository.IBlogRepository> {
@@ -47,8 +48,13 @@ class GetAllPostsTest {
         }
         val blogs = Blogs()
         blogs.id = STUB_BLOG_ID
-        val getAllPosts = GetAllPosts(mockGetAccessToken, mockPostsRepository, mockBlogsRepository)
-        getAllPosts.execute(STUB_NOW, STUB_USER_ID, blogs).test().assertNoErrors().assertComplete()
+        val timeRepository = mock<Repository.ITimeRepository> {
+            on {
+                getCurrentTime()
+            } doReturn (STUB_NOW)
+        }
+        val getAllPosts = GetAllPosts(mockGetAccessToken, mockPostsRepository, mockBlogsRepository, timeRepository)
+        getAllPosts.execute(STUB_USER_ID, blogs).test().assertNoErrors().assertComplete()
         verify(mockPostsRepository, times(1)).savePosts(mutableListOf(), true)
         verify(mockPostsRepository, times(1)).savePosts(mutableListOf(), false)
         verify(mockBlogsRepository, times(0)).updateLastPostListRequest(blogs, STUB_NOW)
@@ -77,8 +83,13 @@ class GetAllPostsTest {
         val blogs = Blogs().apply {
             id = STUB_BLOG_ID
         }
-        val getAllPosts = GetAllPosts(mockGetAccessToken, mockPostsRepository, mockBlogsRepository)
-        getAllPosts.execute(STUB_NOW, STUB_USER_ID, blogs).test().assertNoErrors().assertComplete()
+        val timeRepository = mock<Repository.ITimeRepository> {
+            on {
+                getCurrentTime()
+            } doReturn (STUB_NOW)
+        }
+        val getAllPosts = GetAllPosts(mockGetAccessToken, mockPostsRepository, mockBlogsRepository, timeRepository)
+        getAllPosts.execute(STUB_USER_ID, blogs).test().assertNoErrors().assertComplete()
 
         verify(mockPostsRepository, times(1)).savePosts(draftPosts, true)
         verify(mockPostsRepository, times(1)).savePosts(livePosts, false)

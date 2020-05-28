@@ -10,6 +10,9 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 interface Repository {
+    interface ITimeRepository {
+        fun getCurrentTime(): Long
+    }
     interface IAccountRepository {
         fun getAllAccounts(): ArrayList<Account>
         fun setCurrentAccount(account: Account)
