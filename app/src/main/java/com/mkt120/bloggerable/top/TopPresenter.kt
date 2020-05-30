@@ -1,12 +1,11 @@
 package com.mkt120.bloggerable.top
 
-import android.util.Log
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
-import com.mkt120.bloggerable.usecase.*
+import com.mkt120.bloggerable.usecase.UseCase
 
 class TopPresenter(
     private val view: TopContract.TopView,
@@ -50,12 +49,6 @@ class TopPresenter(
 
         val current = blogs.find { it.id == blogId } ?: blogs[0]
         bindCurrentBlog(current)
-        val isExpired = current.isExpired(System.currentTimeMillis())
-        Log.d(TAG, "isExpired=$isExpired")
-        if (isExpired) {
-            requestPosts(currentAccount!!.getId(), current)
-            return
-        }
     }
 
     override fun onClickFab() {
@@ -71,11 +64,6 @@ class TopPresenter(
             view.closeDrawer()
         }
         bindCurrentBlog(blogs)
-        val isExpired = blogs.isExpired(System.currentTimeMillis())
-        if (isExpired) {
-            requestPosts(currentAccount!!.getId(), blogs)
-            return
-        }
     }
 
     private fun bindCurrentBlog(blog: Blogs) {
@@ -83,6 +71,7 @@ class TopPresenter(
         currentBlog = blog
         currentAccount!!.setCurrentBlogId(blog.id!!)
         saveCurrentAccount.execute(currentAccount!!)
+        updatePosts(currentAccount!!, currentBlog)
 
         view.setTitle(currentBlog.name!!)
         view.updateCurrentBlog(currentBlog.id!!)
@@ -104,7 +93,7 @@ class TopPresenter(
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int) {
-        requestPosts(currentAccount!!.getId(), currentBlog)
+        updatePosts(currentAccount!!, currentBlog)
 
         if (resultCode == CreatePostsActivity.RESULT_POSTS_UPDATE) {
             view.setPagerPosition(0)
@@ -151,18 +140,19 @@ class TopPresenter(
     }
 
     override fun onClickConfirmPositiveClick() {
-        requestPosts(currentAccount!!.getId(), currentBlog)
+        updatePosts(currentAccount!!, currentBlog)
     }
 
-    private fun requestPosts(userId: String, blog: Blogs) {
+    private fun updatePosts(account: Account, blog: Blogs) {
         // 記事一覧取得
         view.showProgress()
-        getAllPosts.execute(userId, blog).subscribe({
-            view.dismissProgress()
-            view.notifyDataSetChanged()
+        getAllPosts.execute(account, blog).subscribe({ _ ->
         }, {
             view.dismissProgress()
             view.showError()
+        }, {
+            view.dismissProgress()
+            view.notifyDataSetChanged()
         })
     }
 }

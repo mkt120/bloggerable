@@ -45,35 +45,33 @@ class PostsRepositoryTest {
     @Test
     fun requestLivePosts() {
         val list = mutableListOf<Posts>()
-        val pair = Pair<List<Posts>?, Boolean>(list.toList(), false)
         val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
             on {
                 requestPostsList(STUB_ACCESS_TOKEN, STUB_BLOG_ID)
             } doReturn (Single.create { emitter ->
-                emitter.onSuccess(pair)
+                emitter.onSuccess(list.toList())
             })
         }
         val mockRealmDataSource = mock<DataSource.IRealmDataSource> {}
         val postsRepository = PostsRepository(mockBloggerApiDataSource, mockRealmDataSource)
         postsRepository.requestLivePosts(STUB_ACCESS_TOKEN, STUB_BLOG_ID).test().await()
-            .assertValue(pair)
+            .assertValue(list.toList())
     }
 
     @Test
     fun requestDraftPosts() {
         val list = mutableListOf<Posts>()
-        val pair = Pair<List<Posts>?, Boolean>(list.toList(), true)
         val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
             on {
                 requestDraftPostsList(STUB_ACCESS_TOKEN, STUB_BLOG_ID)
             } doReturn (Single.create { emitter ->
-                emitter.onSuccess(pair)
+                emitter.onSuccess(list.toList())
             })
         }
         val mockRealmDataSource = mock<DataSource.IRealmDataSource> {}
         val postsRepository = PostsRepository(mockBloggerApiDataSource, mockRealmDataSource)
         postsRepository.requestDraftPosts(STUB_ACCESS_TOKEN, STUB_BLOG_ID).test().await()
-            .assertValue(pair)
+            .assertValue(list.toList())
     }
 
     @Test

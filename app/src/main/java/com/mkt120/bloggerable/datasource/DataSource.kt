@@ -17,12 +17,12 @@ interface DataSource {
         fun requestPostsList(
             accessToken: String,
             blogId: String
-        ): Single<Pair<List<Posts>?, Boolean>>
+        ): Single<List<Posts>>
 
         fun requestDraftPostsList(
             accessToken: String,
             blogId: String
-        ): Single<Pair<List<Posts>?, Boolean>>
+        ): Single<List<Posts>>
 
         fun updatePosts(accessToken: String, old: Posts): Completable
 

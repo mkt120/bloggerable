@@ -2,7 +2,8 @@ package com.mkt120.bloggerable.usecase
 
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.blogs.Blogs
-import io.reactivex.Completable
+import com.mkt120.bloggerable.model.posts.Posts
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface UseCase {
@@ -24,10 +25,11 @@ interface UseCase {
 
     interface IGetAllPosts {
         fun execute(
-            userId: String,
+            account: Account,
             blog: Blogs
-        ): Completable
+        ): Observable<Pair<List<Posts>, List<Posts>>>
     }
+
     interface IGetLabels {
         fun execute(blogId: String): List<String>
     }

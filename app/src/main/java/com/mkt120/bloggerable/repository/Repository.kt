@@ -34,12 +34,12 @@ interface Repository {
         fun requestLivePosts(
             accessToken: String,
             blogId: String
-        ): Single<Pair<List<Posts>?, Boolean>>
+        ): Single<List<Posts>>
 
         fun requestDraftPosts(
             accessToken: String,
             blogId: String
-        ): Single<Pair<List<Posts>?, Boolean>>
+        ): Single<List<Posts>>
 
         fun createPosts(
             accessToken: String,
