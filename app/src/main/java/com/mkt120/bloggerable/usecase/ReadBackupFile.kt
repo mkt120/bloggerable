@@ -2,19 +2,31 @@ package com.mkt120.bloggerable.usecase
 
 import android.util.Log
 import com.mkt120.bloggerable.model.posts.Posts
+import com.mkt120.bloggerable.repository.Repository
 import java.io.File
+import java.util.regex.Pattern
 
-class ReadBackupFile(fileDir: File) : FileHandler(fileDir) {
+class ReadBackupFile(private val backupFileRepository: Repository.IBackupFileRepository) :UseCase.IReadBackupFile{
 
-    fun execute(blogId: String, postId: String? = null): Posts? {
+    companion object {
+        val NEW_LINE_PATTERN: Pattern = Pattern.compile("\\n")
+        private const val FILE_EXTENSION: String = ".drf"
+    }
+
+    override fun execute(blogId: String, postId: String?): Posts? {
         Log.i("ReadBackupFile", "execute blogId=$blogId, postId=$postId")
-        return read(getFile(blogId, postId))
+        var fileName = blogId.plus("_")
+        if (!postId.isNullOrEmpty()) {
+            fileName = fileName.plus(postId)
+        }
+        val file = backupFileRepository.getFile(fileName.plus(FILE_EXTENSION))
+        return read(file)
     }
 
     /**
      * ファイルを読み込む
      */
-    public fun read(file: File): Posts? {
+    private fun read(file: File): Posts? {
         if (!file.exists()) {
             return null
         }

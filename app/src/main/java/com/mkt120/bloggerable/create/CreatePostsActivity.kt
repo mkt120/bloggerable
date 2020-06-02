@@ -23,6 +23,7 @@ import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
+import com.mkt120.bloggerable.repository.BackupFileRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.repository.TimeRepository
 import com.mkt120.bloggerable.usecase.*
@@ -181,9 +182,10 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val blogId = intent.getStringExtra(EXTRA_KEY_BLOG_ID)!!
         val postsId = intent.getStringExtra(EXTRA_KEY_POSTS_ID)
 
-        val readBackupFile = ReadBackupFile(cacheDir)
-        val createBackupFile = CreateBackupFile(cacheDir)
-        val deleteBackupFile = DeleteBackupFile(cacheDir)
+        val backupFileRepository = BackupFileRepository(cacheDir)
+        val readBackupFile = ReadBackupFile(backupFileRepository)
+        val createBackupFile = CreateBackupFile(backupFileRepository)
+        val deleteBackupFile = DeleteBackupFile(backupFileRepository)
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val realmDataSource = RealmDataSource(getRealm())

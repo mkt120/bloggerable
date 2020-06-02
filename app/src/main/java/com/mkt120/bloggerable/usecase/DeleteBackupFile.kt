@@ -1,13 +1,19 @@
 package com.mkt120.bloggerable.usecase
 
-import java.io.File
+import com.mkt120.bloggerable.repository.Repository
 
-class DeleteBackupFile(fileDir: File) : FileHandler(fileDir) {
+class DeleteBackupFile(private val backupFileRepository: Repository.IBackupFileRepository) :
+    UseCase.IDeleteBackupFile {
 
-    fun execute(blogId: String, postId: String?) {
-        val file = getFile(blogId, postId)
-        if (file.exists()) {
-            file.delete()
+    companion object {
+        private const val FILE_EXTENSION: String = ".drf"
+    }
+
+    override fun execute(blogId: String, postId: String?) {
+        var fileName = blogId.plus("_")
+        if (!postId.isNullOrEmpty()) {
+            fileName = fileName.plus(postId)
         }
+        backupFileRepository.deleteFile(fileName.plus(FILE_EXTENSION))
     }
 }

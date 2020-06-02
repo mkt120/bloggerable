@@ -34,4 +34,17 @@ interface UseCase {
         fun execute(blogId: String): List<String>
     }
 
+    interface ICreateBackupFile {
+        fun execute(blogId: String, postId: String? = null, title: String, content: String)
+    }
+
+    interface IReadBackupFile {
+        fun execute(blogId: String, postId: String? = null): Posts?
+    }
+
+    interface IDeleteBackupFile {
+        fun execute(blogId: String, postId: String?)
+    }
+
+
 }
