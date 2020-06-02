@@ -8,11 +8,13 @@ import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import io.reactivex.Completable
 import io.reactivex.Single
+import java.io.File
 
 interface Repository {
     interface ITimeRepository {
         fun getCurrentTime(): Long
     }
+
     interface IAccountRepository {
         fun getAllAccounts(): ArrayList<Account>
         fun setCurrentAccount(account: Account)
@@ -96,6 +98,12 @@ interface Repository {
     interface IGoogleAccountRepository {
         fun getSignInIntent(): Intent
         fun getAccounts(): ArrayList<Account>
+    }
+
+    interface IBackupFileRepository {
+        fun getFile(fileName: String): File
+        fun createFile(fileName: String, title: String, content: String)
+        fun deleteFile(fileName: String)
     }
 
 }

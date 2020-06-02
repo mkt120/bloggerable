@@ -1,28 +1,21 @@
 package com.mkt120.bloggerable.usecase
 
 import android.util.Log
-import java.io.File
-import java.io.FileWriter
+import com.mkt120.bloggerable.repository.Repository
 
-class CreateBackupFile(fileDir: File) : FileHandler(fileDir) {
+class CreateBackupFile(private val backupFileRepository: Repository.IBackupFileRepository) :
+    UseCase.ICreateBackupFile {
 
-    fun execute(blogId: String, postId: String? = null, title: String, content: String) {
-        Log.i("CreateBackupFile", "execute blogId=$blogId, postId=$postId")
-        val file = getFile(blogId, postId)
-        write(file, title, content)
+    companion object {
+        private const val FILE_EXTENSION: String = ".drf"
     }
 
-    /**
-     * ファイルに書き込みする
-     */
-    public fun write(file: File, title: String, content: String) {
-        if (!file.exists()) {
-            // ないので作る
-            file.createNewFile()
+    override fun execute(blogId: String, postId: String?, title: String, content: String) {
+        Log.i("CreateBackupFile", "execute blogId=$blogId, postId=$postId")
+        var fileName = blogId.plus("_")
+        if (!postId.isNullOrEmpty()) {
+            fileName = fileName.plus(postId)
         }
-        val writer = FileWriter(file)
-        val text = "$title\n\n$content"
-        writer.write(text)
-        writer.close()
+        backupFileRepository.createFile(fileName.plus(FILE_EXTENSION), title, content)
     }
 }
