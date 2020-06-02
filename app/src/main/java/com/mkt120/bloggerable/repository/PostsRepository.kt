@@ -15,7 +15,7 @@ class PostsRepository(
     override fun requestLivePosts(
         accessToken: String,
         blogId: String
-    ): Single<Pair<List<Posts>?, Boolean>> =
+    ): Single<List<Posts>> =
         bloggerApiDataSource.requestPostsList(accessToken, blogId)
             .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
@@ -23,7 +23,7 @@ class PostsRepository(
     override fun requestDraftPosts(
         accessToken: String,
         blogId: String
-    ): Single<Pair<List<Posts>?, Boolean>> =
+    ): Single<List<Posts>> =
         bloggerApiDataSource.requestDraftPostsList(accessToken, blogId)
             .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 

@@ -1,6 +1,8 @@
 package com.mkt120.bloggerable.usecase
 
+import com.mkt120.bloggerable.presenter.TopPresenterTest
 import com.mkt120.bloggerable.repository.Repository
+import com.mkt120.bloggerable.repository.TimeRepository
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.Single
@@ -34,8 +36,13 @@ class GetAccessTokenTest {
                 requestRefresh(STUB_USER_ID, STUB_REFRESH_TOKEN, STUB_NOW)
             } doReturn (Single.create {})
         }
-        val getAccessToken = GetAccessToken(mockRepository)
-        val single = getAccessToken.execute(STUB_USER_ID, STUB_NOW).test()
+        val timeRepository = mock<Repository.ITimeRepository> {
+            on {
+                getCurrentTime()
+            } doReturn (STUB_NOW)
+        }
+        val getAccessToken = GetAccessToken(mockRepository, timeRepository)
+        val single = getAccessToken.execute(STUB_USER_ID).test()
         single.assertValue(STUB_PREF_ACCESS_TOKEN)
     }
 
@@ -59,8 +66,13 @@ class GetAccessTokenTest {
                 requestRefresh(STUB_USER_ID, STUB_REFRESH_TOKEN, STUB_NOW)
             } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
         }
-        val getAccessToken = GetAccessToken(mockRepository)
-        val single = getAccessToken.execute(STUB_USER_ID, STUB_NOW).test()
+        val timeRepository = mock<Repository.ITimeRepository> {
+            on {
+                getCurrentTime()
+            } doReturn (STUB_NOW)
+        }
+        val getAccessToken = GetAccessToken(mockRepository, timeRepository)
+        val single = getAccessToken.execute(STUB_USER_ID).test()
         single.assertValue(STUB_ACCESS_TOKEN)
     }
 

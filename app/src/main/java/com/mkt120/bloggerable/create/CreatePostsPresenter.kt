@@ -453,8 +453,7 @@ class CreatePostsPresenter(
             title,
             html,
             labels,
-            isDraft,
-            System.currentTimeMillis()
+            isDraft
         ).subscribe({
             isExecuting = false
             val messageResId: Int = if (isDraft) {
@@ -556,7 +555,7 @@ class CreatePostsPresenter(
     private fun deletePosts(userId: String, isDraft: Boolean) {
         view.showProgress()
         isExecuting = true
-        deletePosts.execute(userId, blogId, posts!!.id!!, System.currentTimeMillis()).subscribe({
+        deletePosts.execute(userId, blogId, posts!!.id!!).subscribe({
             isExecuting = false
             view.showMessage(R.string.toast_success_delete_posts)
             val result = if (isDraft) {

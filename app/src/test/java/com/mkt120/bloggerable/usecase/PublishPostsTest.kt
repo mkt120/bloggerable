@@ -19,7 +19,7 @@ class PublishPostsTest {
 
     private val mockGetAccessToken = mock<UseCase.IGetAccessToken> {
         on {
-            execute(STUB_USER_ID, STUB_NOW)
+            execute(STUB_USER_ID)
         } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
     }
     private val mockRepository = mock<Repository.IPostsRepository> {

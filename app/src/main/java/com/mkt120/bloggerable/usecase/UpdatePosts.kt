@@ -17,7 +17,7 @@ class UpdatePosts(
         title: String,
         html: String,
         labels: Array<String>?
-    ): Completable = getAccessToken.execute(userId, now)
+    ): Completable = getAccessToken.execute(userId)
         .flatMapCompletable { accessToken ->
             posts.apply {
                 this.title = title

@@ -19,7 +19,7 @@ class DeletePostsTest {
 
     private val mockGetAccessToken = mock<UseCase.IGetAccessToken> {
         on {
-            execute(STUB_USER_ID, STUB_NOW)
+            execute(STUB_USER_ID)
         } doReturn (Single.create { emitter -> emitter.onSuccess(STUB_ACCESS_TOKEN) })
     }
 
@@ -39,7 +39,7 @@ class DeletePostsTest {
             } doReturn (Completable.create { emitter -> emitter.onComplete() })
         }
         val deletePosts = DeletePosts(mockGetAccessToken, mockRepository)
-        deletePosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_POST_ID, STUB_NOW).test()
+        deletePosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_POST_ID).test()
             .assertComplete()
     }
 
@@ -59,7 +59,7 @@ class DeletePostsTest {
             } doReturn (Completable.create { emitter -> emitter.onComplete() })
         }
         val deletePosts = DeletePosts(mockGetAccessToken, mockRepository)
-        deletePosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_POST_ID, STUB_NOW).test()
+        deletePosts.execute(STUB_USER_ID, STUB_BLOG_ID, STUB_POST_ID).test()
             .assertError(Exception::class.java)
     }
 }

@@ -12,7 +12,7 @@ class PublishPosts(
         userId: String,
         blogsId: String,
         postsId: String
-    ): Completable = getAccessToken.execute(userId, now).flatMapCompletable { accessToken ->
+    ): Completable = getAccessToken.execute(userId).flatMapCompletable { accessToken ->
         postsRepository.publishPosts(accessToken, blogsId, postsId)
     }
 }

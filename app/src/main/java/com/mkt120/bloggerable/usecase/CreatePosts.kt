@@ -13,9 +13,8 @@ class CreatePosts(
         title: String,
         html: String,
         labels: Array<String>?,
-        draft: Boolean,
-        now: Long
-    ): Completable = getAccessToken.execute(userId, now).flatMapCompletable { accessToken ->
+        draft: Boolean
+    ): Completable = getAccessToken.execute(userId).flatMapCompletable { accessToken ->
         createPost(accessToken, blogId, title, html, labels, draft)
     }
 

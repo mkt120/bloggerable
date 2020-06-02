@@ -76,7 +76,6 @@ class LoginPresenter(
         view.showProgress()
         val currentAccount = getCurrentAccount.execute()!!
         getAllBlogs.execute(
-            System.currentTimeMillis(),
             currentAccount
         ).subscribe({
             view.dismissProgress()

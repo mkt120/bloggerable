@@ -82,27 +82,25 @@ class BloggerApiDataSource : DataSource.IBloggerApiDataSource {
     override fun requestPostsList(
         accessToken: String,
         blogId: String
-    ): Single<Pair<List<Posts>?, Boolean>> = getPosts(accessToken, blogId, "live")
+    ): Single<List<Posts>> = getPosts(accessToken, blogId, "live")
 
     override fun requestDraftPostsList(
         accessToken: String,
         blogId: String
-    ): Single<Pair<List<Posts>?, Boolean>> = getPosts(accessToken, blogId, "draft")
+    ): Single<List<Posts>> = getPosts(accessToken, blogId, "draft")
 
     private fun getPosts(
         accessToken: String,
         blogId: String,
         status: String = "live"
-    ): Single<Pair<List<Posts>?, Boolean>> = apiService.getPosts(
+    ): Single<List<Posts>> = apiService.getPosts(
         "Bearer $accessToken",
         blogId,
         BuildConfig.BLOGGERABLE_API_KEY,
         status
     ).subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .map { response ->
-            Pair(response.items, status != ("live"))
-        }
+        .map { response -> response.items }
 
     override fun updatePosts(
         accessToken: String,
