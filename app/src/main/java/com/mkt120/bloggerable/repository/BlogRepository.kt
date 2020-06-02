@@ -1,15 +1,14 @@
 package com.mkt120.bloggerable.repository
 
-import com.mkt120.bloggerable.datasource.BloggerApiDataSource
-import com.mkt120.bloggerable.datasource.RealmDataSource
+import com.mkt120.bloggerable.datasource.DataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class BlogRepository(
-    private val bloggerApiDataSource: BloggerApiDataSource,
-    private val realmDataSource: RealmDataSource
+    private val bloggerApiDataSource: DataSource.IBloggerApiDataSource,
+    private val realmDataSource: DataSource.IRealmDataSource
 ) : Repository.IBlogRepository {
 
     override fun findAllBlog(userId: String): Single<MutableList<Blogs>> =
@@ -32,6 +31,6 @@ class BlogRepository(
         realmDataSource.saveBlogs(blog)
     }
 
-    override fun findAllLabels(blogId: String): ArrayList<String> =
+    override fun findAllLabels(blogId: String): List<String> =
         realmDataSource.findAllLabels(blogId)
 }

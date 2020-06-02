@@ -18,7 +18,7 @@ interface Repository {
         fun getRefreshToken(id: String): String?
         fun getAccessToken(id: String, now: Long): Single<String>
         fun requestAccessToken(serverAuthCode: String): Single<OauthResponse>
-        fun requestRefresh(userId: String, refreshToken: String): Single<String>
+        fun requestRefresh(userId: String, refreshToken: String, now: Long): Single<String>
         fun saveNewAccount(
             account: GoogleSignInAccount,
             accessToken: String,
@@ -87,7 +87,7 @@ interface Repository {
         ): Single<List<Blogs>?>
 
         fun updateLastPostListRequest(blog: Blogs, now: Long)
-        fun findAllLabels(blogId: String): ArrayList<String>
+        fun findAllLabels(blogId: String): List<String>
     }
 
     interface IGoogleAccountRepository {

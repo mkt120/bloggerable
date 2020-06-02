@@ -25,7 +25,6 @@ import com.mkt120.bloggerable.model.posts.Posts
 import com.mkt120.bloggerable.repository.AccountRepository
 import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.usecase.*
-import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_create_post.*
 import kotlin.math.max
 import kotlin.math.min
@@ -52,20 +51,20 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         const val RESULT_POSTS_UPDATE = 100
         const val RESULT_DRAFT_UPDATE = 200
 
-        fun createIntent(context: Context, blogId: String, labels: ArrayList<String>): Intent =
+        fun createIntent(context: Context, blogId: String, labels: List<String>): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
                 putExtra(
                     EXTRA_KEY_REQUEST_CODE,
                     REQUEST_CREATE_POSTS
                 )
                 putExtra(EXTRA_KEY_BLOG_ID, blogId)
-                putExtra(EXTRA_KEY_LABELS, labels)
+                putStringArrayListExtra(EXTRA_KEY_LABELS, ArrayList<String>(labels))
             }
 
         fun createPostsIntent(
             context: Context,
             posts: Posts,
-            labels: ArrayList<String>,
+            labels: List<String>,
             isDraft: Boolean
         ): Intent =
             Intent(context, CreatePostsActivity::class.java).apply {
@@ -82,7 +81,7 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
                 }
                 putExtra(EXTRA_KEY_BLOG_ID, posts.blog!!.id)
                 putExtra(EXTRA_KEY_POSTS_ID, posts.id)
-                putExtra(EXTRA_KEY_LABELS, labels)
+                putStringArrayListExtra(EXTRA_KEY_LABELS, ArrayList<String>(labels))
             }
     }
 
@@ -186,10 +185,10 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val deleteBackupFile = DeleteBackupFile(cacheDir)
 
         val bloggerApiDataSource = BloggerApiDataSource()
-        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
+        val realmDataSource = RealmDataSource(getRealm())
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findPosts = FindPosts(postsRepository)
-        val preferenceDataSource = PreferenceDataSource()
+        val preferenceDataSource = PreferenceDataSource(applicationContext)
         val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
         val getCurrentUser = GetCurrentAccount(accountRepository)
         val getAccessToken = GetAccessToken(accountRepository)

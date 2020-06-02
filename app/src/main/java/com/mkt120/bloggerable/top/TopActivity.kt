@@ -31,7 +31,6 @@ import com.mkt120.bloggerable.repository.PostsRepository
 import com.mkt120.bloggerable.top.drawer.BlogListAdapter
 import com.mkt120.bloggerable.top.infodialog.BlogInfoDialogFragment
 import com.mkt120.bloggerable.usecase.*
-import com.mkt120.bloggerable.util.RealmManager
 import kotlinx.android.synthetic.main.activity_top.*
 
 class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDialog.OnClickListener,
@@ -60,8 +59,8 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
             presenter.onClickFab()
         }
 
-        val realmDataSource = RealmDataSource(RealmManager(getRealm()))
-        val preferenceDataSource = PreferenceDataSource()
+        val realmDataSource = RealmDataSource(getRealm())
+        val preferenceDataSource = PreferenceDataSource(applicationContext)
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
@@ -150,7 +149,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         return drawer_layout.isDrawerOpen(drawer_view)
     }
 
-    override fun showCreateScreen(blogId: String, labels: ArrayList<String>) {
+    override fun showCreateScreen(blogId: String, labels: List<String>) {
         val intent = CreatePostsActivity.createIntent(
             this@TopActivity,
             blogId,
@@ -162,7 +161,7 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         )
     }
 
-    override fun showEditScreen(posts: Posts, labels: ArrayList<String>, isDraft: Boolean) {
+    override fun showEditScreen(posts: Posts, labels: List<String>, isDraft: Boolean) {
         val i = CreatePostsActivity.createPostsIntent(
             this@TopActivity,
             posts,

@@ -2,14 +2,13 @@ package com.mkt120.bloggerable.repository
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mkt120.bloggerable.api.OauthResponse
-import com.mkt120.bloggerable.datasource.BloggerApiDataSource
-import com.mkt120.bloggerable.datasource.PreferenceDataSource
+import com.mkt120.bloggerable.datasource.DataSource
 import com.mkt120.bloggerable.model.Account
 import io.reactivex.Single
 
 class AccountRepository(
-    private val bloggerApiDataSource: BloggerApiDataSource,
-    private val preferenceDataSource: PreferenceDataSource
+    private val bloggerApiDataSource: DataSource.IBloggerApiDataSource,
+    private val preferenceDataSource: DataSource.IPreferenceDataSource
 ) : Repository.IAccountRepository {
     override fun getAllAccounts(): ArrayList<Account> = preferenceDataSource.getAccounts()
 
@@ -54,15 +53,20 @@ class AccountRepository(
     /**
      * リフレッシュトークン
      */
-    override fun requestRefresh(userId: String, refreshToken: String): Single<String> {
-        return Single.create { emitter ->
-            bloggerApiDataSource.refreshAccessToken(refreshToken).subscribe({ response ->
+    override fun requestRefresh(userId: String, refreshToken: String, now: Long): Single<String> {
+        return bloggerApiDataSource.refreshAccessToken(refreshToken).flatMap { response ->
+            Single.create<String> { emitter ->
                 // アクセストークン
                 val accessToken = response.access_token!!
-                val expiresIn = System.currentTimeMillis() + response.expires_in!! * 1000L
-                preferenceDataSource.saveAccessToken(userId, accessToken, refreshToken, expiresIn)
+                val expiresIn = now + response.expires_in!! * 1000L
+                preferenceDataSource.saveAccessToken(
+                    userId,
+                    accessToken,
+                    refreshToken,
+                    expiresIn
+                )
                 emitter.onSuccess(accessToken)
-            }, { t -> emitter.onError(t) })
+            }
         }
     }
 

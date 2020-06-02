@@ -1,7 +1,6 @@
 package com.mkt120.bloggerable
 
 import android.app.Application
-import com.mkt120.bloggerable.util.PreferenceManager
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
@@ -11,8 +10,6 @@ class BloggerableApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        PreferenceManager.init(this)
-
 
         //Realmの初期化
         Realm.init(this)
@@ -21,7 +18,7 @@ class BloggerableApplication : Application() {
         realm = Realm.getDefaultInstance()
     }
 
-    fun getRealm() :Realm {
+    fun getRealm(): Realm {
         return realm
     }
 }
