@@ -128,7 +128,7 @@ class AccountRepositoryTest {
         }
         val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
         test.updateLastBlogListRequest(stub, STUB_TOKEN_EXPIRED)
-        verify(preferenceDataSource).saveAccount(stub, STUB_TOKEN_EXPIRED)
+        verify(preferenceDataSource).updateLastBlogListRequest(stub, STUB_TOKEN_EXPIRED)
     }
 
     @Test
@@ -233,7 +233,7 @@ class AccountRepositoryTest {
         val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
         test.requestRefresh(STUB_USER_ID, STUB_TOKEN_REFRESH_1, STUB_NOW).test().assertNoErrors()
             .assertComplete()
-        verify(preferenceDataSource).saveAccessToken(
+        verify(preferenceDataSource).updateAccessToken(
             STUB_USER_ID,
             STUB_ACCESS_TOKEN,
             STUB_TOKEN_REFRESH_1,

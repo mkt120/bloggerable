@@ -19,7 +19,7 @@ class AccountRepository(
     }
 
     override fun updateLastBlogListRequest(account: Account, now: Long) {
-        preferenceDataSource.saveAccount(account, now)
+        preferenceDataSource.updateLastBlogListRequest(account, now)
     }
 
     override fun getCurrentAccount(): Account {
@@ -59,7 +59,7 @@ class AccountRepository(
                 // アクセストークン
                 val accessToken = response.access_token!!
                 val expiresIn = now + response.expires_in!! * 1000L
-                preferenceDataSource.saveAccessToken(
+                preferenceDataSource.updateAccessToken(
                     userId,
                     accessToken,
                     refreshToken,
@@ -76,7 +76,7 @@ class AccountRepository(
         expired: Long,
         refreshToken: String
     ): Account {
-        return preferenceDataSource.saveNewAccount(account, accessToken, expired, refreshToken)
+        return preferenceDataSource.addNewAccount(account, accessToken, expired, refreshToken)
     }
 
 }

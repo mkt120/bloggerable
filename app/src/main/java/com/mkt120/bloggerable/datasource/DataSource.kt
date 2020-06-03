@@ -63,15 +63,15 @@ interface DataSource {
     interface IPreferenceDataSource {
         fun getCurrentAccount(): Account?
         fun saveCurrentAccount(account: Account)
-        fun saveAccount(account: Account, lastBlogListRequest: Long)
-        fun saveNewAccount(
+        fun updateLastBlogListRequest(account: Account, lastBlogListRequest: Long)
+        fun addNewAccount(
             account: GoogleSignInAccount,
             accessToken: String,
             tokenExpiredDateMillis: Long,
             refreshToken: String
         ): Account
 
-        fun saveAccessToken(
+        fun updateAccessToken(
             id: String,
             accessToken: String,
             refreshToken: String,

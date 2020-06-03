@@ -25,49 +25,54 @@ class PreferenceDataSource(context: Context) : DataSource.IPreferenceDataSource 
         prefs.edit().putString(KEY_CURRENT_ACCOUNT_ID, account.getId()).apply()
     }
 
-    override fun saveNewAccount(
-        account: GoogleSignInAccount,
+    override fun addNewAccount(
+        googleAccount: GoogleSignInAccount,
         accessToken: String,
         tokenExpiredDateMillis: Long,
         refreshToken: String
     ): Account {
-        return saveNewAccount(
-            account,
-            accessToken,
-            tokenExpiredDateMillis,
-            refreshToken
-        )
+        val accounts = getAccounts()
+        var account = accounts.find { item -> item.getId() == googleAccount.id }
+        if (account != null) {
+            account.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
+        } else {
+            account = Account(googleAccount, accessToken, tokenExpiredDateMillis, refreshToken)
+            accounts.add(account)
+        }
+        prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
+        return account
     }
 
-    override fun saveAccessToken(
+    override fun updateAccessToken(
         id: String,
         accessToken: String,
         refreshToken: String,
         expired: Long
     ) {
-        val account = getAccount(id)
-        account?.let {
-            it.updateAccessToken(accessToken, refreshToken, expired)
-            saveAccount(it, accessToken, expired, refreshToken)
-        }
+        saveAccount(id, accessToken, refreshToken, expired, 0L)
     }
 
-    override fun saveAccount(account: Account, lastBlogListRequest: Long) {
-        val accounts = getAccounts()
-        val found = accounts.find { item -> item.getId() == account.getId() }
-        found?.updateLastBlogListRequest(lastBlogListRequest)
-        prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
+    override fun updateLastBlogListRequest(account: Account, lastBlogListRequest: Long) {
+        saveAccount(account.getId(), null, null, 0L, lastBlogListRequest)
     }
 
     private fun saveAccount(
-        account: Account,
-        accessToken: String,
-        tokenExpiredDateMillis: Long,
-        refreshToken: String
+        id: String,
+        accessToken: String? = null,
+        refreshToken: String? = null,
+        tokenExpiredDateMillis: Long = 0L,
+        lastBlogListRequest: Long = 0L
     ) {
         val accounts = getAccounts()
-        val found = accounts.find { item -> item.getId() == account.getId() }
-        found?.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
+        val account =
+            accounts.find { account -> account.getId() == id } ?: throw IllegalArgumentException()
+
+        if (lastBlogListRequest > 0) {
+            account.updateLastBlogListRequest(lastBlogListRequest)
+        }
+        if (!accessToken.isNullOrEmpty() && !refreshToken.isNullOrEmpty() && tokenExpiredDateMillis > 0) {
+            account.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
+        }
         prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()
     }
 
