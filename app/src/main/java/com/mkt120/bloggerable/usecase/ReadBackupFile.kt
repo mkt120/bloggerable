@@ -37,8 +37,8 @@ class ReadBackupFile(private val backupFileRepository: Repository.IBackupFileRep
         }
         val title = read.split(NEW_LINE_PATTERN)[0]
 
-        var html: String = if (read.split(NEW_LINE_PATTERN).size > 3) {
-            read.split(NEW_LINE_PATTERN)[2]
+        var html: String = if (read.split(NEW_LINE_PATTERN).size >= 3) {
+            read.split(NEW_LINE_PATTERN, 3)[2]
         } else {
             ""
         }

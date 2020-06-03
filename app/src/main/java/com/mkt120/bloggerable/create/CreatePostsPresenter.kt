@@ -50,7 +50,7 @@ class CreatePostsPresenter(
     override fun initialize() {
         posts?.let {
             view.setBlogTitle(it.title)
-            view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_COMPACT))
+            view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_LEGACY))
             it.labels?.let { labels ->
                 for (label in labels) {
                     addLabel(label)
@@ -114,7 +114,7 @@ class CreatePostsPresenter(
                         "backupPost title=${it.title}, html=${it.content}"
                     )
                     view.setBlogTitle(it.title)
-                    view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_COMPACT))
+                    view.setBlogContent(Html.fromHtml(it.content, Html.FROM_HTML_MODE_LEGACY))
                 }
             }
             CreatePostsContract.TYPE.DELETE_POST -> {
