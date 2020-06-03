@@ -14,7 +14,6 @@ class ReadBackupFile(private val backupFileRepository: Repository.IBackupFileRep
     }
 
     override fun execute(blogId: String, postId: String?): Posts? {
-        Log.i("ReadBackupFile", "execute blogId=$blogId, postId=$postId")
         var fileName = blogId.plus("_")
         if (!postId.isNullOrEmpty()) {
             fileName = fileName.plus(postId)

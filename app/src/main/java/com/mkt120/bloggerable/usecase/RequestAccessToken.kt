@@ -7,7 +7,10 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.mkt120.bloggerable.repository.Repository
 
-class RequestAccessToken(private val accountRepository: Repository.IAccountRepository) {
+class RequestAccessToken(
+    private val timeRepository: Repository.ITimeRepository,
+    private val accountRepository: Repository.IAccountRepository
+) {
 
     fun execute(intent: Intent?, onComplete: () -> Unit, onFailed: (Throwable) -> Unit) {
         val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)
@@ -18,7 +21,7 @@ class RequestAccessToken(private val accountRepository: Repository.IAccountRepos
             // アクセストークン
             // リフレッシュトークン
             // 有効期限
-            val expiresIn = System.currentTimeMillis() + (it.expires_in!! * 1000L)
+            val expiresIn = timeRepository.getCurrentTime() + (it.expires_in!! * 1000L)
             val newAccount = accountRepository.saveNewAccount(
                 account,
                 it.access_token!!,

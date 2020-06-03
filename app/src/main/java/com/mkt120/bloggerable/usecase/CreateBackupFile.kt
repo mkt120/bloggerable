@@ -1,6 +1,5 @@
 package com.mkt120.bloggerable.usecase
 
-import android.util.Log
 import com.mkt120.bloggerable.repository.Repository
 
 class CreateBackupFile(private val backupFileRepository: Repository.IBackupFileRepository) :
@@ -11,7 +10,6 @@ class CreateBackupFile(private val backupFileRepository: Repository.IBackupFileR
     }
 
     override fun execute(blogId: String, postId: String?, title: String, content: String) {
-        Log.i("CreateBackupFile", "execute blogId=$blogId, postId=$postId")
         var fileName = blogId.plus("_")
         if (!postId.isNullOrEmpty()) {
             fileName = fileName.plus(postId)
