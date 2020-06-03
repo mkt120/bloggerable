@@ -100,7 +100,7 @@ class BloggerApiDataSource : DataSource.IBloggerApiDataSource {
         status
     ).subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .map { response -> response.items }
+        .map { response -> response.items ?: ArrayList<Posts>()  }
 
     override fun updatePosts(
         accessToken: String,
