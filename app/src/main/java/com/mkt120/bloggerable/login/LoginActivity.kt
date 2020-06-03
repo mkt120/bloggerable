@@ -48,17 +48,18 @@ class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickL
         val preferenceDataSource = PreferenceDataSource(applicationContext)
         val accountRepository =
             AccountRepository(bloggerApiDataSource, preferenceDataSource)
-        val requestAccessToken = RequestAccessToken(accountRepository)
+        val timeRepository = TimeRepository()
+        val requestAccessToken = RequestAccessToken(timeRepository, accountRepository)
         val googleOauthApiDataSource = GoogleOauthApiDataSource(applicationContext)
         val googleAccountRepository =
             GoogleAccountRepository(preferenceDataSource, googleOauthApiDataSource)
         val authorizeGoogleAccount = AuthorizeGoogleAccount(googleAccountRepository)
         val realmDataSource = RealmDataSource(getRealm())
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
-        val timeRepository = TimeRepository()
         val getAccessToken = GetAccessToken(accountRepository, timeRepository)
         val getCurrentAccount = GetCurrentAccount(accountRepository)
-        val getAllBlogs = GetAllBlog(getAccessToken, accountRepository, blogsRepository, timeRepository)
+        val getAllBlogs =
+            GetAllBlog(getAccessToken, accountRepository, blogsRepository, timeRepository)
         presenter = LoginPresenter(
             this@LoginActivity,
             requestAccessToken,
