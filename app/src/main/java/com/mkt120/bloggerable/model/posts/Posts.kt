@@ -24,7 +24,7 @@ open class Posts(
 
     fun isChange(title: String, html: String): Boolean {
         val changeTitle = this.title != title
-        val fromHtml = HtmlCompat.fromHtml(content!!, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        val fromHtml = HtmlCompat.fromHtml(content!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
         val toHtml = HtmlCompat.toHtml(fromHtml, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
         val changeContent = toHtml != html
         return changeTitle || changeContent
