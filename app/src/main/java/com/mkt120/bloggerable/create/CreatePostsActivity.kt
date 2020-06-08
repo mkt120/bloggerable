@@ -19,6 +19,7 @@ import androidx.fragment.app.DialogFragment
 import com.mkt120.bloggerable.BaseActivity
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
+import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.model.posts.Posts
@@ -192,7 +193,9 @@ class CreatePostsActivity : BaseActivity(), Toolbar.OnMenuItemClickListener,
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findPosts = FindPosts(postsRepository)
         val preferenceDataSource = PreferenceDataSource(applicationContext)
-        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val googleOauthApiDataSource = GoogleOauthApiDataSource(applicationContext)
+        val accountRepository =
+            AccountRepository(googleOauthApiDataSource, bloggerApiDataSource, preferenceDataSource)
         val getCurrentUser = GetCurrentAccount(accountRepository)
         val timeRepository = TimeRepository()
         val getAccessToken = GetAccessToken(accountRepository, timeRepository)

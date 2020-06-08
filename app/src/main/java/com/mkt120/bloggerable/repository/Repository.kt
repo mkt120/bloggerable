@@ -1,13 +1,13 @@
 package com.mkt120.bloggerable.repository
 
 import android.content.Intent
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.mkt120.bloggerable.api.OauthResponse
+import com.mkt120.bloggerable.api.UserInfoResponse
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import io.reactivex.Completable
 import io.reactivex.Single
+import net.openid.appauth.AuthorizationResponse
 import java.io.File
 
 interface Repository {
@@ -22,10 +22,15 @@ interface Repository {
         fun getCurrentAccount(): Account
         fun getRefreshToken(id: String): String?
         fun getAccessToken(id: String, now: Long): Single<String>
-        fun requestAccessToken(serverAuthCode: String): Single<OauthResponse>
-        fun requestRefresh(userId: String, refreshToken: String, now: Long): Single<String>
+        fun requestUserInfo(accessToken: String): Single<UserInfoResponse>
+        fun requestRefresh(
+            userId: String,
+            refreshToken: String,
+            now: Long
+        ): Single<String>
+
         fun saveNewAccount(
-            account: GoogleSignInAccount,
+            id: String, name: String, photoUrl: String,
             accessToken: String,
             expired: Long,
             refreshToken: String
@@ -96,8 +101,13 @@ interface Repository {
     }
 
     interface IGoogleAccountRepository {
-        fun getSignInIntent(): Intent
+        fun getAuthorizeIntent():Intent
         fun getAccounts(): ArrayList<Account>
+        fun requestAccessToken(
+            response: AuthorizationResponse,
+            onResponse: (accessToken: String, refreshToken: String, expired: Long) -> Unit,
+            onFailed: (Throwable) -> Unit
+        )
     }
 
     interface IBackupFileRepository {

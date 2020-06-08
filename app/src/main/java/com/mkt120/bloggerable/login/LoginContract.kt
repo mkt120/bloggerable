@@ -9,7 +9,7 @@ interface LoginContract {
         fun showLoginButton()
         fun showBlogListScreen()
         fun showError(type: CreatePostsContract.TYPE)
-        fun requestSignIn(intent: Intent, requestCode: Int)
+        fun startActivityForResult(intent: Intent, requestCode: Int)
         fun showProgress()
         fun dismissProgress()
     }

@@ -20,6 +20,7 @@ import com.mkt120.bloggerable.create.ConfirmDialog
 import com.mkt120.bloggerable.create.CreatePostsActivity
 import com.mkt120.bloggerable.create.CreatePostsContract
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
+import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.datasource.RealmDataSource
 import com.mkt120.bloggerable.login.LoginActivity
@@ -66,10 +67,10 @@ class TopActivity : BaseActivity(), Toolbar.OnMenuItemClickListener, ConfirmDial
         val bloggerApiDataSource = BloggerApiDataSource()
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
         val timeRepository = TimeRepository()
-
+        val googleOauthApiDataSource = GoogleOauthApiDataSource(applicationContext)
         val postsRepository = PostsRepository(bloggerApiDataSource, realmDataSource)
         val findAllBlogs = FindAllBlog(blogsRepository)
-        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val accountRepository = AccountRepository(googleOauthApiDataSource, bloggerApiDataSource, preferenceDataSource)
         val saveCurrentAccount = SaveCurrentAccount(accountRepository)
         val getCurrentAccount = GetCurrentAccount(accountRepository)
         val getAccessToken = GetAccessToken(accountRepository, timeRepository)

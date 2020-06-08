@@ -42,14 +42,14 @@ interface CreatePostsContract {
             true
         ),
 
-        RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR(
+        GET_USER_INFO_FAILED(
             R.string.error_dialog_text,
             R.string.error_dialog_retry,
             R.string.error_dialog_finish,
             0,
             false
         ),
-        RECEIVE_OBTAIN_BLOG_ERROR(
+        GET_BLOG_INFO_FAILED(
             R.string.error_dialog_text,
             R.string.error_dialog_retry,
             R.string.error_dialog_finish,

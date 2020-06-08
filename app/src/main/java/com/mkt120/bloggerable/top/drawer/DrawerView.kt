@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.transition.TransitionManager
 import com.mkt120.bloggerable.R
 import com.mkt120.bloggerable.datasource.BloggerApiDataSource
+import com.mkt120.bloggerable.datasource.GoogleOauthApiDataSource
 import com.mkt120.bloggerable.datasource.PreferenceDataSource
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.repository.AccountRepository
@@ -44,9 +45,10 @@ class DrawerView(context: Context, attr: AttributeSet?) : LinearLayout(context, 
         }
         image_view_1.setOnClickListener(clickListener)
 
+        val googleOauthApiDataSource = GoogleOauthApiDataSource(context.applicationContext)
         val bloggerApiDataSource = BloggerApiDataSource()
         val preferenceDataSource = PreferenceDataSource(getContext())
-        val accountRepository = AccountRepository(bloggerApiDataSource, preferenceDataSource)
+        val accountRepository = AccountRepository(googleOauthApiDataSource, bloggerApiDataSource, preferenceDataSource)
         val getAllAccount = GetAllAccount(accountRepository)
         val getGoogleAccount = GetCurrentAccount(accountRepository)
         presenter = DrawerPresenter(this@DrawerView, getAllAccount, getGoogleAccount)

@@ -1,19 +1,20 @@
 package com.mkt120.bloggerable.datasource
 
 import android.content.Intent
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mkt120.bloggerable.api.BlogsResponse
-import com.mkt120.bloggerable.api.OauthResponse
+import com.mkt120.bloggerable.api.UserInfoResponse
 import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.model.blogs.Blogs
 import com.mkt120.bloggerable.model.posts.Posts
 import io.reactivex.Completable
 import io.reactivex.Single
+import net.openid.appauth.AuthorizationResponse
+import net.openid.appauth.TokenResponse
 
 interface DataSource {
     interface IBloggerApiDataSource {
-        fun requestAccessToken(authorizationCode: String): Single<OauthResponse>
-        fun refreshAccessToken(refreshToken: String): Single<OauthResponse>
+        fun requestUserInfo(accessToken: String): Single<UserInfoResponse>
+
         fun requestPostsList(
             accessToken: String,
             blogId: String
@@ -57,7 +58,19 @@ interface DataSource {
     }
 
     interface IGoogleOauthApiDataSource {
-        fun getSignInIntent(): Intent
+        fun getAuthorizeIntent(): Intent
+
+        fun requestAccessToken(
+            response: AuthorizationResponse,
+            onResponse: (accessToken: String, refreshToken: String, tokenExpired: Long) -> Unit,
+            onFailed: (exception: Throwable) -> Unit
+        )
+
+        fun refreshAccessToken(
+            refreshToken: String,
+            onResponse: (TokenResponse) -> Unit,
+            onFailed: (exception: Throwable) -> Unit
+        )
     }
 
     interface IPreferenceDataSource {
@@ -65,7 +78,9 @@ interface DataSource {
         fun saveCurrentAccount(account: Account)
         fun updateLastBlogListRequest(account: Account, lastBlogListRequest: Long)
         fun addNewAccount(
-            account: GoogleSignInAccount,
+            id: String,
+            name: String,
+            photoUrl: String,
             accessToken: String,
             tokenExpiredDateMillis: Long,
             refreshToken: String

@@ -1,12 +1,12 @@
 package com.mkt120.bloggerable.repository
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.mkt120.bloggerable.api.OauthResponse
+import com.mkt120.bloggerable.api.UserInfoResponse
 import com.mkt120.bloggerable.datasource.DataSource
 import com.mkt120.bloggerable.model.Account
 import io.reactivex.Single
 
 class AccountRepository(
+    private val googleOauthApiDataSource: DataSource.IGoogleOauthApiDataSource,
     private val bloggerApiDataSource: DataSource.IBloggerApiDataSource,
     private val preferenceDataSource: DataSource.IPreferenceDataSource
 ) : Repository.IAccountRepository {
@@ -44,39 +44,55 @@ class AccountRepository(
     }
 
     /**
-     * アクセストークンを取得
+     * アクセストークン・ユーザ情報を取得
      */
-    override fun requestAccessToken(serverAuthCode: String): Single<OauthResponse> {
-        return bloggerApiDataSource.requestAccessToken(serverAuthCode)
+    override fun requestUserInfo(accessToken: String): Single<UserInfoResponse> {
+        return bloggerApiDataSource.requestUserInfo(accessToken)
     }
 
     /**
-     * リフレッシュトークン
+     * アクセストークンをリフレッシュする
      */
-    override fun requestRefresh(userId: String, refreshToken: String, now: Long): Single<String> {
-        return bloggerApiDataSource.refreshAccessToken(refreshToken).flatMap { response ->
-            Single.create<String> { emitter ->
-                // アクセストークン
-                val accessToken = response.access_token!!
-                val expiresIn = now + response.expires_in!! * 1000L
-                preferenceDataSource.updateAccessToken(
-                    userId,
-                    accessToken,
-                    refreshToken,
-                    expiresIn
-                )
-                emitter.onSuccess(accessToken)
-            }
+    override fun requestRefresh(
+        userId: String,
+        refreshToken: String,
+        now: Long
+    ): Single<String> {
+        return Single.create<String> { emitter ->
+            googleOauthApiDataSource.refreshAccessToken(
+                refreshToken,
+                { response ->
+                    // アクセストークン
+                    val accessToken = response.accessToken!!
+                    val expiresIn = now + response.accessTokenExpirationTime!! * 1000L
+                    preferenceDataSource.updateAccessToken(
+                        userId,
+                        accessToken,
+                        refreshToken,
+                        expiresIn
+                    )
+                    emitter.onSuccess(accessToken)
+                },
+                {
+                    emitter.onError(it)
+                })
         }
     }
 
     override fun saveNewAccount(
-        account: GoogleSignInAccount,
+        id: String, name: String, photoUrl: String,
         accessToken: String,
         expired: Long,
         refreshToken: String
     ): Account {
-        return preferenceDataSource.addNewAccount(account, accessToken, expired, refreshToken)
+        return preferenceDataSource.addNewAccount(
+            id,
+            name,
+            photoUrl,
+            accessToken,
+            expired,
+            refreshToken
+        )
     }
 
 }

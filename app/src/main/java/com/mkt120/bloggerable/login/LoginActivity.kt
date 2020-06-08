@@ -46,23 +46,26 @@ class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickL
 
         val bloggerApiDataSource = BloggerApiDataSource()
         val preferenceDataSource = PreferenceDataSource(applicationContext)
-        val accountRepository =
-            AccountRepository(bloggerApiDataSource, preferenceDataSource)
-        val timeRepository = TimeRepository()
-        val requestAccessToken = RequestAccessToken(timeRepository, accountRepository)
         val googleOauthApiDataSource = GoogleOauthApiDataSource(applicationContext)
+        val accountRepository =
+            AccountRepository(googleOauthApiDataSource, bloggerApiDataSource, preferenceDataSource)
+        val timeRepository = TimeRepository()
         val googleAccountRepository =
             GoogleAccountRepository(preferenceDataSource, googleOauthApiDataSource)
+        val requestAccessToken =
+            RequestUserInfo(timeRepository, accountRepository, googleAccountRepository)
         val authorizeGoogleAccount = AuthorizeGoogleAccount(googleAccountRepository)
         val realmDataSource = RealmDataSource(getRealm())
         val blogsRepository = BlogRepository(bloggerApiDataSource, realmDataSource)
         val getAccessToken = GetAccessToken(accountRepository, timeRepository)
+        val saveCurrentAccount = SaveCurrentAccount(accountRepository)
         val getCurrentAccount = GetCurrentAccount(accountRepository)
         val getAllBlogs =
             GetAllBlog(getAccessToken, accountRepository, blogsRepository, timeRepository)
         presenter = LoginPresenter(
             this@LoginActivity,
             requestAccessToken,
+            saveCurrentAccount,
             getCurrentAccount,
             authorizeGoogleAccount,
             getAllBlogs
@@ -74,8 +77,8 @@ class LoginActivity : BaseActivity(), LoginContract.View, ConfirmDialog.OnClickL
         sign_in_button.visibility = View.VISIBLE
     }
 
-    override fun requestSignIn(intent: Intent, requestCode: Int) {
-        startActivityForResult(intent, requestCode)
+    override fun startActivityForResult(intent: Intent, requestCode: Int) {
+        super.startActivityForResult(intent, requestCode)
     }
 
     override fun showProgress() {

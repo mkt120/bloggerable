@@ -1,13 +1,12 @@
 package com.mkt120.bloggerable.repository
 
-import com.mkt120.bloggerable.api.OauthResponse
 import com.mkt120.bloggerable.datasource.DataSource
 import com.mkt120.bloggerable.model.Account
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import io.reactivex.Single
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 
 class AccountRepositoryTest {
@@ -29,8 +28,6 @@ class AccountRepositoryTest {
         private const val STUB_TOKEN_REFRESH_4 = "stubTokenRefresh4"
         private const val STUB_LAST_REQUEST_BLOG_LIST = 1000L
         private const val STUB_CURRENT_BLOG_ID = "stubCurrentBlogId"
-
-        private const val STUB_SERVER_AUTH_CODE = "stubServerAuthCode"
     }
 
     private val list = ArrayList<Account>().apply {
@@ -95,150 +92,127 @@ class AccountRepositoryTest {
         STUB_CURRENT_BLOG_ID
     )
 
+    private lateinit var googleOauthApiDataSource: DataSource.IGoogleOauthApiDataSource
+    private lateinit var mockBloggerApiDataSource: DataSource.IBloggerApiDataSource
+    private lateinit var preferenceDataSource: DataSource.IPreferenceDataSource
+
+    @Before
+    fun setUp() {
+        googleOauthApiDataSource = mock<DataSource.IGoogleOauthApiDataSource> {}
+        mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {}
+        preferenceDataSource = mock<DataSource.IPreferenceDataSource> {}
+    }
+
     @Test
     fun test() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
         val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
             on {
                 getAccounts()
             } doReturn (list)
         }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
+        )
         val ret = test.getAllAccounts()
         Assert.assertEquals(list, ret)
     }
 
     @Test
     fun setCurrentAccount() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
-        val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
-        }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
+        )
         test.setCurrentAccount(stub)
         verify(preferenceDataSource).saveCurrentAccount(stub)
     }
 
     @Test
     fun updateLastBlogListRequest() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
-        val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
-        }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
+        )
         test.updateLastBlogListRequest(stub, STUB_TOKEN_EXPIRED)
         verify(preferenceDataSource).updateLastBlogListRequest(stub, STUB_TOKEN_EXPIRED)
     }
 
     @Test
     fun getCurrentAccount() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
         val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
             on {
                 getCurrentAccount()
             } doReturn (stub)
         }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
+        )
         val ret = test.getCurrentAccount()
         Assert.assertEquals(stub, ret)
     }
 
     @Test
     fun getCurrentAccount2() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
         val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
             on {
                 getAccounts()
             } doReturn (list)
         }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
+        )
         val ret = test.getCurrentAccount()
         Assert.assertEquals(STUB_USER_ID_1, ret.getId())
     }
 
     @Test
     fun getRefreshToken() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
         val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
             on {
                 getAccount(STUB_USER_ID)
             } doReturn (stub)
         }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
+        )
         val ret = test.getRefreshToken(STUB_USER_ID)
         Assert.assertEquals(ret, stub.getRefreshToken())
     }
 
     @Test
     fun getAccessToken() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
         val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
             on {
                 getAccount(STUB_USER_ID)
             } doReturn (stub)
         }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
+        val test = AccountRepository(googleOauthApiDataSource, mockBloggerApiDataSource, preferenceDataSource)
         test.getAccessToken(STUB_USER_ID, 0).test().assertNoErrors().assertValue(STUB_ACCESS_TOKEN)
     }
 
     @Test
     fun getAccessToken2() {
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-        }
         val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
             on {
                 getAccount(STUB_USER_ID)
             } doReturn (stub)
         }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
-        test.getAccessToken(STUB_USER_ID, STUB_NOW).test().assertError(Exception::class.java)
-    }
-
-    @Test
-    fun requestAccessToken() {
-        val response = OauthResponse()
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-            on {
-                requestAccessToken(STUB_SERVER_AUTH_CODE)
-            } doReturn (Single.create { emitter -> emitter.onSuccess(response) })
-        }
-        val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
-            on {
-                getAccount(STUB_USER_ID)
-            } doReturn (stub)
-        }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
-        test.requestAccessToken(STUB_SERVER_AUTH_CODE).test().assertNoErrors().assertValue(response)
-    }
-
-    @Test
-    fun requestRefresh() {
-        // 面倒
-        val response = OauthResponse()
-        response.access_token = STUB_ACCESS_TOKEN
-        response.expires_in = 3600
-
-        val mockBloggerApiDataSource = mock<DataSource.IBloggerApiDataSource> {
-            on {
-                refreshAccessToken(STUB_TOKEN_REFRESH_1)
-            } doReturn (Single.create { emitter -> emitter.onSuccess(response) })
-        }
-        val preferenceDataSource = mock<DataSource.IPreferenceDataSource> {
-        }
-        val test = AccountRepository(mockBloggerApiDataSource, preferenceDataSource)
-        test.requestRefresh(STUB_USER_ID, STUB_TOKEN_REFRESH_1, STUB_NOW).test().assertNoErrors()
-            .assertComplete()
-        verify(preferenceDataSource).updateAccessToken(
-            STUB_USER_ID,
-            STUB_ACCESS_TOKEN,
-            STUB_TOKEN_REFRESH_1,
-            STUB_NOW + 3600 * 1000L
+        val test = AccountRepository(
+            googleOauthApiDataSource,
+            mockBloggerApiDataSource,
+            preferenceDataSource
         )
+        test.getAccessToken(STUB_USER_ID, STUB_NOW).test().assertError(Exception::class.java)
     }
 
     @Test

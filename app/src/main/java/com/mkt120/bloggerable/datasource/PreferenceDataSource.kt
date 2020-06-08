@@ -2,7 +2,6 @@ package com.mkt120.bloggerable.datasource
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.mkt120.bloggerable.model.Account
@@ -26,17 +25,26 @@ class PreferenceDataSource(context: Context) : DataSource.IPreferenceDataSource 
     }
 
     override fun addNewAccount(
-        googleAccount: GoogleSignInAccount,
+        id: String,
+        name: String,
+        photoUrl: String,
         accessToken: String,
         tokenExpiredDateMillis: Long,
         refreshToken: String
     ): Account {
         val accounts = getAccounts()
-        var account = accounts.find { item -> item.getId() == googleAccount.id }
+        var account = accounts.find { item -> item.getId() == id }
         if (account != null) {
             account.updateAccessToken(accessToken, refreshToken, tokenExpiredDateMillis)
         } else {
-            account = Account(googleAccount, accessToken, tokenExpiredDateMillis, refreshToken)
+            account = Account(
+                id,
+                name,
+                photoUrl,
+                accessToken,
+                tokenExpiredDateMillis,
+                refreshToken
+            )
             accounts.add(account)
         }
         prefs.edit().putString(KEY_ACCOUNTS, Gson().toJson(accounts)).apply()

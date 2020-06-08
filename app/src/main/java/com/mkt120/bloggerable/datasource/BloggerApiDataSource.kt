@@ -3,7 +3,7 @@ package com.mkt120.bloggerable.datasource
 import com.mkt120.bloggerable.ApiService
 import com.mkt120.bloggerable.BuildConfig
 import com.mkt120.bloggerable.api.BlogsResponse
-import com.mkt120.bloggerable.api.OauthResponse
+import com.mkt120.bloggerable.api.UserInfoResponse
 import com.mkt120.bloggerable.model.posts.Posts
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -21,17 +21,6 @@ class BloggerApiDataSource : DataSource.IBloggerApiDataSource {
         private const val TAG: String = "ApiManager"
 
         private const val BASE_URL: String = "https://www.googleapis.com/"
-
-        private const val GRANT_TYPE_AUTHORIZATION_CODE: String = "authorization_code"
-        private const val GRANT_TYPE_REFRESH_TOKEN: String = "refresh_token"
-
-        private const val ACCESS_TYPE: String = "offline"
-
-        // AuthorizationCode を使ってAccessTokenをもらう
-        const val CLIENT_ID = BuildConfig.BLOGGERABLE_CLIENT_ID
-
-        // AuthorizationCode を使ってAccessTokenをもらう
-        private const val CLIENT_SECRET = BuildConfig.BLOGGERABLE_CLIENT_SECRET
     }
 
     private val apiService: ApiService
@@ -52,32 +41,9 @@ class BloggerApiDataSource : DataSource.IBloggerApiDataSource {
         apiService = retrofit.create(ApiService::class.java)
     }
 
-    /**
-     * アクセストークン取得する
-     */
-    override fun requestAccessToken(
-        authorizationCode: String
-    ): Single<OauthResponse> = apiService.postAccessToken(
-        authorizationCode,
-        CLIENT_ID,
-        CLIENT_SECRET,
-        "",
-        GRANT_TYPE_AUTHORIZATION_CODE,
-        ACCESS_TYPE
-    ).subscribeOn(Schedulers.io())
-
-    /**
-     * トークンのリフレッシュ要求
-     */
-    override fun refreshAccessToken(
-        refreshToken: String
-    ): Single<OauthResponse> = apiService.refreshToken(
-        CLIENT_ID,
-        CLIENT_SECRET,
-        "",
-        refreshToken,
-        GRANT_TYPE_REFRESH_TOKEN
-    ).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+    override fun requestUserInfo(accessToken: String): Single<UserInfoResponse> =
+        apiService.userInfo("Bearer $accessToken").subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     override fun requestPostsList(
         accessToken: String,

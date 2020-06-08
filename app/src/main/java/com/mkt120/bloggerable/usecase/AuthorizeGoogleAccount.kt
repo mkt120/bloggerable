@@ -9,6 +9,5 @@ class AuthorizeGoogleAccount(private val googleAccountRepository: Repository.IGo
         return account.isNotEmpty()
     }
 
-    fun getSignInIntent(): Intent = googleAccountRepository.getSignInIntent()
-
+    fun getAuthorizeIntent(): Intent = googleAccountRepository.getAuthorizeIntent()
 }

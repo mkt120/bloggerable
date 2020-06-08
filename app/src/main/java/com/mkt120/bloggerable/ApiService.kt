@@ -1,8 +1,8 @@
 package com.mkt120.bloggerable
 
 import com.mkt120.bloggerable.api.BlogsResponse
-import com.mkt120.bloggerable.api.OauthResponse
 import com.mkt120.bloggerable.api.PostResponse
+import com.mkt120.bloggerable.api.UserInfoResponse
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
@@ -10,27 +10,8 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @FormUrlEncoded
-    @POST("oauth2/v4/token")
-    fun postAccessToken(
-        @Field("code") authorizationCode: String,
-        @Field("client_id") clientId: String,
-        @Field("client_secret") clientSecret: String,
-        @Field("redirect_uri") redirectUri: String,
-        @Field("grant_type") grantType: String,
-        @Field("access_type") accessType: String
-    ): Single<OauthResponse>
-
-    @FormUrlEncoded
-    @POST("oauth2/v4/token")
-    fun refreshToken(
-        @Field("client_id") clientId: String,
-        @Field("client_secret") clientSecret: String,
-        @Field("redirect_uri") redirectUri: String,
-        @Field("refresh_token") refreshToken: String,
-        @Field("grant_type") grantType: String
-    ): Single<OauthResponse>
-
+    @GET("oauth2/v3/userinfo")
+    fun userInfo(@Header("Authorization") accessToken: String?): Single<UserInfoResponse>
 
     @GET("blogger/v3/users/{userId}/blogs")
     fun listByUser(

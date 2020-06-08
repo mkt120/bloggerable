@@ -3,15 +3,17 @@ package com.mkt120.bloggerable.login
 import android.content.Intent
 import android.util.Log
 import com.mkt120.bloggerable.create.CreatePostsContract
+import com.mkt120.bloggerable.model.Account
 import com.mkt120.bloggerable.usecase.AuthorizeGoogleAccount
 import com.mkt120.bloggerable.usecase.GetAllBlog
-import com.mkt120.bloggerable.usecase.GetCurrentAccount
-import com.mkt120.bloggerable.usecase.RequestAccessToken
+import com.mkt120.bloggerable.usecase.RequestUserInfo
+import com.mkt120.bloggerable.usecase.UseCase
 
 class LoginPresenter(
     private val view: LoginContract.View,
-    private val requestAccessToken: RequestAccessToken,
-    private val getCurrentAccount: GetCurrentAccount,
+    private val requestUserInfo: RequestUserInfo,
+    private val saveCurrentAccount: UseCase.ISaveCurrentAccount,
+    private val getCurrentAccount: UseCase.IGetCurrentAccount,
     private val authorizeGoogleAccount: AuthorizeGoogleAccount,
     private val getAllBlogs: GetAllBlog
 ) : LoginContract.Presenter {
@@ -30,7 +32,7 @@ class LoginPresenter(
         }
         val currentAccount = getCurrentAccount.execute()!!
         if (currentAccount.isExpiredBlogList(System.currentTimeMillis())) {
-            requestAllBlogs()
+            requestAllBlogs(currentAccount)
         } else {
             view.showBlogListScreen()
         }
@@ -42,39 +44,39 @@ class LoginPresenter(
     }
 
     private fun requestSignIn() {
-        val signInIntent = authorizeGoogleAccount.getSignInIntent()
-        view.requestSignIn(signInIntent, REQUEST_SIGN_IN)
+        val intent = authorizeGoogleAccount.getAuthorizeIntent()
+        view.startActivityForResult(intent, REQUEST_SIGN_IN)
     }
 
-    /**
-     * サインイン処理完了後
-     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i(TAG, "onActivityResult")
-        if (requestCode == REQUEST_SIGN_IN) {
-            view.showProgress()
-            requestAccessToken.execute(data, {
-                Log.d(TAG, "requestAccessToken onComplete")
-                requestAllBlogs()
-            }, {
-                view.dismissProgress()
-                view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR)
-            })
+        if (requestCode == REQUEST_SIGN_IN && data != null) {
+            requestUserInfo.execute(data,
+                { account ->
+                    saveCurrentAccount.execute(account)
+                    Log.d(TAG, "requestAccessToken onComplete")
+                    requestAllBlogs(account)
+                }, {
+                    view.dismissProgress()
+                    view.showError(CreatePostsContract.TYPE.GET_USER_INFO_FAILED)
+                })
         }
     }
 
     override fun onConfirmPositiveClick(type: CreatePostsContract.TYPE) {
-        if (type == CreatePostsContract.TYPE.RECEIVE_OBTAIN_ACCESS_TOKEN_ERROR) {
-            requestSignIn()
-        } else if (type == CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR) {
-            requestAllBlogs()
+        if (type == CreatePostsContract.TYPE.GET_BLOG_INFO_FAILED) {
+            val account = getCurrentAccount.execute()
+            if (account != null) {
+                requestAllBlogs(account)
+                // アカウントがないはずないけど
+                return
+            }
         }
+        requestSignIn()
     }
 
-    fun requestAllBlogs() {
+    private fun requestAllBlogs(currentAccount: Account) {
         Log.i(TAG, "requestAllBlogs")
         view.showProgress()
-        val currentAccount = getCurrentAccount.execute()!!
         getAllBlogs.execute(
             currentAccount
         ).subscribe({
@@ -82,7 +84,7 @@ class LoginPresenter(
             view.showBlogListScreen()
         }, {
             view.dismissProgress()
-            view.showError(CreatePostsContract.TYPE.RECEIVE_OBTAIN_BLOG_ERROR)
+            view.showError(CreatePostsContract.TYPE.GET_BLOG_INFO_FAILED)
         })
     }
 }
