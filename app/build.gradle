@@ -27,7 +27,6 @@ android {
         ]
 
         buildConfigField "String", "BLOGGERABLE_CLIENT_ID", project.property("CLIENT_ID")
-        buildConfigField "String", "BLOGGERABLE_CLIENT_SECRET", project.property("CLIENT_SECRET")
         buildConfigField "String", "BLOGGERABLE_API_KEY", project.property("API_KEY_BLOGGER")
     }
     buildTypes {
