@@ -15,6 +15,7 @@
 
     <string name="drawer_menu_blog_list">ブログ一覧</string>
     <string name="drawer_menu_about_this_app">このアプリについて</string>
+    <string name="about_app_open_source_license">オープンソースライセンス</string>
 
     <string name="menu_publish">公開する</string>
     <string name="menu_delete_posts">削除する</string>

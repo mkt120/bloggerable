@@ -35,6 +35,8 @@
     <dimen name="about_app_icon_size">50dp</dimen>
     <dimen name="about_app_app_name">16sp</dimen>
     <dimen name="about_app_app_version">16sp</dimen>
+    <dimen name="about_app_app_oss">16sp</dimen>
+    <dimen name="about_app_app_oss_padding">5dp</dimen>
 
     <!-- 新規投稿画面 CreatePostScreen -->
     <dimen name="create_post_edit_text_title">18sp</dimen>
