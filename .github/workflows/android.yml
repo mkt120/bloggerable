@@ -22,7 +22,7 @@ jobs:
     - name: GoogleServiceJson
       env:
         JSON: ${{secrets.GOOGLE_SERVICE_JSON}}
-      run: echo $JSON | base64 --decode > ./app/google-services.json
+      run: echo $JSON | base64 -i --decode > ./app/google-services.json
     - name: Build with Gradle
       run: ./gradlew assembleDebug
     - name: Upload apk file
