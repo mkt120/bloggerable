@@ -20,7 +20,9 @@ jobs:
     - name: Add Permission
       run: chmod +x ./gradlew
     - name: GoogleServiceJson
-      run: echo ${{secrets.GOOGLE_SERVICE_JSON}} | base64 --decode > ./app/google-services.json
+      env:
+        JSON: ${{secrets.GOOGLE_SERVICE_JSON}}
+      run: echo $JSON | base64 --decode > ./app/google-services.json
     - name: Build with Gradle
       run: ./gradlew assembleDebug
     - name: Upload apk file
