@@ -12,6 +12,14 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.gms.oss.licenses.plugin'
 
 android {
+    signingConfigs {
+        release {
+            storePassword project.property('STORE_PASSWORD')
+            keyAlias project.property('KEY_ALIAS')
+            keyPassword project.property('KEY_PASSWORD')
+            storeFile file('../keys/release/release.keystore')
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
@@ -34,7 +42,8 @@ android {
             versionNameSuffix "-debug"
         }
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
